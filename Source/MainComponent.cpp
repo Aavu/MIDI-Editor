@@ -9,7 +9,9 @@
 #include "MainComponent.h"
 
 //==============================================================================
-MainComponent::MainComponent()
+MainComponent::MainComponent() :
+        synthAudioSource(keyboardState),
+        keyboardComponent(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
     // Make sure you set the size of the component after
     // you add any child components.
@@ -26,6 +28,9 @@ MainComponent::MainComponent()
     {
         // Specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
+        addAndMakeVisible(keyboardComponent);
+        setSize(600, 160);
+        startTimer(400);
     }
 }
 
@@ -45,6 +50,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     // but be careful - it will be called on the audio thread, not the GUI thread.
 
     // For more details, see the help for AudioProcessor::prepareToPlay()
+    synthAudioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -55,7 +61,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 
     // Right now we are not producing any data, in which case we need to clear the buffer
     // (to prevent the output of random noise)
-    bufferToFill.clearActiveBufferRegion();
+    synthAudioSource.getNextAudioBlock(bufferToFill);
 }
 
 void MainComponent::releaseResources()
@@ -64,6 +70,7 @@ void MainComponent::releaseResources()
     // restarted due to a setting change.
 
     // For more details, see the help for AudioProcessor::releaseResources()
+    synthAudioSource.releaseResources();
 }
 
 //==============================================================================
@@ -80,4 +87,10 @@ void MainComponent::resized()
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
+    keyboardComponent.setBounds(10,10, getWidth()-20, getHeight()-20);
+}
+
+void MainComponent::timerCallback() {
+    keyboardComponent.grabKeyboardFocus();
+    stopTimer();
 }
