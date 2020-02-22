@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.4">
+<JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.5">
   <MAINGROUP id="bseg78" name="MidiEditor">
     <GROUP id="{4D02D25C-6694-ABA1-B776-755A0F43BA73}" name="Source">
       <FILE id="SGJ7oP" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
@@ -50,7 +50,7 @@
     </CLION>
   </EXPORTFORMATS>
   <MODULES>
-    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
@@ -65,7 +65,7 @@
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
   <LIVE_SETTINGS>
-    <OSX/>
+    <OSX buildEnabled="1"/>
   </LIVE_SETTINGS>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
 </JUCERPROJECT>
