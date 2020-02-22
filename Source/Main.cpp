@@ -10,6 +10,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainComponent.h"
+#include "PianoRollComponent.h"
 
 //==============================================================================
 class MidiEditorApplication  : public JUCEApplication
@@ -27,7 +28,8 @@ public:
     {
         // This method is where you should put your application's initialisation code..
 
-        mainWindow.reset (new MainWindow (getApplicationName()));
+        //mainWindow.reset (new MainWindow (getApplicationName(), *this));
+        mainWindow.reset (new MainWindow ("PianoRollComponent", new PianoRollComponent(), *this));
     }
 
     void shutdown() override
@@ -60,10 +62,11 @@ public:
     class MainWindow    : public DocumentWindow
     {
     public:
-        MainWindow (String name)  : DocumentWindow (name,
+        MainWindow (String name, JUCEApplication& a)  : DocumentWindow (name,
                                                     Desktop::getInstance().getDefaultLookAndFeel()
                                                                           .findColour (ResizableWindow::backgroundColourId),
-                                                    DocumentWindow::allButtons)
+                                                    DocumentWindow::allButtons),
+            app(a)
         {
             setUsingNativeTitleBar (true);
             setContentOwned (new MainComponent(), true);
@@ -77,13 +80,30 @@ public:
 
             setVisible (true);
         }
-
+        
+        MainWindow (const String& name, Component* c, JUCEApplication& a)
+        : DocumentWindow (name, Desktop::getInstance().getDefaultLookAndFeel()
+                          .findColour (ResizableWindow::backgroundColourId),
+                          DocumentWindow::allButtons),
+            app (a)
+        {
+            setUsingNativeTitleBar (true);
+            setContentOwned (c, true);
+            
+            #if JUCE_ANDROID || JUCE_IOS
+            setFullScreen (true);
+            #else
+            setResizable (true, false);
+            setResizeLimits (300, 250, 10000, 10000);
+            centreWithSize (getWidth(), getHeight());
+            #endif
+            
+            setVisible (true);
+        }
+        
         void closeButtonPressed() override
         {
-            // This is called when the user tries to close this window. Here, we'll just
-            // ask the app to quit when this happens, but you can change this to do
-            // whatever you need.
-            JUCEApplication::getInstance()->systemRequestedQuit();
+            app.systemRequestedQuit();
         }
 
         /* Note: Be careful if you override any DocumentWindow methods - the base
@@ -94,6 +114,7 @@ public:
         */
 
     private:
+        JUCEApplication& app;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
     };
 
