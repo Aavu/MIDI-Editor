@@ -3,8 +3,15 @@
 <JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.5">
   <MAINGROUP id="bseg78" name="MidiEditor">
     <GROUP id="{4D02D25C-6694-ABA1-B776-755A0F43BA73}" name="Source">
-      <FILE id="VWPCpu" name="PianoRollComponent.h" compile="0" resource="0"
+      <FILE id="EzmspQ" name="PianoRollTableListModel.h" compile="0" resource="0"
+            file="Source/PianoRollTableListModel.h"/>
+      <FILE id="f7SsLj" name="PianoRollComponent.h" compile="0" resource="0"
             file="Source/PianoRollComponent.h"/>
+      <FILE id="el1DTU" name="PianoRollNote.h" compile="0" resource="0" file="Source/PianoRollNote.h"/>
+      <FILE id="Dp5wJF" name="PianoRollHeader.h" compile="0" resource="0"
+            file="Source/PianoRollHeader.h"/>
+      <FILE id="VWPCpu" name="PianoRollWindow.h" compile="0" resource="0"
+            file="Source/PianoRollWindow.h"/>
       <FILE id="SGJ7oP" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="BOWg84" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>

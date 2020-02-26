@@ -10,7 +10,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainComponent.h"
-#include "PianoRollComponent.h"
+#include "PianoRollWindow.h"
 
 //==============================================================================
 class MidiEditorApplication  : public JUCEApplication
@@ -29,7 +29,7 @@ public:
         // This method is where you should put your application's initialisation code..
 
         //mainWindow.reset (new MainWindow (getApplicationName(), *this));
-        mainWindow.reset (new MainWindow ("PianoRollComponent", new PianoRollComponent(), *this));
+        mainWindow.reset (new MainWindow ("PianoRollWindow", new PianoRollWindow(), *this));
     }
 
     void shutdown() override
