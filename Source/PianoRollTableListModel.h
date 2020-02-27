@@ -10,9 +10,78 @@
 
 #pragma once
 
+class PianoRollTableListBox: public TableListBox
+{
+public:
+    PianoRollTableListBox(const String& componentName = String(),
+                          TableListBoxModel* model = nullptr):
+        TableListBox(componentName, model)
+    {
+//        noteList = new Array<PianoRollNote*> [128];
+//        for (int i = 0; i < 128; i++) {
+//            noteList[i] = Array<PianoRollNote*>();
+//            noteList[i].insertMultiple(0, 0, 40);
+//        }
+        
+    }
+    
+//    ~PianoRollTableListBox()
+//    {
+//        delete noteList;
+//    }
+//
+//    PianoRollNote* getNote(int row, int col)
+//    {
+//        return noteList[row][col];
+//    }
+private:
+    // limitation: one box links to only one note
+    //Array<PianoRollNote*> *noteList;
+};
+
 class PianoRollTableListBoxModel: public TableListBoxModel
 {
 public:
+    PianoRollTableListBoxModel()
+    {
+        noteList = new Array<PianoRollNote*> [128];
+        for (int i = 0; i < 128; i++) {
+            noteList[i] = Array<PianoRollNote*>();
+            noteList[i].insertMultiple(0, 0, 40);
+        }
+    }
+    
+    ~PianoRollTableListBoxModel()
+    {
+        for (int i = 0; i < 128; i++)
+            for (int j = 0; j < 40; j++)
+                if (getNote(i, j))
+                    deleteNote(i, j);
+        delete [] noteList;
+    }
+    
+    PianoRollNote* getNote(int row, int col)
+    {
+        //std::cout << "get Note: " << row << ' ' << col << std::endl;
+        return noteList[row][col];
+    }
+
+    void addNote(int row, int col, PianoRollNote* pianoRollNote)
+    {
+        //std::cout << "add Note: " << row << ' ' << col << std::endl;
+        deleteNote(row, col);
+        noteList[row].set(col, pianoRollNote);
+    }
+    
+    void deleteNote(int row, int col)
+    {
+        //std::cout << "delete Note: " << row << ' ' << col << std::endl;
+        if (getNote(row, col)) {
+            delete getNote(row, col);
+            noteList[row].set(col, 0);
+        }
+    }
+    
     // The following methods implement the necessary virtual functions from ListBoxModel,
     // telling the listbox how many rows there are, painting them, etc.
     int getNumRows() override
@@ -52,7 +121,7 @@ public:
         
         // same as above...
         if (pianoRollBox == nullptr)
-            pianoRollBox = new PianoRollComponent (*this);
+            pianoRollBox = new PianoRollComponent (*this, rowNumber, columnId);
         
         pianoRollBox->setRowAndColumn (rowNumber, columnId, isRowSelected);
         return pianoRollBox;
@@ -70,12 +139,15 @@ public:
     //        return rows.joinIntoString (", ");
     //    }
 private:
+    Array<PianoRollNote*> *noteList;
+    
     class PianoRollComponent  : public Component
     {
     public:
-        PianoRollComponent (PianoRollTableListBoxModel& td)  : owner (td)
+        PianoRollComponent (PianoRollTableListBoxModel& td, int row_n, int col_n)  : owner (td)
         {
-            isSelected = false;
+            row = row_n;
+            columnId = col_n;
         }
         
         void mouseDown (const MouseEvent& event) override
@@ -83,10 +155,14 @@ private:
             // single click on the label should simply select the row
             //owner.table.selectRowsBasedOnModifierKeys (row, event.mods, false);
             std::cout << row << ' ' << columnId << std::endl;
-            if (isSelected)
-                isSelected = false;
+            if (owner.getNote(row, columnId))
+            {
+                owner.deleteNote(row, columnId);
+            }
             else
-                isSelected = true;
+            {
+                owner.addNote(row, columnId, new PianoRollNote(0,0));
+            }
             repaint();
         }
         
@@ -109,7 +185,8 @@ private:
             g.drawRect(g.getClipBounds().toFloat(), 0.5);
             
             g.setColour (Colours::green);
-            if (isSelected) {
+            if (owner.getNote(row, columnId)) {
+                //std::cout << "draw " << row << ' ' << columnId << std::endl;
                 g.fillRoundedRectangle(g.getClipBounds().toFloat(), 3);
             }
             
@@ -118,8 +195,7 @@ private:
         
     private:
         PianoRollTableListBoxModel& owner;
-        HashMap<int, HashMap<int, PianoRollNote*>> noteList;
         int row, columnId;
-        bool isSelected;
+        //bool isSelected;
     };
 };

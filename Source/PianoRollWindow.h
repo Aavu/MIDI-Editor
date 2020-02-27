@@ -52,7 +52,6 @@ public:
     {
         setLookAndFeel (&otherLookAndFeel);
         
-        
         header.setColour (TextButton::buttonColourId, Colours::cornflowerblue);
         header.setButtonText ("Ticks");
         addAndMakeVisible (header);
@@ -61,13 +60,13 @@ public:
         sidebar.setButtonText ("Piano Keys");
         addAndMakeVisible (sidebar);
         
-        limeContent.setColour (TextButton::buttonColourId, Colours::lime);
-        addAndMakeVisible (limeContent);
-        
         // set border
         table.setColour (ListBox::outlineColourId, Colours::grey);
         table.setOutlineThickness (2);
         addAndMakeVisible(table);
+        
+        limeContent.setColour (TextButton::buttonColourId, Colours::lime);
+        addAndMakeVisible (limeContent);
         
         table.setModel (&pianoRollTableListBoxModel);
         
@@ -117,9 +116,9 @@ private:
     PianoRollHeader header;
     TextButton sidebar;
     
-    PianoRollNote limeContent;
+    PianoRollNote limeContent {0,1,0,0}; // a sample note
     
-    TableListBox table  { "D+D source", nullptr };
+    PianoRollTableListBox table  { "D+D source", nullptr };
     PianoRollTableListBoxModel pianoRollTableListBoxModel;
     
     //==============================================================================
