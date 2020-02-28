@@ -10,7 +10,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainComponent.h"
-#include "PianoRollWindow.h"
+#include "PianoRollComponent.h"
 
 //==============================================================================
 class MidiEditorApplication  : public JUCEApplication

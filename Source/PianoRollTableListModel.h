@@ -10,33 +10,41 @@
 
 #pragma once
 
+class NoteList;
+class SelectedNoteList;
+
 class PianoRollTableListBox: public TableListBox
 {
 public:
     PianoRollTableListBox(const String& componentName = String(),
                           TableListBoxModel* model = nullptr):
         TableListBox(componentName, model)
+    {}
+    
+    void setNoteList(NoteList *noteList_n)
     {
-//        noteList = new Array<PianoRollNote*> [128];
-//        for (int i = 0; i < 128; i++) {
-//            noteList[i] = Array<PianoRollNote*>();
-//            noteList[i].insertMultiple(0, 0, 40);
-//        }
-        
+        noteList = noteList_n;
     }
     
-//    ~PianoRollTableListBox()
-//    {
-//        delete noteList;
-//    }
-//
-//    PianoRollNote* getNote(int row, int col)
-//    {
-//        return noteList[row][col];
-//    }
+    void setSelectedNoteList(SelectedNoteList *selected_n)
+    {
+        selected = selected_n;
+    }
+
+    bool keyPressed(const KeyPress &     key) override
+    {
+        if (key.getKeyCode() == 127) // delete key
+        {
+            selected->removeSelectedNotes();
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 private:
-    // limitation: one box links to only one note
-    //Array<PianoRollNote*> *noteList;
+    NoteList                    *noteList;
+    SelectedNoteList            *selected;
 };
 
 class PianoRollTableListBoxModel: public TableListBoxModel
@@ -44,42 +52,20 @@ class PianoRollTableListBoxModel: public TableListBoxModel
 public:
     PianoRollTableListBoxModel()
     {
-        noteList = new Array<PianoRollNote*> [128];
-        for (int i = 0; i < 128; i++) {
-            noteList[i] = Array<PianoRollNote*>();
-            noteList[i].insertMultiple(0, 0, 40);
-        }
     }
     
     ~PianoRollTableListBoxModel()
     {
-        for (int i = 0; i < 128; i++)
-            for (int j = 0; j < 40; j++)
-                if (getNote(i, j))
-                    deleteNote(i, j);
-        delete [] noteList;
     }
     
-    PianoRollNote* getNote(int row, int col)
+    void setNoteList(NoteList *noteList_n)
     {
-        //std::cout << "get Note: " << row << ' ' << col << std::endl;
-        return noteList[row][col];
-    }
-
-    void addNote(int row, int col, PianoRollNote* pianoRollNote)
-    {
-        //std::cout << "add Note: " << row << ' ' << col << std::endl;
-        deleteNote(row, col);
-        noteList[row].set(col, pianoRollNote);
+        noteList = noteList_n;
     }
     
-    void deleteNote(int row, int col)
+    void setSelectedNoteList(SelectedNoteList *selected_n)
     {
-        //std::cout << "delete Note: " << row << ' ' << col << std::endl;
-        if (getNote(row, col)) {
-            delete getNote(row, col);
-            noteList[row].set(col, 0);
-        }
+        selected = selected_n;
     }
     
     // The following methods implement the necessary virtual functions from ListBoxModel,
@@ -139,7 +125,8 @@ public:
     //        return rows.joinIntoString (", ");
     //    }
 private:
-    Array<PianoRollNote*> *noteList;
+    NoteList                            *noteList;
+    SelectedNoteList                    *selected;
     
     class PianoRollComponent  : public Component
     {
@@ -157,11 +144,13 @@ private:
             std::cout << row << ' ' << columnId << std::endl;
             if (owner.getNote(row, columnId))
             {
-                owner.deleteNote(row, columnId);
+                //owner.deleteNote(row, columnId); // do not delete
             }
             else
             {
-                owner.addNote(row, columnId, new PianoRollNote(0,0));
+                PianoRollNote* newNote = new PianoRollNote(0,0);
+                owner.addNote(row, columnId, newNote);
+                owner.addSelectedNotes(newNote);
             }
             repaint();
         }
@@ -196,6 +185,5 @@ private:
     private:
         PianoRollTableListBoxModel& owner;
         int row, columnId;
-        //bool isSelected;
     };
 };

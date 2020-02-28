@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    PianoRollWindow.h
+    PianoRollComponent.h
     Created: 22 Feb 2020 6:06:34pm
     Author:  Jiawen Huang
 
@@ -21,7 +21,7 @@ class PianoRollListBox;
 
 // init setting
 const int midiNoteNum = 128;
-const int tickNum = 20;
+const int tickNum = 40;
 const int noteHeight = 10;
 const int noteWidth = 40;
 
@@ -45,7 +45,7 @@ public:
 };
 
 //==============================================================================
-class PianoRollWindow   : public Component, public DragAndDropContainer
+class PianoRollWindow   : public Component
 {
 public:
     PianoRollWindow()
@@ -65,10 +65,12 @@ public:
         table.setOutlineThickness (2);
         addAndMakeVisible(table);
         
-        limeContent.setColour (TextButton::buttonColourId, Colours::lime);
-        addAndMakeVisible (limeContent);
+        pianoRollTableListBoxModel.setNoteList(&noteList);
+        pianoRollTableListBoxModel.setSelectedNoteList(&selectedNoteList);
         
         table.setModel (&pianoRollTableListBoxModel);
+        table.setNoteList(&noteList);
+        table.setSelectedNoteList(&selectedNoteList);
         
         // add columns
         for (int i = 1; i <= tickNum; i++)
@@ -103,11 +105,21 @@ public:
         auto headerFooterHeight = 20;
         header.setBounds (area.removeFromTop    (headerFooterHeight));
         
-        limeContent.setBounds       (sidebarWidth, headerFooterHeight, noteWidth, noteHeight);
-        
         table.setBounds(sidebarWidth, headerFooterHeight, area.getWidth(), area.getHeight());
         table.setRowHeight(noteHeight);
     }
+    
+//    bool keyPressed(const KeyPress &     key) override
+//    {
+//        if (key.getKeyCode() == 127) // delete key
+//        {
+//            selectedNotes.removeNotes();
+//            return true;
+//        }
+//        else {
+//            return false;
+//        }
+//    }
     
 private:
     
@@ -116,10 +128,11 @@ private:
     PianoRollHeader header;
     TextButton sidebar;
     
-    PianoRollNote limeContent {0,1,0,0}; // a sample note
-    
     PianoRollTableListBox table  { "D+D source", nullptr };
     PianoRollTableListBoxModel pianoRollTableListBoxModel;
+    
+    NoteList                            noteList;
+    SelectedNoteList                    selected;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PianoRollWindow)
