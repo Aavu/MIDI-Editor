@@ -65,9 +65,14 @@ public:
         table.setOutlineThickness (2);
         addAndMakeVisible(table);
         
+        // pass noteList and selectedNoteList to model
+        // model needs to check noteList when drawing
+        // model respond to mouse events
         pianoRollTableListBoxModel.setNoteList(&noteList);
         pianoRollTableListBoxModel.setSelectedNoteList(&selectedNoteList);
         
+        // pass noteList and selectedNoteList to table
+        // table respond to mouse events
         table.setModel (&pianoRollTableListBoxModel);
         table.setNoteList(&noteList);
         table.setSelectedNoteList(&selectedNoteList);
@@ -132,7 +137,7 @@ private:
     PianoRollTableListBoxModel pianoRollTableListBoxModel;
     
     NoteList                            noteList;
-    SelectedNoteList                    selected;
+    SelectedNoteList                    selectedNoteList {&noteList};
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PianoRollWindow)

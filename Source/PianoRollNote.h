@@ -114,6 +114,13 @@ public:
         }
     }
     
+    void deleteNote(PianoRollNote *noteToBeRemoved)
+    {
+        int row = noteToBeRemoved->getRow();
+        int col = noteToBeRemoved->getColumn();
+        deleteNote(row, col);
+    }
+    
 private:
     Array<PianoRollNote*>               *noteList;
 };
@@ -121,18 +128,24 @@ private:
 class SelectedNoteList
 {
 public:
-    SelectedNoteList()
+    SelectedNoteList(NoteList* noteList_n)
     {
-        // do nothing
+        selected = new Array<PianoRollNote*> ();
+        noteList = noteList_n;
     }
     ~SelectedNoteList()
     {
         selected->clear();
         delete selected;
     }
-    void addSelectedNotes(PianoRollNote* newNote)
+    void selectOneNote(PianoRollNote* newNote)
     {
         selected->clear();
+        selected->add(newNote);
+    }
+    
+    void addSelectedNotes(PianoRollNote* newNote)
+    {
         selected->add(newNote);
     }
     
