@@ -12,7 +12,10 @@
 #include "TransportBarComponent.h"
 
 //==============================================================================
-TransportBarComponent::TransportBarComponent(): playBtn("play"), stopBtn("stop")
+TransportBarComponent::TransportBarComponent() :
+    playBtn("play"),
+    stopBtn("stop"),
+    player(nullptr)
 {
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
@@ -24,6 +27,7 @@ TransportBarComponent::TransportBarComponent(): playBtn("play"), stopBtn("stop")
     stopBtn.setEnabled(false);
     addAndMakeVisible(&playBtn);
     addAndMakeVisible(&stopBtn);
+
 }
 
 TransportBarComponent::~TransportBarComponent()
@@ -48,11 +52,15 @@ void TransportBarComponent::playBtnClicked()
 {
     playBtn.setButtonText("pause");
     stopBtn.setEnabled(true);
-    
+    player->play();
 }
 
 void TransportBarComponent::stopBtnClicked()
 {
     stopBtn.setEnabled(false);
     playBtn.setButtonText("play");
+}
+
+void TransportBarComponent::init(PlayerComponent* playerComponent) {
+    player = playerComponent;
 }

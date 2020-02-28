@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "PlayerComponent.h"
 
 //==============================================================================
 /*
@@ -24,10 +25,14 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 
+    void init(PlayerComponent* playerComponent);
+
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TransportBarComponent)
     TextButton playBtn;
     TextButton stopBtn;
     void playBtnClicked();
     void stopBtnClicked();
+
+    PlayerComponent *player = nullptr;
 };

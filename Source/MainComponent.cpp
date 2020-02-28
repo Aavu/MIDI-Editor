@@ -31,6 +31,10 @@ MainComponent::MainComponent()
         // Specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
     }
+
+    // Create Player
+    player = new PlayerComponent();
+    transportBar.init(player);
 }
 
 MainComponent::~MainComponent()
@@ -124,19 +128,28 @@ void MainComponent::handleFileOpen() {
         }
         const MidiMessageSequence* sequence = midiFile.getTrack(0);
         midiFile.convertTimestampTicksToSeconds();
-        auto lastTime = midiFile.getLastTimestamp();
-        std::cout << lastTime << std::endl;
-        int i = 0;
-        double time = 0;
-        while(time < lastTime) {
-            juce::MidiMessageSequence::MidiEventHolder* holder = sequence->getEventPointer(i);
-            MidiMessage msg = holder->message;
-            int noteNumber = msg.getNoteNumber();
-            String note = msg.getMidiNoteName(noteNumber, true, true, 3);
-            time = msg.getTimeStamp();
-            std::cout << note << "\t" << time << "\t" << msg.getFloatVelocity() << std::endl;
-            i++;
-        }
+
+
+        // Add sequence to player
+
+        player->setMidiMessageSequence(sequence);
+
+
+
+
+//        auto lastTime = midiFile.getLastTimestamp();
+//        std::cout << lastTime << std::endl;
+//        int i = 0;
+//        double time = 0;
+//        while(time < lastTime) {
+//            juce::MidiMessageSequence::MidiEventHolder* holder = sequence->getEventPointer(i);
+//            MidiMessage msg = holder->message;
+//            int noteNumber = msg.getNoteNumber();
+//            String note = msg.getMidiNoteName(noteNumber, true, true, 3);
+//            time = msg.getTimeStamp();
+//            std::cout << note << "\t" << time << "\t" << msg.getFloatVelocity() << std::endl;
+//            i++;
+//        }
         delete stream;
     }
 }

@@ -11,6 +11,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Components/TransportBarComponent.h"
 #include "Components/Menu.h"
+#include "Components/PlayerComponent.h"
 
 //==============================================================================
 /*
@@ -42,6 +43,8 @@ private:
     TransportBarComponent transportBar;
     Menu menu;
     MidiFile midiFile;
+
+    PlayerComponent* player;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
