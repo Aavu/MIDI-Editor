@@ -56,6 +56,10 @@ public:
         somethingIsBeingDraggedOver = false;
         repaint();
     }
+    void mouseEnter (const MouseEvent& event) override
+    {
+        
+    }
 private:
     String message  { "Drag-and-drop some rows from the top-left box onto this component!\n\n"
         "You can also drag-and-drop files and text from other apps"};

@@ -73,7 +73,7 @@ public:
     // telling the listbox how many rows there are, painting them, etc.
     int getNumRows() override
     {
-        return 128;
+        return Globals::midiNoteNum;
     }
     
     // This is overloaded from TableListBoxModel, and should fill in the background of the whole row
@@ -123,7 +123,7 @@ private:
             }
             else
             {
-                PianoRollNote* newNote = new PianoRollNote(row,columnId);
+                PianoRollNote* newNote = new PianoRollNote(row,columnId,getBounds());
                 owner.noteList->addNote(row, columnId, newNote);
                 owner.selected->selectOneNote(newNote);
             }
@@ -142,9 +142,9 @@ private:
             
             g.drawRect(g.getClipBounds().toFloat(), 0.5);
             
-            g.setColour (Colours::green);
-            if (owner.noteList->getNote(row, columnId)) {
-                g.fillRoundedRectangle(g.getClipBounds().toFloat(), 3);
+            PianoRollNote* curNote = owner.noteList->getNote(row, columnId);
+            if (curNote) {
+                curNote->paintButton(g, false, false);
             }
             
             g.setColour (Colours::black);

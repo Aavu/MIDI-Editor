@@ -20,13 +20,35 @@ class NoteMessage {
 class PianoRollNote: public TextButton
 {
 public:
-    PianoRollNote(int row_n, int column_n, int length_n = 1, int offset_n = 0, NoteMessage *noteMessage_n = 0):
-        row(row_n), column(column_n), offset(offset_n), length(length_n), noteMessage(noteMessage_n)
-    {}
+    PianoRollNote(int row_n, int column_n, Rectangle<int> bounds, int length_n = 1, int velocity_n = Globals::midiNoteNum, int offset_n = 0, NoteMessage *noteMessage_n = 0):
+        row(row_n), column(column_n),
+        offset(offset_n), length(length_n),
+        velocity(velocity_n), noteMessage(noteMessage_n),
+        border(0)
+    {
+        setBounds(bounds);
+        border = new ResizableBorderComponent(this, NULL);
+    }
     ~PianoRollNote()
     {
         if (noteMessage)
             delete noteMessage;
+        if (border)
+            delete border;
+    }
+    
+    void resized() override
+    {
+        // TODO: not working now
+        if (border)
+            border->setBounds(0,0,getWidth(),getHeight());
+        //border->setBorderThickness (BorderSize<int>(3));
+        //border->setVisible(1);
+    }
+    
+    void mouseEnter (const MouseEvent& event) override
+    {
+        
     }
     
     int getRow()
@@ -50,6 +72,12 @@ public:
         return noteMessage;
     }
     
+    void paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+    {
+        g.setColour (Colours::green);
+        g.fillRoundedRectangle(g.getClipBounds().toFloat(), 3);
+    }
+    
 //    void mouseDown (const MouseEvent& e)
 //    {
 //        myDragger.startDraggingComponent (this, e);
@@ -65,11 +93,13 @@ private:
     int                 column;                       // idx of column (0~inf)
     int                 offset;
     int                 length;                      // relative length (1 means 1 quarter note)
+    int                 velocity;
     
     NoteMessage         *noteMessage;
     
     // dragger
     ComponentDragger myDragger;
+    ResizableBorderComponent* border;
 };
 
 class NoteList
@@ -77,16 +107,16 @@ class NoteList
 public:
     NoteList()
     {
-        noteList = new Array<PianoRollNote*> [128];
-        for (int i = 0; i < 128; i++) {
+        noteList = new Array<PianoRollNote*> [Globals::midiNoteNum];
+        for (int i = 0; i < Globals::midiNoteNum; i++) {
             noteList[i] = Array<PianoRollNote*>();
             noteList[i].insertMultiple(0, 0, 40);
         }
     }
     ~NoteList()
     {
-        for (int i = 0; i < 128; i++)
-            for (int j = 0; j < 40; j++)
+        for (int i = 0; i < Globals::midiNoteNum; i++)
+            for (int j = 0; j < Globals::tickNum; j++)
                 if (getNote(i, j))
                     deleteNote(i, j);
         delete [] noteList;
