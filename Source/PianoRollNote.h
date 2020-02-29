@@ -72,7 +72,7 @@ public:
         return noteMessage;
     }
     
-    void paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+    void paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
         g.setColour (Colours::green);
         g.fillRoundedRectangle(g.getClipBounds().toFloat(), 3);
