@@ -26,7 +26,7 @@ public:
         velocity(velocity_n), noteMessage(noteMessage_n),
         border(0)
     {
-        setBounds(bounds);
+        //setBounds(bounds);
         border = new ResizableBorderComponent(this, NULL);
     }
     ~PianoRollNote()
@@ -48,6 +48,7 @@ public:
     
     void updateBounds(Rectangle<int> bd_n)
     {
+        std::cout << "updatebounds: " << bd_n.getX() << ' ' << bd_n.getY() << std::endl;
         setBounds(bd_n);
         repaint();
     }
@@ -80,6 +81,7 @@ public:
     
     void paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
+        
         g.setColour (Colours::green);
         g.fillRoundedRectangle(g.getClipBounds().toFloat(), 3);
     }

@@ -73,6 +73,7 @@ public:
         }
         
         pianoRollBox->setRowAndColumn (rowNumber, columnId, bd, isRowSelected);
+        
         return pianoRollBox;
     }
     
@@ -90,9 +91,9 @@ private:
             columnId = col_n;
             bd = bd_n;
             
-            addAndMakeVisible(limeContent);
-            limeContent.setColour (TextButton::buttonColourId, Colours::red);
-            limeContent.setBounds(-10,-5,20,10);
+//            addAndMakeVisible(limeContent);
+//            limeContent.setColour (TextButton::buttonColourId, Colours::red);
+//            limeContent.setBounds(-10,-5,20,10);
         }
         
         void mouseDown (const MouseEvent& event) override
@@ -118,18 +119,23 @@ private:
             columnId = newColumn;
             bd = bd_n;
             
-            if (owner.getNote(row, columnId))
-            {
-                PianoRollNote* curNote = owner.getNote(row, columnId);
-                curNote->updateBounds(bd);
-            }
-            repaint();
+//            if (owner.getNote(row, columnId))
+//            {
+//                PianoRollNote* curNote = owner.getNote(row, columnId);
+//                curNote->updateBounds(bd);
+//            }
         }
         
         void paint (Graphics& g) override
         {
             g.setColour (Colours::grey);
             g.drawRect(g.getClipBounds().toFloat(), 0.5);
+            std::cout << "paint called " << row << ' ' << columnId << " - " << getBounds().getX() << ' ' << getBounds().getY() << std::endl;
+            if (owner.getNote(row, columnId))
+            {
+                PianoRollNote* curNote = owner.getNote(row, columnId);
+                curNote->updateBounds(bd);
+            }
         }
         
     private:
