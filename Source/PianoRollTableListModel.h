@@ -68,10 +68,9 @@ public:
         auto* pianoRollBox = static_cast<NoteComponent*> (existingComponentToUpdate);
         Rectangle<int> bd = getCellPosition(columnId, rowNumber, true);
         
-        if (pianoRollBox == nullptr) {
+        if (pianoRollBox == nullptr)
             pianoRollBox = new NoteComponent (*this, rowNumber, columnId, bd);
-        }
-        
+
         pianoRollBox->setRowAndColumn (rowNumber, columnId, bd, isRowSelected);
         
         return pianoRollBox;
@@ -91,6 +90,12 @@ private:
             columnId = col_n;
             bd = bd_n;
             
+            if (owner.getNote(row, columnId))
+            {
+                PianoRollNote* curNote = owner.getNote(row, columnId);
+                addAndMakeVisible(curNote);
+            }
+            
 //            addAndMakeVisible(limeContent);
 //            limeContent.setColour (TextButton::buttonColourId, Colours::red);
 //            limeContent.setBounds(-10,-5,20,10);
@@ -108,13 +113,17 @@ private:
                 PianoRollNote* newNote = new PianoRollNote(row,columnId,bd);
                 owner.addNote(row, columnId, newNote);
                 owner.selectOneNote(newNote);
-                owner.addAndMakeVisible(newNote);
+                addAndMakeVisible(newNote);
             }
             repaint();
         }
         
         void setRowAndColumn (const int newRow, const int newColumn, Rectangle<int> bd_n, bool isRowSelected)
         {
+            if (row != newRow || columnId != newColumn) {
+                removeAllChildren();
+            }
+            
             row = newRow;
             columnId = newColumn;
             bd = bd_n;
@@ -124,6 +133,11 @@ private:
 //                PianoRollNote* curNote = owner.getNote(row, columnId);
 //                curNote->updateBounds(bd);
 //            }
+            if (owner.getNote(row, columnId))
+            {
+                PianoRollNote* curNote = owner.getNote(row, columnId);
+                addAndMakeVisible(curNote);
+            }
         }
         
         void paint (Graphics& g) override
@@ -134,7 +148,7 @@ private:
             if (owner.getNote(row, columnId))
             {
                 PianoRollNote* curNote = owner.getNote(row, columnId);
-                curNote->updateBounds(bd);
+                curNote->updateBounds(g.getClipBounds());
             }
         }
         

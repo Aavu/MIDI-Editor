@@ -53,9 +53,9 @@ public:
         repaint();
     }
     
-    void mouseEnter (const MouseEvent& event) override
+    void mouseDown (const MouseEvent& event) override
     {
-        
+        getParentComponent()->mouseDown(event);
     }
     
     int getRow()
