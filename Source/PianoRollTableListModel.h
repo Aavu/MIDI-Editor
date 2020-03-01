@@ -89,6 +89,10 @@ private:
             row = row_n;
             columnId = col_n;
             bd = bd_n;
+            
+            addAndMakeVisible(limeContent);
+            limeContent.setColour (TextButton::buttonColourId, Colours::red);
+            limeContent.setBounds(-10,-5,20,10);
         }
         
         void mouseDown (const MouseEvent& event) override
@@ -129,6 +133,7 @@ private:
         }
         
     private:
+        TextButton limeContent;
         PianoRollTableListBox& owner;
         int row, columnId;
         Rectangle<int> bd;
