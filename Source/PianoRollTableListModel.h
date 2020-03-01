@@ -13,29 +13,26 @@
 class NoteList;
 class SelectedNoteList;
 
-class PianoRollTableListBox: public TableListBox
+class PianoRollTableListBox: public TableListBoxModel, public TableListBox, public NoteList, public SelectedNoteList
 {
 public:
     PianoRollTableListBox(const String& componentName = String(),
                           TableListBoxModel* model = nullptr):
-        TableListBox(componentName, model)
-    {}
-    
-    void setNoteList(NoteList *noteList_n)
+        TableListBox(componentName, this),
+        SelectedNoteList(this)
     {
-        noteList = noteList_n;
-    }
-    
-    void setSelectedNoteList(SelectedNoteList *selected_n)
-    {
-        selected = selected_n;
+        
+        addAndMakeVisible(sidebar);
+        sidebar.setColour (TextButton::buttonColourId, Colours::limegreen);
+        sidebar.setButtonText ("note");
+        sidebar.setBounds(1.5,1.5,40,10);
     }
 
     bool keyPressed(const KeyPress &     key) override
     {
         if (key.getKeyCode() == 127) // delete key
         {
-            selected->removeSelectedNotes();
+            removeSelectedNotes();
             repaint();
             return true;
         }
@@ -43,32 +40,8 @@ public:
             return false;
         }
     }
-private:
-    NoteList                    *noteList;
-    SelectedNoteList            *selected;
-};
-
-class PianoRollTableListBoxModel: public TableListBoxModel
-{
-public:
-    PianoRollTableListBoxModel()
-    {
-    }
     
-    ~PianoRollTableListBoxModel()
-    {
-    }
-    
-    void setNoteList(NoteList *noteList_n)
-    {
-        noteList = noteList_n;
-    }
-    
-    void setSelectedNoteList(SelectedNoteList *selected_n)
-    {
-        selected = selected_n;
-    }
-    
+    // model
     // The following methods implement the necessary virtual functions from ListBoxModel,
     // telling the listbox how many rows there are, painting them, etc.
     int getNumRows() override
@@ -92,66 +65,72 @@ public:
     Component* refreshComponentForCell (int rowNumber, int columnId, bool isRowSelected,
                                         Component* existingComponentToUpdate) override
     {
-        auto* pianoRollBox = static_cast<PianoRollComponent*> (existingComponentToUpdate);
+        auto* pianoRollBox = static_cast<NoteComponent*> (existingComponentToUpdate);
+        Rectangle<int> bd = getCellPosition(columnId, rowNumber, true);
         
-        if (pianoRollBox == nullptr)
-            pianoRollBox = new PianoRollComponent (*this, rowNumber, columnId);
+        if (pianoRollBox == nullptr) {
+            pianoRollBox = new NoteComponent (*this, rowNumber, columnId, bd);
+        }
         
-        pianoRollBox->setRowAndColumn (rowNumber, columnId, isRowSelected);
+        pianoRollBox->setRowAndColumn (rowNumber, columnId, bd, isRowSelected);
         return pianoRollBox;
     }
     
-private:
-    NoteList                            *noteList;
-    SelectedNoteList                    *selected;
     
-    class PianoRollComponent  : public Component
+private:
+    TextButton                  sidebar;
+    
+    //model
+    class NoteComponent  : public Component
     {
     public:
-        PianoRollComponent (PianoRollTableListBoxModel& td, int row_n, int col_n)  : owner (td)
+        NoteComponent (PianoRollTableListBox& td, int row_n, int col_n, Rectangle<int> bd_n)  : owner (td)
         {
             row = row_n;
             columnId = col_n;
+            bd = bd_n;
         }
         
         void mouseDown (const MouseEvent& event) override
         {
-            if (owner.noteList->getNote(row, columnId))
+            if (owner.getNote(row, columnId))
             {
-                PianoRollNote* curNote = owner.noteList->getNote(row, columnId);
-                owner.selected->selectOneNote(curNote);
+                PianoRollNote* curNote = owner.getNote(row, columnId);
+                owner.selectOneNote(curNote);
             }
             else
             {
-                PianoRollNote* newNote = new PianoRollNote(row,columnId,getBounds());
-                owner.noteList->addNote(row, columnId, newNote);
-                owner.selected->selectOneNote(newNote);
+                PianoRollNote* newNote = new PianoRollNote(row,columnId,bd);
+                owner.addNote(row, columnId, newNote);
+                owner.selectOneNote(newNote);
+                owner.addAndMakeVisible(newNote);
             }
             repaint();
         }
         
-        void setRowAndColumn (const int newRow, const int newColumn, bool isRowSelected)
+        void setRowAndColumn (const int newRow, const int newColumn, Rectangle<int> bd_n, bool isRowSelected)
         {
             row = newRow;
             columnId = newColumn;
+            bd = bd_n;
+            
+            if (owner.getNote(row, columnId))
+            {
+                PianoRollNote* curNote = owner.getNote(row, columnId);
+                curNote->updateBounds(bd);
+            }
+            repaint();
         }
         
         void paint (Graphics& g) override
         {
             g.setColour (Colours::grey);
-            
             g.drawRect(g.getClipBounds().toFloat(), 0.5);
-            
-            PianoRollNote* curNote = owner.noteList->getNote(row, columnId);
-            if (curNote) {
-                curNote->paintButton(g, false, false);
-            }
-            
-            g.setColour (Colours::black);
         }
         
     private:
-        PianoRollTableListBoxModel& owner;
+        PianoRollTableListBox& owner;
         int row, columnId;
+        Rectangle<int> bd;
     };
 };

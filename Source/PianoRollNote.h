@@ -46,6 +46,12 @@ public:
         //border->setVisible(1);
     }
     
+    void updateBounds(Rectangle<int> bd_n)
+    {
+        setBounds(bd_n);
+        repaint();
+    }
+    
     void mouseEnter (const MouseEvent& event) override
     {
         
@@ -130,7 +136,7 @@ public:
     
     void addNote(int row, int col, PianoRollNote* pianoRollNote)
     {
-        //std::cout << "add Note: " << row << ' ' << col << std::endl;
+        std::cout << "add Note: " << row << ' ' << col << std::endl;
         deleteNote(row, col);
         noteList[row].set(col, pianoRollNote);
     }
@@ -158,6 +164,10 @@ private:
 class SelectedNoteList
 {
 public:
+//    SelectedNoteList()
+//    {
+//        selected = new Array<PianoRollNote*> ();
+//    }
     SelectedNoteList(NoteList* noteList_n)
     {
         selected = new Array<PianoRollNote*> ();

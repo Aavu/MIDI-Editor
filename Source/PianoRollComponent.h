@@ -50,38 +50,22 @@ public:
         header = addToList(new PianoRollHeader());
         header->setColour (TextButton::buttonColourId, Colours::cornflowerblue);
         header->setButtonText ("Ticks");
-        //addAndMakeVisible (header);
         
         sidebar = addToList(new TextButton());
         sidebar->setColour (TextButton::buttonColourId, Colours::grey);
         sidebar->setButtonText ("Piano Keys");
-        //addAndMakeVisible (sidebar);
         
         // set border
         table = addToList(new PianoRollTableListBox("D+D source", nullptr));
         table->setColour (ListBox::outlineColourId, Colours::grey);
         table->setOutlineThickness (2);
-        addAndMakeVisible(table);
-        
-        // pass noteList and selectedNoteList to model
-        // model needs to check noteList when drawing
-        // model respond to mouse events
-        pianoRollTableListBoxModel.setNoteList(&noteList);
-        pianoRollTableListBoxModel.setSelectedNoteList(&selectedNoteList);
-        
-        // pass noteList and selectedNoteList to table
-        // table respond to mouse events
-        table->setModel (&pianoRollTableListBoxModel);
-        table->setNoteList(&noteList);
-        table->setSelectedNoteList(&selectedNoteList);
         
         // add columns
         for (int i = 1; i <= Globals::tickNum; i++)
             table->getHeader().addColumn(String(i), i, Globals::noteWidth, 30, -1,  TableHeaderComponent::ColumnPropertyFlags::notResizableOrSortable);
         
-        // hide scroll bars
+        // hide horizontal scroll bars
         table->getViewport()->setScrollBarsShown(true, false, true, true);
-        
         // hide header
         table->setHeaderHeight(0);
         
@@ -95,7 +79,7 @@ public:
     
     void paint (Graphics& g) override
     {
-        g.fillAll (Colours::darkgrey);
+        g.fillAll (Colours::darkgreen);
     }
     
     void resized() override
@@ -111,18 +95,6 @@ public:
         table->setBounds(sidebarWidth, headerFooterHeight, area.getWidth(), area.getHeight());
         table->setRowHeight(Globals::noteHeight);
     }
-    
-//    bool keyPressed(const KeyPress &     key) override
-//    {
-//        if (key.getKeyCode() == 127) // delete key
-//        {
-//            selectedNotes.removeNotes();
-//            return true;
-//        }
-//        else {
-//            return false;
-//        }
-//    }
     
     // This little function avoids a bit of code-duplication by adding a component to
     // our list as well as calling addAndMakeVisible on it..
@@ -143,11 +115,6 @@ private:
     TextButton                      *sidebar;
     
     PianoRollTableListBox           *table;
-    
-    PianoRollTableListBoxModel pianoRollTableListBoxModel;
-    
-    NoteList                            noteList;
-    SelectedNoteList                    selectedNoteList {&noteList};
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PianoRollWindow)
