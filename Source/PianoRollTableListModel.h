@@ -21,7 +21,6 @@ public:
         TableListBox(componentName, this),
         SelectedNoteList(this)
     {
-        
         addAndMakeVisible(sidebar);
         sidebar.setColour (TextButton::buttonColourId, Colours::limegreen);
         sidebar.setButtonText ("note");
@@ -144,12 +143,12 @@ private:
         {
             g.setColour (Colours::grey);
             g.drawRect(g.getClipBounds().toFloat(), 0.5);
-            std::cout << "paint called " << row << ' ' << columnId << " - " << getBounds().getX() << ' ' << getBounds().getY() << std::endl;
-            if (owner.getNote(row, columnId))
-            {
-                PianoRollNote* curNote = owner.getNote(row, columnId);
-                curNote->updateBounds(g.getClipBounds());
-            }
+            //std::cout << "paint called " << row << ' ' << columnId << " - " << getBounds().getX() << ' ' << getBounds().getY() << std::endl;
+//            if (owner.getNote(row, columnId))
+//            {
+//                PianoRollNote* curNote = owner.getNote(row, columnId);
+//                curNote->updateBounds(g.getClipBounds());
+//            }
         }
         
     private:

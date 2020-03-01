@@ -27,6 +27,8 @@ public:
         border(0)
     {
         //setBounds(bounds);
+        setPaintingIsUnclipped(true);
+        setSize(40,10);
         border = new ResizableBorderComponent(this, NULL);
     }
     ~PianoRollNote()
@@ -37,18 +39,18 @@ public:
             delete border;
     }
     
-    void resized() override
-    {
-        // TODO: not working now
-        if (border)
-            border->setBounds(0,0,getWidth(),getHeight());
-        //border->setBorderThickness (BorderSize<int>(3));
-        //border->setVisible(1);
-    }
+//    void resized() override
+//    {
+//        // TODO: not working now
+//        if (border)
+//            border->setBounds(0,0,getWidth(),getHeight());
+//        //border->setBorderThickness (BorderSize<int>(3));
+//        //border->setVisible(1);
+//    }
     
     void updateBounds(Rectangle<int> bd_n)
     {
-        std::cout << "updatebounds: " << bd_n.getX() << ' ' << bd_n.getY() << std::endl;
+        std::cout << "updatebounds: " << bd_n.getWidth() << ' ' << bd_n.getHeight() << std::endl;
         setBounds(bd_n);
         repaint();
     }
