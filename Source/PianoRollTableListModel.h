@@ -21,14 +21,16 @@ public:
         TableListBox(componentName, this),
         SelectedNoteList(this)
     {
-        addAndMakeVisible(sidebar);
-        sidebar.setColour (TextButton::buttonColourId, Colours::limegreen);
-        sidebar.setButtonText ("note");
-        sidebar.setBounds(1.5,1.5,40,10);
+//        addAndMakeVisible(sidebar);
+//        sidebar.setColour (TextButton::buttonColourId, Colours::limegreen);
+//        sidebar.setButtonText ("note");
+//        sidebar.setBounds(1.5,1.5,40,10);
+//        sidebar.setOpaque (false);
     }
 
     bool keyPressed(const KeyPress &     key) override
     {
+        std::cout << "key code: " << key.getKeyCode() << std::endl;
         if (key.getKeyCode() == 127) // delete key
         {
             removeSelectedNotes();
@@ -65,12 +67,11 @@ public:
                                         Component* existingComponentToUpdate) override
     {
         auto* pianoRollBox = static_cast<NoteComponent*> (existingComponentToUpdate);
-        Rectangle<int> bd = getCellPosition(columnId, rowNumber, true);
         
         if (pianoRollBox == nullptr)
-            pianoRollBox = new NoteComponent (*this, rowNumber, columnId, bd);
+            pianoRollBox = new NoteComponent (*this, rowNumber, columnId);
 
-        pianoRollBox->setRowAndColumn (rowNumber, columnId, bd, isRowSelected);
+        pianoRollBox->setRowAndColumn (rowNumber, columnId, isRowSelected);
         
         return pianoRollBox;
     }
@@ -83,11 +84,10 @@ private:
     class NoteComponent  : public Component
     {
     public:
-        NoteComponent (PianoRollTableListBox& td, int row_n, int col_n, Rectangle<int> bd_n)  : owner (td)
+        NoteComponent (PianoRollTableListBox& td, int row_n, int col_n)  : owner (td)
         {
             row = row_n;
             columnId = col_n;
-            bd = bd_n;
             
             if (owner.getNote(row, columnId))
             {
@@ -109,7 +109,7 @@ private:
             }
             else
             {
-                PianoRollNote* newNote = new PianoRollNote(row,columnId,bd);
+                PianoRollNote* newNote = new PianoRollNote(row,columnId);
                 owner.addNote(row, columnId, newNote);
                 owner.selectOneNote(newNote);
                 addAndMakeVisible(newNote);
@@ -117,7 +117,7 @@ private:
             repaint();
         }
         
-        void setRowAndColumn (const int newRow, const int newColumn, Rectangle<int> bd_n, bool isRowSelected)
+        void setRowAndColumn (const int newRow, const int newColumn, bool isRowSelected)
         {
             if (row != newRow || columnId != newColumn) {
                 removeAllChildren();
@@ -125,7 +125,6 @@ private:
             
             row = newRow;
             columnId = newColumn;
-            bd = bd_n;
             
 //            if (owner.getNote(row, columnId))
 //            {
@@ -155,6 +154,5 @@ private:
         TextButton limeContent;
         PianoRollTableListBox& owner;
         int row, columnId;
-        Rectangle<int> bd;
     };
 };

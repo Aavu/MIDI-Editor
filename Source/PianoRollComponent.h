@@ -61,8 +61,8 @@ public:
         table->setOutlineThickness (2);
         
         // add columns
-        for (int i = 1; i <= Globals::tickNum; i++)
-            table->getHeader().addColumn(String(i), i, Globals::noteWidth, 30, -1,  TableHeaderComponent::ColumnPropertyFlags::notResizableOrSortable);
+        for (int i = 1; i <= 1; i++)
+            table->getHeader().addColumn(String(i), i, Globals::noteWidth*30, 30, -1,  TableHeaderComponent::ColumnPropertyFlags::notResizableOrSortable);
         
         // hide horizontal scroll bars
         table->getViewport()->setScrollBarsShown(true, false, true, true);

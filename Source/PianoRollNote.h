@@ -20,13 +20,12 @@ class NoteMessage {
 class PianoRollNote: public TextButton
 {
 public:
-    PianoRollNote(int row_n, int column_n, Rectangle<int> bounds, int length_n = 1, int velocity_n = Globals::midiNoteNum, int offset_n = 0, NoteMessage *noteMessage_n = 0):
+    PianoRollNote(int row_n, int column_n, int length_n = 1, int velocity_n = Globals::midiNoteNum, int offset_n = 0, NoteMessage *noteMessage_n = 0):
         row(row_n), column(column_n),
         offset(offset_n), length(length_n),
         velocity(velocity_n), noteMessage(noteMessage_n),
         border(0)
     {
-        //setBounds(bounds);
         setPaintingIsUnclipped(true);
         setSize(40,10);
         border = new ResizableBorderComponent(this, NULL);
@@ -48,16 +47,14 @@ public:
 //        //border->setVisible(1);
 //    }
     
-    void updateBounds(Rectangle<int> bd_n)
-    {
-        std::cout << "updatebounds: " << bd_n.getWidth() << ' ' << bd_n.getHeight() << std::endl;
-        setBounds(bd_n);
-        repaint();
-    }
-    
     void mouseDown (const MouseEvent& event) override
     {
         getParentComponent()->mouseDown(event);
+    }
+    
+    void mouseEnter(const MouseEvent& event) override
+    {
+        std::cout << "mouse enter: " << row << ' ' << column << std::endl;
     }
     
     int getRow()
@@ -85,7 +82,8 @@ public:
     {
         
         g.setColour (Colours::green);
-        g.fillRoundedRectangle(g.getClipBounds().toFloat(), 3);
+        g.fillRoundedRectangle(0, 0, Globals::noteWidth, Globals::noteHeight, 3);
+        //setAlpha(0.);
     }
     
 //    void mouseDown (const MouseEvent& e)
@@ -147,7 +145,7 @@ public:
     
     void deleteNote(int row, int col)
     {
-        //std::cout << "delete Note: " << row << ' ' << col << std::endl;
+        std::cout << "delete Note: " << row << ' ' << col << std::endl;
         if (getNote(row, col)) {
             delete getNote(row, col);
             noteList[row].set(col, 0);
