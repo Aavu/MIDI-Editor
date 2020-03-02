@@ -95,14 +95,14 @@ void MainComponent::resized()
 bool MainComponent::fileCallback(CommandID commandID) {
     switch (commandID)
     {
-        case Menu::fileOpen:
+        case MenuComponent::fileOpen:
             handleFileOpen();
             break;
 
-        case Menu::fileExportAudio:
+        case MenuComponent::fileExportAudio:
             break;
 
-        case Menu::fileExportMIDI:
+        case MenuComponent::fileExportMIDI:
             break;
 
         default:

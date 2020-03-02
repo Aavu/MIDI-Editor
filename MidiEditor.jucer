@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.4">
+<JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.7">
   <MAINGROUP id="bseg78" name="MidiEditor">
     <GROUP id="{4D02D25C-6694-ABA1-B776-755A0F43BA73}" name="Source">
       <GROUP id="{B3A1646D-D871-7097-4903-DFA0B16447B6}" name="Components">
         <FILE id="TRFyKS" name="Globals.h" compile="0" resource="0" file="Source/Components/Globals.h"/>
-        <FILE id="ddZtCU" name="Menu.cpp" compile="1" resource="0" file="Source/Components/Menu.cpp"/>
-        <FILE id="SIK8yb" name="Menu.h" compile="0" resource="0" file="Source/Components/Menu.h"/>
+        <FILE id="ddZtCU" name="MenuComponent.cpp" compile="1" resource="0"
+              file="Source/Components/MenuComponent.cpp"/>
+        <FILE id="SIK8yb" name="MenuComponent.h" compile="0" resource="0" file="Source/Components/MenuComponent.h"/>
         <FILE id="bqau8k" name="PlayerComponent.cpp" compile="1" resource="0"
               file="Source/Components/PlayerComponent.cpp"/>
         <FILE id="xYNs8M" name="PlayerComponent.h" compile="0" resource="0"

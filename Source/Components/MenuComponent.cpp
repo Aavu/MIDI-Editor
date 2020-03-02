@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    Menu.cpp
+    MenuComponent.cpp
     Created: 12 Jan 2020 12:28:18pm
     Author:  Raghavasimhan Sankaranarayanan
 
@@ -9,10 +9,10 @@
 */
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "Menu.h"
+#include "MenuComponent.h"
 
 //==============================================================================
-Menu::Menu()
+MenuComponent::MenuComponent()
 {
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
@@ -26,20 +26,20 @@ Menu::Menu()
     commandManager.setFirstCommandTarget(this);
 }
 
-Menu::~Menu()
+MenuComponent::~MenuComponent()
 {
     MenuBarModel::setMacMainMenu(nullptr);
 }
 
-void Menu::paint (Graphics& g) {}
+void MenuComponent::paint (Graphics& g) {}
 
-void Menu::resized() {}
+void MenuComponent::resized() {}
 
-StringArray Menu::getMenuBarNames() {
+StringArray MenuComponent::getMenuBarNames() {
     return {"File", "Edit", "Help"};
 }
 
-PopupMenu Menu::getMenuForIndex(int menuIndex, const String& name) {
+PopupMenu MenuComponent::getMenuForIndex(int menuIndex, const String& name) {
     PopupMenu menu;
     if (menuIndex == 0) {
         menu.addCommandItem(&commandManager, fileOpen);
@@ -59,16 +59,16 @@ PopupMenu Menu::getMenuForIndex(int menuIndex, const String& name) {
     return menu;
 }
 
-ApplicationCommandTarget* Menu::getNextCommandTarget() {
+ApplicationCommandTarget* MenuComponent::getNextCommandTarget() {
     return &editCommandTarget;
 }
 
-void Menu::getAllCommands (Array<CommandID>& c) {
+void MenuComponent::getAllCommands (Array<CommandID>& c) {
     Array<CommandID> commands { fileOpen, fileExportAudio, fileExportMIDI };
     c.addArray (commands);
 }
 
-void Menu::getCommandInfo (CommandID commandID, ApplicationCommandInfo& result)
+void MenuComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& result)
 {
     switch (commandID)
     {
@@ -89,13 +89,13 @@ void Menu::getCommandInfo (CommandID commandID, ApplicationCommandInfo& result)
     }
 }
 
-void Menu::menuItemSelected (int /*menuItemID*/, int /*topLevelMenuIndex*/) {}
+void MenuComponent::menuItemSelected (int /*menuItemID*/, int /*topLevelMenuIndex*/) {}
 
-bool Menu::perform (const InvocationInfo& info)
+bool MenuComponent::perform (const InvocationInfo& info)
 {
     return callbackFunc(static_cast<CommandIDs>(info.commandID));
 }
 
-void Menu::setCallback(cbfunc func) {
+void MenuComponent::setCallback(cbfunc func) {
     callbackFunc = func;
 }

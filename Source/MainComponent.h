@@ -10,7 +10,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Components/TransportBarComponent.h"
-#include "Components/Menu.h"
+#include "Components/MenuComponent.h"
 
 //==============================================================================
 /*
@@ -40,7 +40,7 @@ private:
     //==============================================================================
     // Your private member variables go here...
     TransportBarComponent transportBar;
-    Menu menu;
+    MenuComponent menu;
     MidiFile midiFile;
 
 
