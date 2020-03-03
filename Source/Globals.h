@@ -18,5 +18,6 @@ namespace Globals {
     const int tickNum = 40;
     const int noteHeight = 10;
     const int noteWidth = 40;
+    const int longestNote = 20;
 };
 #endif

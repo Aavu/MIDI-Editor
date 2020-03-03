@@ -13,7 +13,7 @@
 #include "Globals.h"
 #include "PianoRollHeader.h"
 #include "PianoRollNote.h"
-#include "PianoRollTableListModel.h"
+#include "NoteLayer.h"
 
 class OtherLookAndFeel;
 class DragTextButton;
@@ -55,19 +55,8 @@ public:
         sidebar->setColour (TextButton::buttonColourId, Colours::grey);
         sidebar->setButtonText ("Piano Keys");
         
-        // set border
-        table = addToList(new PianoRollTableListBox("D+D source", nullptr));
-        table->setColour (ListBox::outlineColourId, Colours::grey);
-        table->setOutlineThickness (2);
-        
-        // add columns
-        for (int i = 1; i <= 1; i++)
-            table->getHeader().addColumn(String(i), i, Globals::noteWidth*30, 30, -1,  TableHeaderComponent::ColumnPropertyFlags::notResizableOrSortable);
-        
-        // hide horizontal scroll bars
-        table->getViewport()->setScrollBarsShown(true, false, true, true);
-        // hide header
-        table->setHeaderHeight(0);
+        noteLayer = addToList(new NoteLayer());
+        noteLayer->setColour (TextButton::buttonColourId, Colours::grey);
         
         setSize (800, 400);
     }
@@ -92,8 +81,7 @@ public:
         auto headerFooterHeight = 20;
         header->setBounds (area.removeFromTop    (headerFooterHeight));
         
-        table->setBounds(sidebarWidth, headerFooterHeight, area.getWidth(), area.getHeight());
-        table->setRowHeight(Globals::noteHeight);
+        noteLayer->setBounds(sidebarWidth, headerFooterHeight, area.getWidth(), area.getHeight());
     }
     
     // This little function avoids a bit of code-duplication by adding a component to
@@ -114,7 +102,7 @@ private:
     PianoRollHeader                 *header;
     TextButton                      *sidebar;
     
-    PianoRollTableListBox           *table;
+    NoteLayer                       *noteLayer;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PianoRollWindow)

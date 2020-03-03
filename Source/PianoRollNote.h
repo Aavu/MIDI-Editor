@@ -15,161 +15,179 @@
 class NoteMessage {
   // empty now
 };
+class SelectedNoteList;
 
 // TODO: fix dragging behavior
-class PianoRollNote: public TextButton
+class PianoRollNote: public TextButton, public ComponentBoundsConstrainer
 {
 public:
-    PianoRollNote(int row_n, int column_n, int length_n = 1, int velocity_n = Globals::midiNoteNum, int offset_n = 0, NoteMessage *noteMessage_n = 0):
-        row(row_n), column(column_n),
+    PianoRollNote(int row_n, float offset_n, float length_n = 1, int velocity_n = Globals::midiNoteNum, NoteMessage *noteMessage_n = 0):
+        row(row_n),
         offset(offset_n), length(length_n),
         velocity(velocity_n), noteMessage(noteMessage_n),
         border(0)
     {
-        setPaintingIsUnclipped(true);
-        setSize(40,10);
+        init = true;
+        boxWidth = Globals::noteWidth;
+        boxHeight = Globals::noteHeight;
+        
         border = new ResizableBorderComponent(this, NULL);
+        addChildComponent(border);
+        border->setBorderThickness (BorderSize<int> (0,0,0,1));
+        border->setBounds(this->getBounds());
+        border->setAlpha(0.1);
+        border->setVisible(true);
+        
+        constrainer = new ComponentBoundsConstrainer();
+        constrainer->setMaximumHeight(boxHeight);
+        std::cout << "create " << row << ' ' << offset_n << std::endl;
     }
+    
     ~PianoRollNote()
     {
         if (noteMessage)
             delete noteMessage;
         if (border)
             delete border;
+        if (constrainer)
+            delete constrainer;
+        std::cout << "delete " << row << ' ' << offset << std::endl;
     }
     
-//    void resized() override
-//    {
-//        // TODO: not working now
-//        if (border)
-//            border->setBounds(0,0,getWidth(),getHeight());
-//        //border->setBorderThickness (BorderSize<int>(3));
-//        //border->setVisible(1);
-//    }
+    void resized() override
+    {
+        // TODO: not working now
+        if (border)
+        {
+            border->setBounds(0,0,getWidth(),getHeight());
+            length = 1.F*getWidth() / boxWidth;
+            std::cout << length << std::endl;
+            repaint();
+        }
+        if (constrainer)
+        {
+            auto newBounds = getBoundsInParent();
+            setBounds (newBounds);
+            constrainer->setMinimumOnscreenAmounts (getHeight(), getWidth(), getHeight(), getWidth());
+        }
+    }
     
     void mouseDown (const MouseEvent& event) override
     {
+        // add to selectedNoteList
         getParentComponent()->mouseDown(event);
+        myDragger.startDraggingComponent (this, event);
+    }
+    
+    void mouseDrag (const MouseEvent& event) override
+    {
+        myDragger.dragComponent (this, event, constrainer);
     }
     
     void mouseEnter(const MouseEvent& event) override
     {
-        std::cout << "mouse enter: " << row << ' ' << column << std::endl;
+        std::cout << "mouse enter: " << row << std::endl;
     }
     
-    int getRow()
-    {
-        return row;
-    }
-    int getColumn()
-    {
-        return column;
-    }
-    int getOffset()
-    {
-        return offset;
-    }
-    int getLength()
-    {
-        return length;
-    }
-    NoteMessage* getNoteMessage()
-    {
-        return noteMessage;
-    }
+    int getRow() { return row; }
+
+    float getOffset() { return offset; }
+    float getLength() { return length; }
+    
+    NoteMessage* getNoteMessage() { return noteMessage; }
+    
+    bool ifInit() { return init; }
     
     void paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
-        
-        g.setColour (Colours::green);
-        g.fillRoundedRectangle(0, 0, Globals::noteWidth, Globals::noteHeight, 3);
-        //setAlpha(0.);
+        g.setColour (Colours::limegreen);
+        g.fillRoundedRectangle(0, 0, length*boxWidth, boxHeight, 4);
+        g.setColour (Colours::lime);
+        g.drawRoundedRectangle(0, 0, length*boxWidth, boxHeight, 4, 1);
     }
     
-//    void mouseDown (const MouseEvent& e)
-//    {
-//        myDragger.startDraggingComponent (this, e);
-//    }
-//
-//    void mouseDrag (const MouseEvent& e)
-//    {
-//        myDragger.dragComponent (this, e, nullptr);
-//    }
 private:
     
+    bool                init = false;
     int                 row;                          // midi number (0~127)
-    int                 column;                       // idx of column (0~inf)
-    int                 offset;
-    int                 length;                      // relative length (1 means 1 quarter note)
+    float               offset;
+    float               length;                      // relative length (1 means 1 quarter note)
     int                 velocity;
+    int                 boxWidth;
+    int                 boxHeight;
     
     NoteMessage         *noteMessage;
     
     // dragger
-    ComponentDragger myDragger;
-    ResizableBorderComponent* border;
+    ComponentDragger                myDragger;
+    ResizableBorderComponent*       border;
+    ComponentBoundsConstrainer*     constrainer;
 };
 
 class NoteList
 {
 public:
-    NoteList()
+    NoteList(SelectedNoteList *selected_n)
     {
+        selected = selected_n;
         noteList = new Array<PianoRollNote*> [Globals::midiNoteNum];
         for (int i = 0; i < Globals::midiNoteNum; i++) {
             noteList[i] = Array<PianoRollNote*>();
-            noteList[i].insertMultiple(0, 0, 40);
         }
     }
     ~NoteList()
     {
-        for (int i = 0; i < Globals::midiNoteNum; i++)
-            for (int j = 0; j < Globals::tickNum; j++)
+        for (int i = 0; i < Globals::midiNoteNum; i++) {
+            for (int j = 0; j < noteList[i].size(); j++)
                 if (getNote(i, j))
                     deleteNote(i, j);
+            noteList[i].clear();
+        }
         delete [] noteList;
     }
     
-    PianoRollNote* getNote(int row, int col)
+    PianoRollNote* getNote(int row, int idx)
     {
-        //std::cout << "get Note: " << row << ' ' << col << std::endl;
-        return noteList[row][col];
+        return noteList[row][idx];
     }
     
-    void addNote(int row, int col, PianoRollNote* pianoRollNote)
+    Array<PianoRollNote*> getNotesByRow(int row)
     {
-        std::cout << "add Note: " << row << ' ' << col << std::endl;
-        deleteNote(row, col);
-        noteList[row].set(col, pianoRollNote);
+        return noteList[row];
     }
     
-    void deleteNote(int row, int col)
+    void addNote(int row, PianoRollNote* pianoRollNote)
     {
-        std::cout << "delete Note: " << row << ' ' << col << std::endl;
-        if (getNote(row, col)) {
-            delete getNote(row, col);
-            noteList[row].set(col, 0);
+        std::cout << "add Note to row: " << row << " offset: " << pianoRollNote->getOffset() << std::endl;
+
+        noteList[row].add(pianoRollNote);
+    }
+    
+    void deleteNote(int row, int idx)
+    {
+        PianoRollNote* noteToBeRemoved = getNote(row, idx);
+        if (noteToBeRemoved)
+        {
+            noteList[row].remove(idx);
+            delete noteToBeRemoved;
         }
     }
     
     void deleteNote(PianoRollNote *noteToBeRemoved)
     {
         int row = noteToBeRemoved->getRow();
-        int col = noteToBeRemoved->getColumn();
-        deleteNote(row, col);
+        noteList[row].removeFirstMatchingValue(noteToBeRemoved);
+        delete noteToBeRemoved;
     }
     
 private:
     Array<PianoRollNote*>               *noteList;
+    SelectedNoteList                    *selected;
 };
 
 class SelectedNoteList
 {
 public:
-//    SelectedNoteList()
-//    {
-//        selected = new Array<PianoRollNote*> ();
-//    }
     SelectedNoteList(NoteList* noteList_n)
     {
         selected = new Array<PianoRollNote*> ();

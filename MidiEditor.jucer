@@ -7,8 +7,7 @@
       <GROUP id="{103ADE2F-5893-FA2C-69AE-13E6AB726A03}" name="PianoRoll">
         <FILE id="VWPCpu" name="PianoRollComponent.h" compile="0" resource="0"
               file="Source/PianoRollComponent.h"/>
-        <FILE id="EzmspQ" name="PianoRollTableListModel.h" compile="0" resource="0"
-              file="Source/PianoRollTableListModel.h"/>
+        <FILE id="EzmspQ" name="NoteLayer.h" compile="0" resource="0" file="Source/NoteLayer.h"/>
         <FILE id="el1DTU" name="PianoRollNote.h" compile="0" resource="0" file="Source/PianoRollNote.h"/>
         <FILE id="Dp5wJF" name="PianoRollHeader.h" compile="0" resource="0"
               file="Source/PianoRollHeader.h"/>
