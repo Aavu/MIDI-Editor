@@ -64,12 +64,6 @@ public:
             std::cout << length << std::endl;
             repaint();
         }
-        if (constrainer)
-        {
-            auto newBounds = getBoundsInParent();
-            setBounds (newBounds);
-            constrainer->setMinimumOnscreenAmounts (getHeight(), getWidth(), getHeight(), getWidth());
-        }
     }
     
     void mouseDown (const MouseEvent& event) override
@@ -82,6 +76,13 @@ public:
     void mouseDrag (const MouseEvent& event) override
     {
         myDragger.dragComponent (this, event, constrainer);
+        if (constrainer)
+        {
+            auto newBounds = getBoundsInParent();
+            std::cout << offset * boxWidth << ' '<< newBounds.getX() << std::endl;
+            setBounds (newBounds);
+            constrainer->setMinimumOnscreenAmounts (getHeight(), getWidth(), getHeight(), getWidth());
+        }
     }
     
     void mouseEnter(const MouseEvent& event) override
