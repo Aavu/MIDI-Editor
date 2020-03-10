@@ -9,6 +9,8 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "Components/TransportBarComponent.h"
+#include "Components/MenuComponent.h"
 
 //==============================================================================
 /*
@@ -31,9 +33,15 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
 
+    bool fileCallback(CommandID);
+    void handleFileOpen();
+
 private:
     //==============================================================================
     // Your private member variables go here...
+    TransportBarComponent transportBar;
+    MenuComponent menu;
+    MidiFile midiFile;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
