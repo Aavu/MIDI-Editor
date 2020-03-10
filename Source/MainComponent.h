@@ -9,7 +9,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "Components/TransportBarComponent.h"
+#include "Components/TransportComponent.h"
 #include "Components/MenuComponent.h"
 
 //==============================================================================
@@ -39,7 +39,7 @@ public:
 private:
     //==============================================================================
     // Your private member variables go here...
-    TransportBarComponent transportBar;
+    TransportComponent transportBar;
     MenuComponent menu;
     MidiFile midiFile;
 

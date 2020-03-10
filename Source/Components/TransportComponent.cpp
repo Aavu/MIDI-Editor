@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    TransportBarComponent.cpp
+    TransportComponent.cpp
     Created: 11 Jan 2020 11:43:39am
     Author:  Raghavasimhan Sankaranarayanan
 
@@ -9,10 +9,10 @@
 */
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "TransportBarComponent.h"
+#include "TransportComponent.h"
 
 //==============================================================================
-TransportBarComponent::TransportBarComponent(): playBtn("play"), stopBtn("stop")
+TransportComponent::TransportComponent(): playBtn("play"), stopBtn("stop")
 {
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
@@ -26,16 +26,16 @@ TransportBarComponent::TransportBarComponent(): playBtn("play"), stopBtn("stop")
     addAndMakeVisible(&stopBtn);
 }
 
-TransportBarComponent::~TransportBarComponent()
+TransportComponent::~TransportComponent()
 {
 }
 
-void TransportBarComponent::paint (Graphics& g)
+void TransportComponent::paint (Graphics& g)
 {
     g.fillAll(Colours::darkgrey);
 }
 
-void TransportBarComponent::resized()
+void TransportComponent::resized()
 {
     // This method is where you should set the bounds of any child
     // components that your component contains..
@@ -44,14 +44,14 @@ void TransportBarComponent::resized()
     stopBtn.setBounds(getHeight() + pad, pad, 50, getHeight() - pad*2);
 }
 
-void TransportBarComponent::playBtnClicked()
+void TransportComponent::playBtnClicked()
 {
     playBtn.setButtonText("pause");
     stopBtn.setEnabled(true);
     
 }
 
-void TransportBarComponent::stopBtnClicked()
+void TransportComponent::stopBtnClicked()
 {
     stopBtn.setEnabled(false);
     playBtn.setButtonText("play");
