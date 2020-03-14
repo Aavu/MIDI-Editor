@@ -11,6 +11,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 #include "Synth/MidiSynth.h"
+#include "Synth/SfzMidiSynth.h"
 
 //==============================================================================
 /*
@@ -36,8 +37,8 @@ public:
 
 private:
     //==============================================================================
-    // Your private member variables go here...
-    SynthAudioSource synthAudioSource;
+
+    SfzSynthAudioSource synthAudioSource;
     MidiKeyboardState keyboardState;
     MidiKeyboardComponent keyboardComponent;
 

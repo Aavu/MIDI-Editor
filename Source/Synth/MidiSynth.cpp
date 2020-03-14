@@ -104,8 +104,8 @@ bool SineWaveSound::appliesToChannel(int midiChannel) {
     return true;
 }
 
-SynthAudioSource::SynthAudioSource(MidiKeyboardState &keyState)
-        : keyboardState(keyState)
+SynthAudioSource::SynthAudioSource(MidiKeyboardState &keyState) :
+    keyboardState(keyState)
 {
     for (auto i=0; i<4; ++i)
         synth.addVoice(new SineWaveVoice());  //TODO: Add options to use voices other than sine.

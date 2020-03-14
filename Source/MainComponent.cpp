@@ -31,6 +31,9 @@ MainComponent::MainComponent() :
         addAndMakeVisible(keyboardComponent);
         setSize(600, 160);
         startTimer(400);
+
+        synthAudioSource.setSfzFile(new File("/Users/kaushal/Desktop/ASE/SoundFont/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2"));
+
     }
 }
 
