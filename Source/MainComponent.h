@@ -12,6 +12,7 @@
 #include "Components/TransportBarComponent.h"
 #include "Components/Menu.h"
 #include "Components/PlayerComponent.h"
+#include "Components/TrackViewComponent.h"
 
 //==============================================================================
 /*
@@ -45,6 +46,9 @@ private:
     MidiFile midiFile;
 
     PlayerComponent* player;
+
+    // TrackViewComponents
+    TrackViewComponent trackView;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

@@ -17,7 +17,7 @@ MainComponent::MainComponent()
     addAndMakeVisible(menu);
     menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
 
-    setSize (800, 600);
+    setSize (1000, 500);
 
     // Some platforms require permissions to open input channels so request that here
     if (RuntimePermissions::isRequired (RuntimePermissions::recordAudio)
@@ -35,11 +35,16 @@ MainComponent::MainComponent()
     // Create Player
     player = new PlayerComponent();
     transportBar.init(player);
+
+    //TracksView
+    trackView.init(0);
+    addAndMakeVisible(trackView);
 }
 
 MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
+    delete player;
     shutdownAudio();
 }
 
@@ -79,9 +84,8 @@ void MainComponent::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-    g.setFont (Font (16.0f));
-    g.setColour (Colours::white);
-    // You can add your drawing code here!
+//    g.setFont (Font (16.0f));
+//    g.setColour (Colours::white);
 }
 
 void MainComponent::resized()
@@ -89,11 +93,16 @@ void MainComponent::resized()
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
-    Rectangle<int> transportBounds = getLocalBounds();
-    int height = transportBounds.getHeight();
-    transportBounds.setHeight(64);
-    transportBounds.setY(height - 64);
-    transportBar.setBounds(transportBounds);
+
+    Rectangle<int> bounds = getLocalBounds();
+    int height = bounds.getHeight();
+    bounds.setHeight(64);
+    bounds.setY(height - 64);
+    transportBar.setBounds(bounds);
+
+    bounds = getLocalBounds();
+    bounds.removeFromBottom(transportBar.getBounds().getHeight());
+    trackView.setBounds(bounds);
 }
 
 bool MainComponent::fileCallback(CommandID commandID) {
@@ -128,28 +137,10 @@ void MainComponent::handleFileOpen() {
         }
         const MidiMessageSequence* sequence = midiFile.getTrack(0);
         midiFile.convertTimestampTicksToSeconds();
-
-
+        trackView.addTrack();
         // Add sequence to player
 
         player->setMidiMessageSequence(sequence);
-
-
-
-
-//        auto lastTime = midiFile.getLastTimestamp();
-//        std::cout << lastTime << std::endl;
-//        int i = 0;
-//        double time = 0;
-//        while(time < lastTime) {
-//            juce::MidiMessageSequence::MidiEventHolder* holder = sequence->getEventPointer(i);
-//            MidiMessage msg = holder->message;
-//            int noteNumber = msg.getNoteNumber();
-//            String note = msg.getMidiNoteName(noteNumber, true, true, 3);
-//            time = msg.getTimeStamp();
-//            std::cout << note << "\t" << time << "\t" << msg.getFloatVelocity() << std::endl;
-//            i++;
-//        }
         delete stream;
     }
 }
