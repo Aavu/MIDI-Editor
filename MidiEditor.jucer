@@ -40,7 +40,7 @@
         <MODULEPATH id="juce_opengl" path="../../../../../Software/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <CLION targetFolder="Builds/CLion">
+    <CLION targetFolder="Builds/CLion" clionXcodeEnabled="1">
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_audio_devices" path="../../../../../Software/JUCE/modules"/>
