@@ -29,7 +29,7 @@ public:
         // This method is where you should put your application's initialisation code..
 
         //mainWindow.reset (new MainWindow (getApplicationName(), *this));
-        mainWindow.reset (new MainWindow ("PianoRollWindow", new PianoRollWindow(), *this));
+        mainWindow.reset (new MainWindow ("PianoRollComponent", new PianoRollComponent(), *this));
     }
 
     void shutdown() override

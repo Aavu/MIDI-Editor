@@ -10,56 +10,26 @@
 
 #pragma once
 
+#include "../JuceLibraryCode/JuceHeader.h"
+
 class PianoRollHeader:   public TextButton,
                          public DragAndDropTarget
 {
 public:
-    PianoRollHeader(){};
+    PianoRollHeader();
     
-    //        void mouseDown (const MouseEvent& e) override
-    //        {
-    //            std::cout << e.getMouseDownX() << ' ' << e.getMouseDownY() << std::endl;
-    //            std::cout << ' ' << std::endl;
-    //        }
+    bool isInterestedInDragSource (const SourceDetails& /*dragSourceDetails*/) override;
     
-    // These methods implement the DragAndDropTarget interface, and allow our component
-    // to accept drag-and-drop of objects from other JUCE components..
+    void itemDragEnter (const SourceDetails& /*dragSourceDetails*/) override;
     
-    bool isInterestedInDragSource (const SourceDetails& /*dragSourceDetails*/) override
-    {
-        // normally you'd check the sourceDescription value to see if it's the
-        // sort of object that you're interested in before returning true, but for
-        // the demo, we'll say yes to anything..
-        return true;
-    }
+    void itemDragMove (const SourceDetails& /*dragSourceDetails*/) override;
     
-    void itemDragEnter (const SourceDetails& /*dragSourceDetails*/) override
-    {
-        somethingIsBeingDraggedOver = true;
-        repaint();
-    }
+    void itemDragExit (const SourceDetails& /*dragSourceDetails*/) override;
     
-    void itemDragMove (const SourceDetails& /*dragSourceDetails*/) override
-    {
-    }
-    
-    void itemDragExit (const SourceDetails& /*dragSourceDetails*/) override
-    {
-        somethingIsBeingDraggedOver = false;
-        repaint();
-    }
-    
-    void itemDropped (const SourceDetails& dragSourceDetails) override
-    {
-        message = "Items dropped: " + dragSourceDetails.description.toString();
-        
-        somethingIsBeingDraggedOver = false;
-        repaint();
-    }
-    void mouseEnter (const MouseEvent& event) override
-    {
-        
-    }
+    void itemDropped (const SourceDetails& dragSourceDetails) override;
+
+    void mouseEnter (const MouseEvent& event) override;
+
 private:
     String message  { "Drag-and-drop some rows from the top-left box onto this component!\n\n"
         "You can also drag-and-drop files and text from other apps"};
