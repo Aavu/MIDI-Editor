@@ -79,9 +79,26 @@ public:
         if (constrainer)
         {
             auto newBounds = getBoundsInParent();
-            std::cout << offset * boxWidth << ' '<< newBounds.getX() << std::endl;
+            //std::cout << offset * boxWidth << ' '<< newBounds.getX() << std::endl;
             setBounds (newBounds);
+            offset = 1.F * newBounds.getX() / boxWidth;
             constrainer->setMinimumOnscreenAmounts (getHeight(), getWidth(), getHeight(), getWidth());
+        }
+        if (event.getPosition().getY() < 0 && row > 0)
+        {
+            std::cout << "move up" << std::endl;
+            changePitch(this, -1);
+            row--;
+        }
+        else if (event.getPosition().getY() > boxHeight && row < Globals::midiNoteNum-1)
+        {
+            std::cout << "move down" << std::endl;
+            changePitch(this, 1);
+            row++;
+        }
+        else
+        {
+            //std::cout << "stay" << std::endl;
         }
     }
     
@@ -107,6 +124,8 @@ public:
         g.drawRoundedRectangle(0, 0, length*boxWidth, boxHeight, 4, 1);
     }
     
+    std::function<void(PianoRollNote*, int)> changePitch;
+    
 private:
     
     bool                init = false;
@@ -123,6 +142,8 @@ private:
     ComponentDragger                myDragger;
     ResizableBorderComponent*       border;
     ComponentBoundsConstrainer*     constrainer;
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PianoRollNote)
 };
 
 class NoteList
@@ -139,7 +160,7 @@ public:
     ~NoteList()
     {
         for (int i = 0; i < Globals::midiNoteNum; i++) {
-            for (int j = 0; j < noteList[i].size(); j++)
+            for (int j = noteList[i].size() - 1; j >= 0 ; j--)
                 if (getNote(i, j))
                     deleteNote(i, j);
             noteList[i].clear();
@@ -162,6 +183,18 @@ public:
         std::cout << "add Note to row: " << row << " offset: " << pianoRollNote->getOffset() << std::endl;
 
         noteList[row].add(pianoRollNote);
+    }
+    
+    void detachNote(int row, PianoRollNote* noteToMove)
+    {
+        std::cout << "remove Note from row: " << row << " offset: " << noteToMove->getOffset() << std::endl;
+        noteList[row].removeFirstMatchingValue(noteToMove);
+    }
+    
+    void moveNote(int row, PianoRollNote* noteToMove, int direction)
+    {
+        detachNote(row, noteToMove);
+        addNote(row+direction, noteToMove);
     }
     
     void deleteNote(int row, int idx)

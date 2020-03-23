@@ -10,9 +10,6 @@
 
 #pragma once
 
-class NoteList;
-class SelectedNoteList;
-
 class NoteLayer: public TableListBoxModel, public NoteList, public SelectedNoteList, public Component
 {
 public:
@@ -75,7 +72,6 @@ public:
         }
     }
     
-private:
     class RowComponent  : public Component
     {
     public:
@@ -127,11 +123,14 @@ private:
         {
             auto* existingNote = static_cast<PianoRollNote*> (event.originalComponent);
             
+            std::cout << "mouseDown called: " << row << std::endl;
+            
             if (existingNote->ifInit() == false)   // create a new note
             {
                 float offset = 1.F*event.getMouseDownX() / boxWidth;
                 offset = (static_cast<int> (offset*2))/2.F; // quantize
                 PianoRollNote* newNote = new PianoRollNote(row,offset);
+                newNote->changePitch = [this] (PianoRollNote* note, int direction) { changePitch(note, direction); };
                 
                 owner.addNote(row, newNote);
                 owner.selectOneNote(newNote);
@@ -149,6 +148,29 @@ private:
             }
         }
         
+        void detachNote(PianoRollNote* noteToDetach)
+        {
+            removeChildComponent(noteToDetach);
+            repaint();
+        }
+        
+        void attachNote(PianoRollNote* noteToAttach)
+        {
+            addAndMakeVisible(noteToAttach);
+            std::cout << "attachpitch rowcomp: " << row << std::endl;
+            noteToAttach->changePitch = [this] (PianoRollNote* note, int direction) { changePitch(note, direction); };
+            repaint();
+        }
+        
+        void changePitch(PianoRollNote* noteToMove, int direction)
+        {
+            std::cout << "changepitch rowcomp: " << row << std::endl;
+            detachNote(noteToMove);
+            RowComponent* targetRow = static_cast<RowComponent*> (owner.oneColumnTable.getCellComponent(1,row+direction));
+            targetRow->attachNote(noteToMove);
+            owner.moveNote(row, noteToMove, direction);
+        }
+        
         void addToSelected(PianoRollNote* noteToAdd)
         {
             owner.selectOneNote(noteToAdd);
@@ -164,5 +186,7 @@ private:
         
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RowComponent)
     };
+    
+private:
     TableListBox oneColumnTable;
 };
