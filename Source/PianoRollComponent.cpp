@@ -35,9 +35,10 @@ PianoRollComponent::PianoRollComponent()
     header->setColour (TextButton::buttonColourId, Colours::cornflowerblue);
     header->setButtonText ("Ticks");
     
-    sidebar = addToList(new TextButton());
-    sidebar->setColour (TextButton::buttonColourId, Colours::grey);
-    sidebar->setButtonText ("Piano Keys");
+//    sidebar = addToList(new TextButton());
+//    sidebar->setColour (TextButton::buttonColourId, Colours::grey);
+//    sidebar->setButtonText ("Piano Keys");
+    keyboardComponent = addToList(new CustomKeyboardComponent());
     
     noteLayer = addToList(new NoteLayer());
     noteLayer->setColour (TextButton::buttonColourId, Colours::grey);
@@ -59,11 +60,11 @@ void PianoRollComponent::resized()
 {
     auto area = getLocalBounds();
     
-    auto sidebarWidth = 80;
-    sidebar->setBounds (area.removeFromLeft (sidebarWidth));
-    
     auto headerFooterHeight = 20;
     header->setBounds (area.removeFromTop    (headerFooterHeight));
+    
+    auto sidebarWidth = 80;
+    keyboardComponent->setBounds (area.removeFromLeft (sidebarWidth));
     
     noteLayer->setBounds(sidebarWidth, headerFooterHeight, area.getWidth(), area.getHeight());
 }

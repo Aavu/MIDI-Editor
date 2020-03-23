@@ -17,7 +17,7 @@ NoteLayer::NoteLayer(): NoteList(this), SelectedNoteList(this)
     oneColumnTable.setModel(this);
     
     // hide horizontal scroll bars
-    oneColumnTable.getViewport()->setScrollBarsShown(true, true, true, true);
+    oneColumnTable.getViewport()->setScrollBarsShown(false, false, true, true);
     // hide header
     oneColumnTable.setHeaderHeight(0);
     oneColumnTable.setRowHeight(Globals::noteHeight);

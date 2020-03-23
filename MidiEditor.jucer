@@ -5,6 +5,10 @@
     <GROUP id="{4D02D25C-6694-ABA1-B776-755A0F43BA73}" name="Source">
       <FILE id="bbEHsw" name="Globals.h" compile="0" resource="0" file="Source/Globals.h"/>
       <GROUP id="{103ADE2F-5893-FA2C-69AE-13E6AB726A03}" name="PianoRoll">
+        <FILE id="pF36lR" name="CustomKeyboardComponent.cpp" compile="1" resource="0"
+              file="Source/CustomKeyboardComponent.cpp"/>
+        <FILE id="jTS83F" name="CustomKeyboardComponent.h" compile="0" resource="0"
+              file="Source/CustomKeyboardComponent.h"/>
         <FILE id="SBZvZA" name="PianoRollComponent.cpp" compile="1" resource="0"
               file="Source/PianoRollComponent.cpp"/>
         <FILE id="CZFcAX" name="PianoRollNote.cpp" compile="1" resource="0"

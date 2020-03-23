@@ -18,6 +18,7 @@
 #include "PianoRollHeader.h"
 #include "PianoRollNote.h"
 #include "NoteLayer.h"
+#include "CustomKeyboardComponent.h"
 
 class OtherLookAndFeel;
 class DragTextButton;
@@ -57,7 +58,8 @@ private:
     OtherLookAndFeel otherLookAndFeel;
     
     PianoRollHeader                 *header;
-    TextButton                      *sidebar;
+    
+    CustomKeyboardComponent         *keyboardComponent;
     
     NoteLayer                       *noteLayer;
     
