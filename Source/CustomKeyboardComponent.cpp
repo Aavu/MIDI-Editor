@@ -13,6 +13,7 @@
 
 CustomKeyboardComponent::CustomKeyboardComponent(): MidiKeyboardComponent(*this, MidiKeyboardComponent::verticalKeyboardFacingRight)
 {
+    setSize(80, Globals::tickNum*Globals::noteWidth);
     setBlackNoteWidthProportion(ratio);
     setBlackNoteLengthProportion(0.8f);
     setKeyWidth(Globals::noteHeight*12.0/7);
@@ -38,4 +39,9 @@ Range<float> CustomKeyboardComponent::getKeyPosition(int midiNoteNumber,float ke
     auto width = MidiMessage::isMidiNoteBlack (note) ? ratio * keyWidth : (notePos[note+1]-notePos[note])*keyWidth;
     
     return { start, start + width };
+}
+
+void CustomKeyboardComponent::mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel)
+{
+    Component::mouseWheelMove(e, wheel);
 }

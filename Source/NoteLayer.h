@@ -52,6 +52,8 @@ public:
         void changePitch(PianoRollNote* noteToMove, int direction);
         
         void addToSelected(PianoRollNote* noteToAdd);
+
+        void mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel) override;
     
         NoteLayer& owner;
         int row = -1;

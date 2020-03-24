@@ -63,6 +63,22 @@ private:
     
     NoteLayer                       *noteLayer;
     
+    TextButton                      *sidebar;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PianoRollComponent)
+};
+
+class ScrollablePianoRollComponent: public Component
+{
+public:
+
+    ScrollablePianoRollComponent();
+
+    void resized() override;
+
+private:
+
+    Viewport viewPort;
+    PianoRollComponent cpn;
 };

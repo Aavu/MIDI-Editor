@@ -31,9 +31,9 @@ PianoRollComponent::PianoRollComponent()
 {
     setLookAndFeel (&otherLookAndFeel);
     
-    header = addToList(new PianoRollHeader());
-    header->setColour (TextButton::buttonColourId, Colours::cornflowerblue);
-    header->setButtonText ("Ticks");
+//    header = addToList(new PianoRollHeader());
+//    header->setColour (TextButton::buttonColourId, Colours::cornflowerblue);
+//    header->setButtonText ("Ticks");
     
 //    sidebar = addToList(new TextButton());
 //    sidebar->setColour (TextButton::buttonColourId, Colours::grey);
@@ -43,7 +43,7 @@ PianoRollComponent::PianoRollComponent()
     noteLayer = addToList(new NoteLayer());
     noteLayer->setColour (TextButton::buttonColourId, Colours::grey);
     
-    setSize (800, 400);
+    //setSize (800, 400);
 }
 
 PianoRollComponent::~PianoRollComponent()
@@ -60,13 +60,14 @@ void PianoRollComponent::resized()
 {
     auto area = getLocalBounds();
     
-    auto headerFooterHeight = 20;
-    header->setBounds (area.removeFromTop    (headerFooterHeight));
+//    auto headerFooterHeight = 20;
+//    header->setBounds (area.removeFromTop    (headerFooterHeight));
     
     auto sidebarWidth = 80;
+    //sidebar->setBounds (area.removeFromLeft (sidebarWidth));
     keyboardComponent->setBounds (area.removeFromLeft (sidebarWidth));
     
-    noteLayer->setBounds(sidebarWidth, headerFooterHeight, area.getWidth(), area.getHeight());
+    noteLayer->setBounds(sidebarWidth, 0, area.getWidth(), area.getHeight());
 }
 
 template <typename ComponentType>
@@ -75,4 +76,22 @@ ComponentType* PianoRollComponent::addToList (ComponentType* newComp)
     components.add (newComp);
     addAndMakeVisible (newComp);
     return newComp;
+}
+
+//------------------------ScrollablePianoRollComponent--------------------------
+
+ScrollablePianoRollComponent::ScrollablePianoRollComponent()
+{
+    cpn.setSize(800,Globals::midiNoteNum*Globals::noteHeight);
+    viewPort.setScrollBarsShown(true, false, true, false);
+    viewPort.setViewedComponent(&cpn, false);
+    
+    addAndMakeVisible(&viewPort);
+
+    setSize (800, 400);
+}
+
+void ScrollablePianoRollComponent::resized()
+{
+    viewPort.setBoundsRelative(0.0f, 0.0f, 1.0f, 1.0f);
 }

@@ -17,7 +17,7 @@ NoteLayer::NoteLayer(): NoteList(this), SelectedNoteList(this)
     oneColumnTable.setModel(this);
     
     // hide horizontal scroll bars
-    oneColumnTable.getViewport()->setScrollBarsShown(false, false, true, true);
+    oneColumnTable.getViewport()->setScrollBarsShown(false, false, false, true);
     // hide header
     oneColumnTable.setHeaderHeight(0);
     oneColumnTable.setRowHeight(Globals::noteHeight);
@@ -167,7 +167,14 @@ void NoteLayer::RowComponent::addToSelected(PianoRollNote* noteToAdd)
     owner.selectOneNote(noteToAdd);
 }
 
-
+void NoteLayer::RowComponent::mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel)
+{
+    // intercept mouseWheelMove event here, send the event to both owner (which later passes it to ScrollablePianoRollComponent)
+    // and its parent (as it originally does)
+    
+    owner.mouseWheelMove (e.getEventRelativeTo (&owner), wheel);
+    getParentComponent()->mouseWheelMove(e, wheel);
+}
 
 
 
