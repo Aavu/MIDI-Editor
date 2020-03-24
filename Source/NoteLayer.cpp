@@ -172,8 +172,14 @@ void NoteLayer::RowComponent::mouseWheelMove (const MouseEvent& e, const MouseWh
     // intercept mouseWheelMove event here, send the event to both owner (which later passes it to ScrollablePianoRollComponent)
     // and its parent (as it originally does)
     
-    owner.mouseWheelMove (e.getEventRelativeTo (&owner), wheel);
-    getParentComponent()->mouseWheelMove(e, wheel);
+    MouseWheelDetails wheel_h = wheel;
+    MouseWheelDetails wheel_v = wheel;
+    
+    wheel_h.deltaY = 0;
+    wheel_v.deltaX = 0;
+    
+    owner.mouseWheelMove (e.getEventRelativeTo (&owner), wheel_v);
+    getParentComponent()->mouseWheelMove(e, wheel_h);
 }
 
 
