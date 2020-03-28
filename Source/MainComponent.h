@@ -9,6 +9,8 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "Components/TransportComponent.h"
+#include "Components/MenuComponent.h"
 
 #include "Synth/MidiSynth.h"
 #include "Synth/SfzMidiSynth.h"
@@ -35,15 +37,24 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
 
+    bool fileCallback(CommandID);
+    void handleFileOpen();
+
 private:
     //==============================================================================
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
+    void timerCallback() override;
+
+    // Your private member variables go here...
+    TransportComponent transportBar;
+    MenuComponent menu;
+    MidiFile midiFile;
 
     SfzSynthAudioSource synthAudioSource;
     MidiKeyboardState keyboardState;
     MidiKeyboardComponent keyboardComponent;
 
-    void timerCallback() override;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

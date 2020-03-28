@@ -15,6 +15,10 @@ MainComponent::MainComponent() :
 {
     // Make sure you set the size of the component after
     // you add any child components.
+    addAndMakeVisible(transportBar);
+    addAndMakeVisible(menu);
+    menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
+
     setSize (800, 600);
 
     // Some platforms require permissions to open input channels so request that here
@@ -81,7 +85,8 @@ void MainComponent::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-
+    g.setFont (Font (16.0f));
+    g.setColour (Colours::white);
     // You can add your drawing code here!
 }
 
@@ -90,6 +95,30 @@ void MainComponent::resized()
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
+    Rectangle<int> transportBounds = getLocalBounds();
+    int height = transportBounds.getHeight();
+    transportBounds.setHeight(64);
+    transportBounds.setY(height - 64);
+    transportBar.setBounds(transportBounds);
+}
+
+bool MainComponent::fileCallback(CommandID commandID) {
+    switch (commandID)
+    {
+        case MenuComponent::fileOpen:
+            handleFileOpen();
+            break;
+
+        case MenuComponent::fileExportAudio:
+            break;
+
+        case MenuComponent::fileExportMIDI:
+            break;
+
+        default:
+            return false;
+    }
+    return true;
     keyboardComponent.setBounds(10,10, getWidth()-20, getHeight()-20);
 }
 
@@ -107,4 +136,34 @@ String MainComponent::getAbsolutePathOfProject(const String &projectFolderName) 
            return String();
     }
     return currentDir.getFullPathName();
+}
+
+void MainComponent::handleFileOpen() {
+    FileChooser chooser ("Select a MIDI file to play...", {}, "*.mid");
+
+    if (chooser.browseForFileToOpen()) {
+        auto file = chooser.getResult();
+        FileInputStream* stream = file.createInputStream();
+        bool err = midiFile.readFrom(*stream);
+        if (!err) {
+            std::cerr << "Error readFrom MidiFile" << std::endl;
+            return;
+        }
+        const MidiMessageSequence* sequence = midiFile.getTrack(0);
+        midiFile.convertTimestampTicksToSeconds();
+        auto lastTime = midiFile.getLastTimestamp();
+        std::cout << lastTime << std::endl;
+        int i = 0;
+        double time = 0;
+        while(time < lastTime) {
+            juce::MidiMessageSequence::MidiEventHolder* holder = sequence->getEventPointer(i);
+            MidiMessage msg = holder->message;
+            int noteNumber = msg.getNoteNumber();
+            String note = msg.getMidiNoteName(noteNumber, true, true, 3);
+            time = msg.getTimeStamp();
+            std::cout << note << "\t" << time << "\t" << msg.getFloatVelocity() << std::endl;
+            i++;
+        }
+        delete stream;
+    }
 }

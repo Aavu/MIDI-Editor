@@ -10,6 +10,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainComponent.h"
+#include "MainComponentK.h"
 
 //==============================================================================
 class MidiEditorApplication  : public JUCEApplication
@@ -66,7 +67,7 @@ public:
                                                     DocumentWindow::allButtons)
         {
             setUsingNativeTitleBar (true);
-            setContentOwned (new MainComponent(), true);
+            setContentOwned (new MainComponentK(), true);
 
            #if JUCE_IOS || JUCE_ANDROID
             setFullScreen (true);
