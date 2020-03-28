@@ -36,7 +36,7 @@
         <MODULEPATH id="juce_gui_basics" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_opengl" path="../../../../../Software/JUCE/modules"/>
-        <MODULEPATH id="SFZero" path="../../../../../Software/JUCE/user_modules"/>
+        <MODULEPATH id="SFZero" path="JuceLibraryCode/modules/SFZero"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <CLION targetFolder="Builds/CLion">
@@ -72,7 +72,7 @@
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="SFZero" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="SFZero" showAllCode="1" useLocalCopy="1" useGlobalPath="0"/>
   </MODULES>
   <LIVE_SETTINGS>
     <OSX/>
