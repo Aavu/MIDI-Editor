@@ -37,6 +37,7 @@ public:
 
 private:
     //==============================================================================
+    static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
 
     SfzSynthAudioSource synthAudioSource;
     MidiKeyboardState keyboardState;
