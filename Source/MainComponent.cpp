@@ -31,6 +31,9 @@ MainComponent::MainComponent() :
         addAndMakeVisible(keyboardComponent);
         setSize(600, 160);
         startTimer(400);
+
+        synthAudioSource.setSfzFile(new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2"));
+
     }
 }
 
@@ -93,4 +96,15 @@ void MainComponent::resized()
 void MainComponent::timerCallback() {
     keyboardComponent.grabKeyboardFocus();
     stopTimer();
+}
+
+String MainComponent::getAbsolutePathOfProject(const String &projectFolderName) {
+    File currentDir = File::getCurrentWorkingDirectory();
+
+    while (currentDir.getFileName() != projectFolderName) {
+        currentDir = currentDir.getParentDirectory();
+        if (currentDir.getFullPathName() == "/")
+           return String();
+    }
+    return currentDir.getFullPathName();
 }

@@ -6,6 +6,9 @@
       <GROUP id="{B3A1646D-D871-7097-4903-DFA0B16447B6}" name="Synth">
         <FILE id="J8O2hq" name="MidiSynth.cpp" compile="1" resource="0" file="Source/Synth/MidiSynth.cpp"/>
         <FILE id="eAye7x" name="MidiSynth.h" compile="0" resource="0" file="Source/Synth/MidiSynth.h"/>
+        <FILE id="VI29rW" name="SfzMidiSynth.cpp" compile="1" resource="0"
+              file="Source/Synth/SfzMidiSynth.cpp"/>
+        <FILE id="bGmZVz" name="SfzMidiSynth.h" compile="0" resource="0" file="Source/Synth/SfzMidiSynth.h"/>
       </GROUP>
       <FILE id="SGJ7oP" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="BOWg84" name="MainComponent.cpp" compile="1" resource="0"
@@ -33,6 +36,7 @@
         <MODULEPATH id="juce_gui_basics" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_opengl" path="../../../../../Software/JUCE/modules"/>
+        <MODULEPATH id="SFZero" path="JuceLibraryCode/modules/SFZero"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <CLION targetFolder="Builds/CLion">
@@ -50,6 +54,7 @@
         <MODULEPATH id="juce_gui_basics" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_opengl" path="../../../../../Software/JUCE/modules"/>
+        <MODULEPATH id="SFZero" path="../../../../../Software/JUCE/user_modules"/>
       </MODULEPATHS>
     </CLION>
   </EXPORTFORMATS>
@@ -67,6 +72,7 @@
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="SFZero" showAllCode="1" useLocalCopy="1" useGlobalPath="0"/>
   </MODULES>
   <LIVE_SETTINGS>
     <OSX/>

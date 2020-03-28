@@ -1,6 +1,7 @@
 # JUCE 
 Builds/
-JuceLibraryCode/
+JuceLibraryCode/*
+!JuceLibraryCode/modules/
 
 # MacOS
 .DS_Store
