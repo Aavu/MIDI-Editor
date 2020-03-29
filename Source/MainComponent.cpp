@@ -13,11 +13,20 @@ MainComponent::MainComponent()
 {
     // Make sure you set the size of the component after
     // you add any child components.
-    addAndMakeVisible(transportBar);
-    addAndMakeVisible(menu);
-    menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
+    addAndMakeVisible(m_transportBar);
+    addAndMakeVisible(m_menu);
+    m_menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
 
     setSize (1000, 500);
+
+    // Create Player
+    // Create Player
+    m_pPlayer = new PlayerComponent();
+    m_transportBar.init(m_pPlayer);
+
+    //TracksView
+    m_trackView.init(0);
+    addAndMakeVisible(m_trackView);
 
     // Some platforms require permissions to open input channels so request that here
     if (RuntimePermissions::isRequired (RuntimePermissions::recordAudio)
@@ -32,19 +41,23 @@ MainComponent::MainComponent()
         setAudioChannels (2, 2);
     }
 
-    // Create Player
-    player = new PlayerComponent();
-    transportBar.init(player);
-
-    //TracksView
-    trackView.init(0);
-    addAndMakeVisible(trackView);
+    if (auto* device = deviceManager.getCurrentAudioDevice())
+    {
+        DBG ("Current audio device: "   + device->getName().quoted());
+        DBG ("Sample rate: "    + String (device->getCurrentSampleRate()) + " Hz");
+        DBG ("Block size: "     + String (device->getCurrentBufferSizeSamples()) + " samples");
+        DBG ("Bit depth: "      + String (device->getCurrentBitDepth()));
+    }
+    else
+    {
+        DBG ("No audio device open");
+    }
 }
 
 MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
-    delete player;
+    delete m_pPlayer;
     shutdownAudio();
 }
 
@@ -58,6 +71,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     // but be careful - it will be called on the audio thread, not the GUI thread.
 
     // For more details, see the help for AudioProcessor::prepareToPlay()
+    m_pPlayer->prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -66,8 +80,9 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 
     // For more details, see the help for AudioProcessor::getNextAudioBlock()
 
-    // Right now we are not producing any data, in which case we need to clear the buffer
+    // Right now we are not producing any data, in which case we need to clear the m_buffer
     // (to prevent the output of random noise)
+    m_pPlayer->getNextAudioBlock(bufferToFill);
     bufferToFill.clearActiveBufferRegion();
 }
 
@@ -98,24 +113,24 @@ void MainComponent::resized()
     int height = bounds.getHeight();
     bounds.setHeight(64);
     bounds.setY(height - 64);
-    transportBar.setBounds(bounds);
+    m_transportBar.setBounds(bounds);
 
     bounds = getLocalBounds();
-    bounds.removeFromBottom(transportBar.getBounds().getHeight());
-    trackView.setBounds(bounds);
+    bounds.removeFromBottom(m_transportBar.getBounds().getHeight());
+    m_trackView.setBounds(bounds);
 }
 
 bool MainComponent::fileCallback(CommandID commandID) {
     switch (commandID)
     {
-        case Menu::fileOpen:
+        case MenuComponent::fileOpen:
             handleFileOpen();
             break;
 
-        case Menu::fileExportAudio:
+        case MenuComponent::fileExportAudio:
             break;
 
-        case Menu::fileExportMIDI:
+        case MenuComponent::fileExportMIDI:
             break;
 
         default:
@@ -130,17 +145,17 @@ void MainComponent::handleFileOpen() {
     if (chooser.browseForFileToOpen()) {
         auto file = chooser.getResult();
         FileInputStream* stream = file.createInputStream();
-        bool err = midiFile.readFrom(*stream);
+        bool err = m_midiFile.readFrom(*stream);
         if (!err) {
             std::cerr << "Error readFrom MidiFile" << std::endl;
             return;
         }
-        const MidiMessageSequence* sequence = midiFile.getTrack(0);
-        midiFile.convertTimestampTicksToSeconds();
-        trackView.addTrack();
-        // Add sequence to player
+        const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
+        m_midiFile.convertTimestampTicksToSeconds();
+        m_trackView.addTrack();
+        // Add sequence to m_pPlayer
 
-        player->setMidiMessageSequence(sequence);
+        m_pPlayer->setMidiMessageSequence(sequence);
         delete stream;
     }
 }

@@ -20,7 +20,7 @@ class TransportBarComponent    : public Component
 {
 public:
     TransportBarComponent();
-    ~TransportBarComponent();
+    ~TransportBarComponent() override;
 
     void paint (Graphics&) override;
     void resized() override;
@@ -28,11 +28,12 @@ public:
     void init(PlayerComponent* playerComponent);
 
 private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TransportBarComponent)
-    TextButton playBtn;
-    TextButton stopBtn;
+    TextButton m_playBtn;
+    TextButton m_stopBtn;
     void playBtnClicked();
     void stopBtnClicked();
 
-    PlayerComponent *player = nullptr;
+    PlayerComponent *m_pPlayer = nullptr;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TransportBarComponent)
 };

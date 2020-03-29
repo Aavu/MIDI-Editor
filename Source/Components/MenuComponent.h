@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    Menu.h
+    MenuComponent.h
     Created: 12 Jan 2020 12:28:18pm
     Author:  Raghavasimhan Sankaranarayanan
 
@@ -18,13 +18,13 @@
 /*
 */
 
-class Menu    : public Component,
-                public ApplicationCommandTarget,
-                public MenuBarModel
+class MenuComponent    : public Component,
+                         public ApplicationCommandTarget,
+                         public MenuBarModel
 {
 public:
-    Menu();
-    ~Menu();
+    MenuComponent();
+    ~MenuComponent();
     
     enum CommandIDs {
         fileOpen = 1,
@@ -213,5 +213,5 @@ private:
     };
     
     EditCommandTarget editCommandTarget {commandManager};
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Menu)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MenuComponent)
 };

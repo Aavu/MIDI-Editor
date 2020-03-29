@@ -13,21 +13,17 @@
 
 //==============================================================================
 TransportBarComponent::TransportBarComponent() :
-    playBtn("play"),
-    stopBtn("stop"),
-    player(nullptr)
+        m_playBtn("play"),
+        m_stopBtn("stop"),
+        m_pPlayer(nullptr)
 {
-    // In your constructor, you should add any child components, and
-    // initialise any special settings that your component needs.
-    playBtn.onClick = [this] {playBtnClicked();};
-    stopBtn.onClick = [this] {stopBtnClicked();};
-    playBtn.setColour(TextButton::buttonColourId, Colours::blue);
-    stopBtn.setColour(TextButton::buttonColourId, Colours::red);
-    playBtn.setEnabled(true);
-    stopBtn.setEnabled(false);
-    addAndMakeVisible(&playBtn);
-    addAndMakeVisible(&stopBtn);
+    m_playBtn.onClick = [this] {playBtnClicked();};
+    m_stopBtn.onClick = [this] {stopBtnClicked();};
+    m_playBtn.setColour(TextButton::buttonColourId, Colours::blue);
+    m_stopBtn.setColour(TextButton::buttonColourId, Colours::red);
 
+    addAndMakeVisible(&m_playBtn);
+    addAndMakeVisible(&m_stopBtn);
 }
 
 TransportBarComponent::~TransportBarComponent()
@@ -44,23 +40,46 @@ void TransportBarComponent::resized()
     // This method is where you should set the bounds of any child
     // components that your component contains..
     int pad = 8;
-    playBtn.setBounds(pad, pad, 50, getHeight() - pad*2);
-    stopBtn.setBounds(getHeight() + pad, pad, 50, getHeight() - pad*2);
+    m_playBtn.setBounds(pad, pad, 50, getHeight() - pad * 2);
+    m_stopBtn.setBounds(getHeight() + pad, pad, 50, getHeight() - pad * 2);
 }
 
 void TransportBarComponent::playBtnClicked()
 {
-    playBtn.setButtonText("pause");
-    stopBtn.setEnabled(true);
-    player->play();
+    auto state = m_pPlayer->getPlayState();
+
+    switch (state) {
+        case PlayerComponent::PlayState::Playing:
+            m_pPlayer->pause();
+            m_playBtn.setButtonText("Resume");
+            break;
+
+        case PlayerComponent::PlayState::Paused:
+        case PlayerComponent::PlayState::Stopped:
+            m_pPlayer->play();
+            m_playBtn.setButtonText("Pause");
+            break;
+    }
 }
 
 void TransportBarComponent::stopBtnClicked()
 {
-    stopBtn.setEnabled(false);
-    playBtn.setButtonText("play");
+    auto state = m_pPlayer->getPlayState();
+
+    switch (state) {
+        case PlayerComponent::PlayState::Playing:
+            m_pPlayer->pause();
+            m_playBtn.setButtonText("Resume");
+            break;
+
+        case PlayerComponent::PlayState::Paused:
+        case PlayerComponent::PlayState::Stopped:
+            m_pPlayer->stop();
+            m_playBtn.setButtonText("Play");
+            break;
+    }
 }
 
 void TransportBarComponent::init(PlayerComponent* playerComponent) {
-    player = playerComponent;
+    m_pPlayer = playerComponent;
 }

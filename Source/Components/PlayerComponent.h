@@ -11,6 +11,8 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include <memory>
+#include <vector>
 
 //==============================================================================
 /*
@@ -19,7 +21,7 @@
 //TODO: Implement play pause stop states.
 //TODO: Use separate thread for timing instead of Timer class.?
 
-class PlayerComponent    : public Component, private Timer
+class PlayerComponent    : public Component
 {
 public:
     PlayerComponent();
@@ -28,27 +30,38 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 
+    void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
+    void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill);
 
     void setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq);
-    void resetPlayHead();
-    void play(); //This currently restarts playback.
-    //TODO: pause, stop
+    void play();
+    void pause();
+    void stop();
+
+    enum class PlayState {
+        Playing,
+        Paused,
+        Stopped
+    };
+
+    PlayState getPlayState();
+    void updateNumSamples(int bufferSize);
+    void resetCurrentPosition();
 
 private:
-    void timerCallback() override;
     void addMessageToBuffer(const MidiMessage& message);
     void addAllSequenceMessagesToBuffer();
-    void resetStartTime();
-    void startPlayerTimer();
-    void stopPlayerTimer();
 
 
+    const MidiMessageSequence* m_midiMessageSequence = nullptr;
+    MidiBuffer m_buffer;
+    std::unique_ptr<MidiBuffer::Iterator> m_pIterator;
+    double m_fSampleRate = 0;
+    int m_iSamplesPerBlockExpected = 0;
+    PlayState m_playState = PlayState::Stopped;
+    int m_iCurrentPosition = 0;
 
-    const MidiMessageSequence* midiMessageSequence = nullptr;
-    MidiBuffer buffer;
-    double startTime = 0;
-    double sampleRate = 44100; //TODO: Set through constructor / setter?
-    double previousSampleNumber = 0;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlayerComponent)
 };

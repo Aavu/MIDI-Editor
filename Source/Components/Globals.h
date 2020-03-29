@@ -13,6 +13,6 @@
 #ifndef GLOBALS
 #define GLOBALS
 //namespace Globals {
-//MidiFile midiFile;
+//MidiFile m_midiFile;
 //};
 #endif

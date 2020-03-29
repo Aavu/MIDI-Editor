@@ -10,7 +10,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Components/TransportBarComponent.h"
-#include "Components/Menu.h"
+#include "Components/MenuComponent.h"
 #include "Components/PlayerComponent.h"
 #include "Components/TrackViewComponent.h"
 
@@ -41,14 +41,14 @@ public:
 private:
     //==============================================================================
     // Your private member variables go here...
-    TransportBarComponent transportBar;
-    Menu menu;
-    MidiFile midiFile;
+    TransportBarComponent m_transportBar;
+    MenuComponent m_menu;
+    MidiFile m_midiFile;
 
-    PlayerComponent* player;
+    PlayerComponent* m_pPlayer;
 
     // TrackViewComponents
-    TrackViewComponent trackView;
+    TrackViewComponent m_trackView;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
