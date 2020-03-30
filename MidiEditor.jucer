@@ -3,30 +3,26 @@
 <JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.5">
   <MAINGROUP id="bseg78" name="MidiEditor">
     <GROUP id="{4D02D25C-6694-ABA1-B776-755A0F43BA73}" name="Source">
-      <FILE id="bbEHsw" name="Globals.h" compile="0" resource="0" file="Source/Globals.h"/>
-      <GROUP id="{103ADE2F-5893-FA2C-69AE-13E6AB726A03}" name="PianoRoll">
-        <FILE id="pF36lR" name="CustomKeyboardComponent.cpp" compile="1" resource="0"
-              file="Source/CustomKeyboardComponent.cpp"/>
-        <FILE id="jTS83F" name="CustomKeyboardComponent.h" compile="0" resource="0"
-              file="Source/CustomKeyboardComponent.h"/>
-        <FILE id="SBZvZA" name="PianoRollComponent.cpp" compile="1" resource="0"
-              file="Source/PianoRollComponent.cpp"/>
-        <FILE id="CZFcAX" name="PianoRollNote.cpp" compile="1" resource="0"
-              file="Source/PianoRollNote.cpp"/>
-        <FILE id="IWaFVJ" name="PianoRollHeader.cpp" compile="1" resource="0"
-              file="Source/PianoRollHeader.cpp" xcodeResource="0"/>
-        <FILE id="TmkxKa" name="NoteLayer.cpp" compile="1" resource="0" file="Source/NoteLayer.cpp"
-              xcodeResource="0"/>
-        <FILE id="VWPCpu" name="PianoRollComponent.h" compile="0" resource="0"
-              file="Source/PianoRollComponent.h"/>
-        <FILE id="EzmspQ" name="NoteLayer.h" compile="0" resource="0" file="Source/NoteLayer.h"/>
-        <FILE id="el1DTU" name="PianoRollNote.h" compile="0" resource="0" file="Source/PianoRollNote.h"/>
-        <FILE id="Dp5wJF" name="PianoRollHeader.h" compile="0" resource="0"
-              file="Source/PianoRollHeader.h"/>
+      <FILE id="uGbMkU" name="Globals.h" compile="0" resource="0" file="Source/PianoRollComponent/Globals.h"/>
+      <GROUP id="{103ADE2F-5893-FA2C-69AE-13E6AB726A03}" name="PianoRollComponent">
+        <FILE id="TakcGX" name="CustomKeyboardComponent.cpp" compile="1" resource="0"
+              file="Source/PianoRollComponent/CustomKeyboardComponent.cpp"/>
+        <FILE id="lhxqSx" name="CustomKeyboardComponent.h" compile="0" resource="0"
+              file="Source/PianoRollComponent/CustomKeyboardComponent.h"/>
+        <FILE id="McmKnx" name="NoteLayer.cpp" compile="1" resource="0" file="Source/PianoRollComponent/NoteLayer.cpp"/>
+        <FILE id="w6yLaT" name="NoteLayer.h" compile="0" resource="0" file="Source/PianoRollComponent/NoteLayer.h"/>
+        <FILE id="nJjnUz" name="PianoRollHeader.cpp" compile="1" resource="0"
+              file="Source/PianoRollComponent/PianoRollHeader.cpp"/>
+        <FILE id="nzk1ON" name="PianoRollHeader.h" compile="0" resource="0"
+              file="Source/PianoRollComponent/PianoRollHeader.h"/>
+        <FILE id="lOjgZW" name="PianoRollNote.cpp" compile="1" resource="0"
+              file="Source/PianoRollComponent/PianoRollNote.cpp"/>
+        <FILE id="tKQgWT" name="PianoRollNote.h" compile="0" resource="0" file="Source/PianoRollComponent/PianoRollNote.h"/>
+        <FILE id="GP8NGL" name="ScrollablePianoRollComponent.cpp" compile="1"
+              resource="0" file="Source/PianoRollComponent/ScrollablePianoRollComponent.cpp"/>
+        <FILE id="qK7TeQ" name="ScrollablePianoRollComponent.h" compile="0"
+              resource="0" file="Source/PianoRollComponent/ScrollablePianoRollComponent.h"/>
       </GROUP>
-      <FILE id="SGJ7oP" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
-      <FILE id="BOWg84" name="MainComponent.cpp" compile="1" resource="0"
-            file="Source/MainComponent.cpp"/>
       <FILE id="zSqALl" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
     </GROUP>
   </MAINGROUP>

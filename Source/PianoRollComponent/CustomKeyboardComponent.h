@@ -14,7 +14,7 @@
 #include "Globals.h"
 
 // TODO: change keyboardcomponent as a child
-class CustomKeyboardComponent: public MidiKeyboardComponent, public MidiKeyboardState
+class CustomKeyboardComponent: public MidiKeyboardState, public MidiKeyboardComponent
 {
 public:
     CustomKeyboardComponent();

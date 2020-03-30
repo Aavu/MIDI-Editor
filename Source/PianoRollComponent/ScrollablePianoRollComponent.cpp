@@ -1,14 +1,14 @@
 /*
   ==============================================================================
 
-    PianoRollComponent.cpp
+    ScrollablePianoRollComponent.cpp
     Created: 23 Mar 2020 2:05:36am
     Author:  Jiawen Huang
 
   ==============================================================================
 */
 
-#include "PianoRollComponent.h"
+#include "ScrollablePianoRollComponent.h"
 
 //-------------OtherLookAndFeel----------------
 
@@ -82,7 +82,7 @@ ComponentType* PianoRollComponent::addToList (ComponentType* newComp)
 
 ScrollablePianoRollComponent::ScrollablePianoRollComponent()
 {
-    cpn.setSize(800,Globals::midiNoteNum*Globals::noteHeight);
+    cpn.setSize(800,Globals::midiNoteNum*Globals::initNoteHeight);
     viewPort.setScrollBarsShown(true, false, true, false);
     viewPort.setViewedComponent(&cpn, false);
     

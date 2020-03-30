@@ -17,8 +17,8 @@ PianoRollNote::PianoRollNote(int row_n, float offset_n, float length_n, int velo
     border(0)
 {
     init = true;
-    boxWidth = Globals::noteWidth;
-    boxHeight = Globals::noteHeight;
+    boxWidth = Globals::initNoteWidth;
+    boxHeight = Globals::initNoteHeight;
     
     border = new ResizableBorderComponent(this, NULL);
     addChildComponent(border);

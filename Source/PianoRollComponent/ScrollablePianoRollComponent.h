@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    PianoRollComponent.h
+    ScrollablePianoRollComponent.h
     Created: 22 Feb 2020 6:06:34pm
     Author:  Jiawen Huang
 

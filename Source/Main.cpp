@@ -9,8 +9,8 @@
 */
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "MainComponent.h"
-#include "PianoRollComponent.h"
+
+#include "PianoRollComponent/ScrollablePianoRollComponent.h"
 
 //==============================================================================
 class MidiEditorApplication  : public JUCEApplication
@@ -69,7 +69,7 @@ public:
             app(a)
         {
             setUsingNativeTitleBar (true);
-            setContentOwned (new MainComponent(), true);
+            setContentOwned (nullptr, true);
 
            #if JUCE_IOS || JUCE_ANDROID
             setFullScreen (true);

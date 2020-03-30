@@ -15,9 +15,9 @@
 namespace Globals {
     //MidiFile midiFile;
     const int midiNoteNum = 128;
-    const int tickNum = 30;
-    const int noteHeight = 10;
-    const int noteWidth = 40;
+    const int initTimeStamps = 30;
+    const int initNoteHeight = 10;
+    const int initNoteWidth = 40;
     const int longestNote = 20;
 };
 #endif

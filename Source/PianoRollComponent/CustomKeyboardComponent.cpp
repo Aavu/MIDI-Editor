@@ -13,10 +13,10 @@
 
 CustomKeyboardComponent::CustomKeyboardComponent(): MidiKeyboardComponent(*this, MidiKeyboardComponent::verticalKeyboardFacingRight)
 {
-    setSize(80, Globals::tickNum*Globals::noteWidth);
+    setSize(80, Globals::initTimeStamps*Globals::initNoteWidth);
     setBlackNoteWidthProportion(ratio);
     setBlackNoteLengthProportion(0.8f);
-    setKeyWidth(Globals::noteHeight*12.0/7);
+    setKeyWidth(Globals::initNoteHeight*12.0/7);
     setScrollButtonsVisible(false);
 }
 

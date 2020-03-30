@@ -13,14 +13,14 @@
 
 NoteLayer::NoteLayer(): NoteList(this), SelectedNoteList(this)
 {
-    oneColumnTable.getHeader().addColumn("notelayer", 1, Globals::noteWidth * Globals::tickNum, 30, -1,  TableHeaderComponent::ColumnPropertyFlags::notSortable);
+    oneColumnTable.getHeader().addColumn("notelayer", 1, Globals::initNoteWidth * Globals::initTimeStamps, 30, -1,  TableHeaderComponent::ColumnPropertyFlags::notSortable);
     oneColumnTable.setModel(this);
     
     // hide horizontal scroll bars
     oneColumnTable.getViewport()->setScrollBarsShown(false, false, false, true);
     // hide header
     oneColumnTable.setHeaderHeight(0);
-    oneColumnTable.setRowHeight(Globals::noteHeight);
+    oneColumnTable.setRowHeight(Globals::initNoteHeight);
     
     addAndMakeVisible(oneColumnTable);
 }
@@ -53,7 +53,7 @@ Component* NoteLayer::refreshComponentForCell (int rowNumber, int columnId, bool
     auto* pianoRollRow = static_cast<RowComponent*> (existingComponentToUpdate);
     
     if (pianoRollRow == nullptr)
-        pianoRollRow = new RowComponent (*this, rowNumber, columnId, Globals::tickNum);
+        pianoRollRow = new RowComponent (*this, rowNumber, columnId, Globals::initTimeStamps);
     
     pianoRollRow->setRowAndColumn (rowNumber, 0, isRowSelected);
     
@@ -76,8 +76,8 @@ bool NoteLayer::keyPressed(const KeyPress & key)
 
 NoteLayer::RowComponent::RowComponent (NoteLayer& lb, int row_n, int col_n, int tickNum) : owner (lb), row(row_n)
 {
-    boxWidth = Globals::noteWidth;
-    boxHeight = Globals::noteHeight;
+    boxWidth = Globals::initNoteWidth;
+    boxHeight = Globals::initNoteHeight;
     boxNum = tickNum;
     
     Array<PianoRollNote*> notesInRow = owner.getNotesByRow(row);
