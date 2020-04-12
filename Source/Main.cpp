@@ -10,6 +10,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainComponent.h"
+#include "MainComponentK.h"
 
 //==============================================================================
 class MidiEditorApplication  : public JUCEApplication

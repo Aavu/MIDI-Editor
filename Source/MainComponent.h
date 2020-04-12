@@ -9,10 +9,13 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "Components/TransportBarComponent.h"
+#include "Components/TransportComponent.h"
 #include "Components/MenuComponent.h"
 #include "Components/PlayerComponent.h"
 #include "Components/TrackViewComponent.h"
+
+#include "Synth/MidiSynth.h"
+#include "Synth/SfzMidiSynth.h"
 
 //==============================================================================
 /*
@@ -24,7 +27,7 @@ class MainComponent   : public AudioAppComponent
 public:
     //==============================================================================
     MainComponent();
-    ~MainComponent();
+    ~MainComponent() override;
 
     //==============================================================================
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
@@ -41,7 +44,7 @@ public:
 private:
     //==============================================================================
     // Your private member variables go here...
-    TransportBarComponent m_transportBar;
+    TransportComponent m_transportBar;
     MenuComponent m_menu;
     MidiFile m_midiFile;
 
