@@ -39,9 +39,9 @@ private:
     //==============================================================================
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
 
-    SfzSynthAudioSource synthAudioSource;
-    MidiKeyboardState keyboardState;
-    MidiKeyboardComponent keyboardComponent;
+    SfzSynthAudioSource m_synthAudioSource;
+    MidiKeyboardState m_keyboardState;
+    MidiKeyboardComponent m_keyboardComponent;
 
     void timerCallback() override;
 

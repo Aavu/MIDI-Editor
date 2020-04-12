@@ -51,6 +51,6 @@ public:
     void getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) override;
 
 private:
-    MidiKeyboardState& keyboardState;
-    Synthesiser synth; // TODO: Should this be a pointer? Can be initialized later.
+    MidiKeyboardState& m_keyboardState;
+    Synthesiser m_synth; // TODO: Should this be a pointer? Can be initialized later.
 };

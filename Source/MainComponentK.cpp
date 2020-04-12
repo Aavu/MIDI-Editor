@@ -10,8 +10,8 @@
 
 //==============================================================================
 MainComponentK::MainComponentK() :
-        synthAudioSource(keyboardState),
-        keyboardComponent(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
+        m_synthAudioSource(m_keyboardState),
+        m_keyboardComponent(m_keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
     // Make sure you set the size of the component after
     // you add any child components.
@@ -28,11 +28,11 @@ MainComponentK::MainComponentK() :
     {
         // Specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
-        addAndMakeVisible(keyboardComponent);
+        addAndMakeVisible(m_keyboardComponent);
         setSize(600, 160);
         startTimer(400);
 
-        synthAudioSource.setSfzFile(new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2"));
+        m_synthAudioSource.setSfzFile(new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2"));
 
     }
 }
@@ -53,7 +53,7 @@ void MainComponentK::prepareToPlay (int samplesPerBlockExpected, double sampleRa
     // but be careful - it will be called on the audio thread, not the GUI thread.
 
     // For more details, see the help for AudioProcessor::prepareToPlay()
-    synthAudioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    m_synthAudioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void MainComponentK::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -64,7 +64,7 @@ void MainComponentK::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFi
 
     // Right now we are not producing any data, in which case we need to clear the buffer
     // (to prevent the output of random noise)
-    synthAudioSource.getNextAudioBlock(bufferToFill);
+    m_synthAudioSource.getNextAudioBlock(bufferToFill);
 }
 
 void MainComponentK::releaseResources()
@@ -73,7 +73,7 @@ void MainComponentK::releaseResources()
     // restarted due to a setting change.
 
     // For more details, see the help for AudioProcessor::releaseResources()
-    synthAudioSource.releaseResources();
+    m_synthAudioSource.releaseResources();
 }
 
 //==============================================================================
@@ -90,11 +90,11 @@ void MainComponentK::resized()
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
-    keyboardComponent.setBounds(10,10, getWidth()-20, getHeight()-20);
+    m_keyboardComponent.setBounds(10,10, getWidth()-20, getHeight()-20);
 }
 
 void MainComponentK::timerCallback() {
-    keyboardComponent.grabKeyboardFocus();
+    m_keyboardComponent.grabKeyboardFocus();
     stopTimer();
 }
 

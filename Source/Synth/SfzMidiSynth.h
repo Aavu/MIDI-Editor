@@ -28,8 +28,9 @@ public:
     void loadSound(Thread *thread = nullptr);
 
 private:
-    MidiKeyboardState& keyboardState;
-    sfzero::Synth synth;
+    MidiKeyboardState& m_keyboardState;
+    sfzero::Synth m_synth;
+
     //------------------------------SFZero----------------------------------------
 
     class LoadThread : public Thread
@@ -38,13 +39,13 @@ private:
         LoadThread(SfzSynthAudioSource *sfzSynthAudioSrc);
         void run() override;
     protected:
-        SfzSynthAudioSource *sfzSynthAudioSource;
+        SfzSynthAudioSource *m_pSfzSynthAudioSource;
     };
 
     friend class LoadThread;
 
-    double loadProgress;
-    File sfzFile;
-    AudioFormatManager formatManager;
-    LoadThread loadThread;
+    double m_fLoadProgress;
+    File m_sfzFile;
+    AudioFormatManager m_formatManager;
+    LoadThread m_loadThread;
 };
