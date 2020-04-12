@@ -17,35 +17,40 @@ class SfzSynthAudioSource : public AudioSource
 public:
     explicit SfzSynthAudioSource(MidiKeyboardState& keyState);
     void setUsingSineWaveSound();
+
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override;
     void getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) override;
-    //------------------------------SFZero----------------------------------------
+
+    int getProgramNumber() const;
+    juce::String getProgramName() const;
+    void setProgramNumber(int iProgramNumber);
 
     void setSfzFile(File *newSfzFile);
     void setSfzFileThreaded(File *newSfzFile);
-
     void loadSound(Thread *thread = nullptr);
 
 private:
-    MidiKeyboardState& m_keyboardState;
-    sfzero::Synth m_synth;
+    sfzero::Sound * getSound() const;
+    //-------------------------------------
 
-    //------------------------------SFZero----------------------------------------
-
+    // TODO: It might be better to load sounds separately using a different class.
+    //  Don't want to reload sounds for every synth instance
+    friend class LoadThread;
     class LoadThread : public Thread
     {
     public:
-        LoadThread(SfzSynthAudioSource *sfzSynthAudioSrc);
+        explicit LoadThread(SfzSynthAudioSource *sfzSynthAudioSrc);
         void run() override;
     protected:
         SfzSynthAudioSource *m_pSfzSynthAudioSource;
     };
+    //-------------------------------------
 
-    friend class LoadThread;
-
-    double m_fLoadProgress;
+    MidiKeyboardState& m_keyboardState;
+    sfzero::Synth m_synth; //TODO: use ptr and init()
     File m_sfzFile;
     AudioFormatManager m_formatManager;
     LoadThread m_loadThread;
+    double m_fLoadProgress;
 };

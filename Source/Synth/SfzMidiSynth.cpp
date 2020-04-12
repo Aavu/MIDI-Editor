@@ -12,9 +12,8 @@
 
 SfzSynthAudioSource::SfzSynthAudioSource(MidiKeyboardState &keyState) :
         m_keyboardState(keyState),
-        m_fLoadProgress(0.0),
-        m_loadThread(this)
-
+        m_loadThread(this),
+        m_fLoadProgress(0.0)
 {
     for (auto i=0; i<4; ++i)
         m_synth.addVoice(new sfzero::Voice());
@@ -35,6 +34,19 @@ void SfzSynthAudioSource::getNextAudioBlock(const AudioSourceChannelInfo &buffer
     MidiBuffer incomingMidi;
     m_keyboardState.processNextMidiBuffer(incomingMidi, bufferToFill.startSample, bufferToFill.numSamples, true);
     m_synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, bufferToFill.startSample, bufferToFill.numSamples);
+}
+
+int SfzSynthAudioSource::getProgramNumber() const {
+    return getSound()->selectedSubsound();
+}
+
+juce::String SfzSynthAudioSource::getProgramName() const {
+    sfzero::Sound *sound = getSound();
+    return sound->subsoundName(sound->selectedSubsound());
+}
+
+void SfzSynthAudioSource::setProgramNumber(int iProgramNum) {
+    getSound()->useSubsound(iProgramNum);
 }
 
 void SfzSynthAudioSource::setSfzFile(File *newSfzFile)
@@ -83,8 +95,7 @@ void SfzSynthAudioSource::loadSound(Thread *thread)
     }
 
     m_synth.addSound(sound);
-    std::cout << sound->numSubsounds() << std::endl;
-    sound->useSubsound(13);
+    sound->useSubsound(0); // TODO: Use global variable to set default subsound?
 }
 
 SfzSynthAudioSource::LoadThread::LoadThread(SfzSynthAudioSource *sfzSynthAudioSrc)
@@ -95,4 +106,9 @@ SfzSynthAudioSource::LoadThread::LoadThread(SfzSynthAudioSource *sfzSynthAudioSr
 void SfzSynthAudioSource::LoadThread::run()
 {
     m_pSfzSynthAudioSource->loadSound(this);
+}
+
+sfzero::Sound * SfzSynthAudioSource::getSound() const {
+    SynthesiserSound * s = m_synth.getSound(0).get();
+    return dynamic_cast<sfzero::Sound *>(s);
 }
