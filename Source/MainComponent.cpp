@@ -9,17 +9,24 @@
 #include "MainComponent.h"
 
 //==============================================================================
-MainComponent::MainComponent() :
-        synthAudioSource(keyboardState),
-        keyboardComponent(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
+MainComponent::MainComponent()
 {
     // Make sure you set the size of the component after
     // you add any child components.
-    addAndMakeVisible(transportBar);
-    addAndMakeVisible(menu);
-    menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
+    addAndMakeVisible(m_transportBar);
+    addAndMakeVisible(m_menu);
+    m_menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
 
-    setSize (800, 600);
+    setSize (1000, 500);
+
+    // Create Player
+    // Create Player
+    m_pPlayer = new PlayerComponent();
+    m_transportBar.init(m_pPlayer);
+
+    //TracksView
+    m_trackView.init(0);
+    addAndMakeVisible(m_trackView);
 
     // Some platforms require permissions to open input channels so request that here
     if (RuntimePermissions::isRequired (RuntimePermissions::recordAudio)
@@ -32,18 +39,25 @@ MainComponent::MainComponent() :
     {
         // Specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
-        addAndMakeVisible(keyboardComponent);
-        setSize(600, 160);
-        startTimer(400);
+    }
 
-        synthAudioSource.setSfzFile(new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2"));
-
+    if (auto* device = deviceManager.getCurrentAudioDevice())
+    {
+        DBG ("Current audio device: "   + device->getName().quoted());
+        DBG ("Sample rate: "    + String (device->getCurrentSampleRate()) + " Hz");
+        DBG ("Block size: "     + String (device->getCurrentBufferSizeSamples()) + " samples");
+        DBG ("Bit depth: "      + String (device->getCurrentBitDepth()));
+    }
+    else
+    {
+        DBG ("No audio device open");
     }
 }
 
 MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
+    delete m_pPlayer;
     shutdownAudio();
 }
 
@@ -57,7 +71,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     // but be careful - it will be called on the audio thread, not the GUI thread.
 
     // For more details, see the help for AudioProcessor::prepareToPlay()
-    synthAudioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    m_pPlayer->prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -66,9 +80,10 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 
     // For more details, see the help for AudioProcessor::getNextAudioBlock()
 
-    // Right now we are not producing any data, in which case we need to clear the buffer
+    // Right now we are not producing any data, in which case we need to clear the m_buffer
     // (to prevent the output of random noise)
-    synthAudioSource.getNextAudioBlock(bufferToFill);
+    m_pPlayer->getNextAudioBlock(bufferToFill);
+    bufferToFill.clearActiveBufferRegion();
 }
 
 void MainComponent::releaseResources()
@@ -77,7 +92,6 @@ void MainComponent::releaseResources()
     // restarted due to a setting change.
 
     // For more details, see the help for AudioProcessor::releaseResources()
-    synthAudioSource.releaseResources();
 }
 
 //==============================================================================
@@ -85,9 +99,8 @@ void MainComponent::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-    g.setFont (Font (16.0f));
-    g.setColour (Colours::white);
-    // You can add your drawing code here!
+//    g.setFont (Font (16.0f));
+//    g.setColour (Colours::white);
 }
 
 void MainComponent::resized()
@@ -95,11 +108,16 @@ void MainComponent::resized()
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
-    Rectangle<int> transportBounds = getLocalBounds();
-    int height = transportBounds.getHeight();
-    transportBounds.setHeight(64);
-    transportBounds.setY(height - 64);
-    transportBar.setBounds(transportBounds);
+
+    Rectangle<int> bounds = getLocalBounds();
+    int height = bounds.getHeight();
+    bounds.setHeight(64);
+    bounds.setY(height - 64);
+    m_transportBar.setBounds(bounds);
+
+    bounds = getLocalBounds();
+    bounds.removeFromBottom(m_transportBar.getBounds().getHeight());
+    m_trackView.setBounds(bounds);
 }
 
 bool MainComponent::fileCallback(CommandID commandID) {
@@ -119,23 +137,6 @@ bool MainComponent::fileCallback(CommandID commandID) {
             return false;
     }
     return true;
-    keyboardComponent.setBounds(10,10, getWidth()-20, getHeight()-20);
-}
-
-void MainComponent::timerCallback() {
-    keyboardComponent.grabKeyboardFocus();
-    stopTimer();
-}
-
-String MainComponent::getAbsolutePathOfProject(const String &projectFolderName) {
-    File currentDir = File::getCurrentWorkingDirectory();
-
-    while (currentDir.getFileName() != projectFolderName) {
-        currentDir = currentDir.getParentDirectory();
-        if (currentDir.getFullPathName() == "/")
-           return String();
-    }
-    return currentDir.getFullPathName();
 }
 
 void MainComponent::handleFileOpen() {
@@ -144,26 +145,17 @@ void MainComponent::handleFileOpen() {
     if (chooser.browseForFileToOpen()) {
         auto file = chooser.getResult();
         FileInputStream* stream = file.createInputStream();
-        bool err = midiFile.readFrom(*stream);
+        bool err = m_midiFile.readFrom(*stream);
         if (!err) {
             std::cerr << "Error readFrom MidiFile" << std::endl;
             return;
         }
-        const MidiMessageSequence* sequence = midiFile.getTrack(0);
-        midiFile.convertTimestampTicksToSeconds();
-        auto lastTime = midiFile.getLastTimestamp();
-        std::cout << lastTime << std::endl;
-        int i = 0;
-        double time = 0;
-        while(time < lastTime) {
-            juce::MidiMessageSequence::MidiEventHolder* holder = sequence->getEventPointer(i);
-            MidiMessage msg = holder->message;
-            int noteNumber = msg.getNoteNumber();
-            String note = msg.getMidiNoteName(noteNumber, true, true, 3);
-            time = msg.getTimeStamp();
-            std::cout << note << "\t" << time << "\t" << msg.getFloatVelocity() << std::endl;
-            i++;
-        }
+        const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
+        m_midiFile.convertTimestampTicksToSeconds();
+        m_trackView.addTrack();
+        // Add sequence to m_pPlayer
+
+        m_pPlayer->setMidiMessageSequence(sequence);
         delete stream;
     }
 }

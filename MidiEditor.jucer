@@ -15,6 +15,11 @@
         <FILE id="bGmZVz" name="SfzMidiSynth.h" compile="0" resource="0" file="Source/Synth/SfzMidiSynth.h"/>
       </GROUP>
       <GROUP id="{B3A1646D-D871-7097-4903-DFA0B16447B6}" name="Components">
+        <FILE id="cfxNXd" name="Track.h" compile="0" resource="0" file="Source/Components/Track.h"/>
+        <FILE id="xIjdCC" name="TrackParameters.h" compile="0" resource="0"
+              file="Source/Components/TrackParameters.h"/>
+        <FILE id="phIXgK" name="SidebarComponent.h" compile="0" resource="0"
+              file="Source/Components/SidebarComponent.h"/>
         <FILE id="TRFyKS" name="Globals.h" compile="0" resource="0" file="Source/Components/Globals.h"/>
         <FILE id="ddZtCU" name="MenuComponent.cpp" compile="1" resource="0"
               file="Source/Components/MenuComponent.cpp"/>
@@ -27,6 +32,10 @@
               file="Source/Components/TransportComponent.cpp"/>
         <FILE id="Evexho" name="TransportComponent.h" compile="0" resource="0"
               file="Source/Components/TransportComponent.h"/>
+        <FILE id="bhPhQ7" name="TrackViewComponent.cpp" compile="1" resource="0"
+              file="Source/Components/TrackViewComponent.cpp"/>
+        <FILE id="sjiuHY" name="TrackViewComponent.h" compile="0" resource="0"
+              file="Source/Components/TrackViewComponent.h"/>
       </GROUP>
       <FILE id="SGJ7oP" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="BOWg84" name="MainComponent.cpp" compile="1" resource="0"

@@ -11,6 +11,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Components/TransportComponent.h"
 #include "Components/MenuComponent.h"
+#include "Components/PlayerComponent.h"
+#include "Components/TrackViewComponent.h"
 
 #include "Synth/MidiSynth.h"
 #include "Synth/SfzMidiSynth.h"
@@ -20,8 +22,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent   : public AudioAppComponent,
-                        private Timer
+class MainComponent   : public AudioAppComponent
 {
 public:
     //==============================================================================
@@ -42,18 +43,15 @@ public:
 
 private:
     //==============================================================================
-    static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
-    void timerCallback() override;
-
     // Your private member variables go here...
-    TransportComponent transportBar;
-    MenuComponent menu;
-    MidiFile midiFile;
+    TransportComponent m_transportBar;
+    MenuComponent m_menu;
+    MidiFile m_midiFile;
 
-    SfzSynthAudioSource synthAudioSource;
-    MidiKeyboardState keyboardState;
-    MidiKeyboardComponent keyboardComponent;
+    PlayerComponent* m_pPlayer;
 
+    // TrackViewComponents
+    TrackViewComponent m_trackView;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
