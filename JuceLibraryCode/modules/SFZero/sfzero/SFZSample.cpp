@@ -9,7 +9,7 @@
 
 bool sfzero::Sample::load(juce::AudioFormatManager &formatManager)
 {
-    //juce::AudioFormatReader *reader = m_formatManager->createReaderFor(file_);
+    //juce::AudioFormatReader *reader = formatManager->createReaderFor(file_);
     juce::ScopedPointer<juce::AudioFormatReader> reader( formatManager.createReaderFor(file_) );
     
     if (reader == nullptr)
