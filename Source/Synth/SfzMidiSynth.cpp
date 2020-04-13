@@ -61,7 +61,8 @@ void SfzSynthAudioSource::addSound(sfzero::Sound *sound) {
 SfzLoader::SfzLoader() :
         m_loadThread(this),
         m_fLoadProgress(0.0),
-        m_pSound(nullptr)
+        m_pSound(nullptr),
+        m_callback(nullptr)
 {
 }
 
@@ -70,9 +71,10 @@ void SfzLoader::setSfzFile(File *pNewSfzFile)
     m_sfzFile = *pNewSfzFile;
 }
 
-void SfzLoader::loadSound(bool bUseLoaderThread)
+void SfzLoader::loadSound(bool bUseLoaderThread /*= false*/, std::function<void()> *callback /*= nullptr*/)
 {
-    if (bUseLoaderThread) { // Uses separate thread
+    m_callback = *callback; //TODO: is this a good practice??
+    if (bUseLoaderThread) {
         m_loadThread.stopThread(2000);
         m_loadThread.startThread();
     }
@@ -109,12 +111,16 @@ void SfzLoader::load(Thread *thread)
 
     std::cout<< "Load Progress: " << m_fLoadProgress << std::endl;
 
+    m_pSound->useSubsound(0); // TODO: Use global variable to set default subsound?
+
+    if (m_callback) {
+        m_callback();
+    }
+
     if (thread && thread->threadShouldExit())
     {
         return;
     }
-
-    m_pSound->useSubsound(0); // TODO: Use global variable to set default subsound?
 }
 
 SfzLoader::LoadThread::LoadThread(SfzLoader *pSfzLoader) :

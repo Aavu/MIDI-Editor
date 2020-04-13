@@ -35,9 +35,8 @@ MainComponentK::MainComponentK() :
         // Load sound from SoundFont file and add to synth.
         File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
         m_sfzLoader.setSfzFile(soundFontFile);
-        m_sfzLoader.loadSound(true);
-        m_synthAudioSource.addSound(m_sfzLoader.getLoadedSound());
-
+        std::function<void()> addLoadedSoundCallback = [this] () {m_synthAudioSource.addSound(m_sfzLoader.getLoadedSound());};
+        m_sfzLoader.loadSound(true, &addLoadedSoundCallback);
     }
 }
 

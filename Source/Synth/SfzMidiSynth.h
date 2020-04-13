@@ -39,7 +39,7 @@ class SfzLoader {
 public:
     SfzLoader();
     void setSfzFile(File *pNewSfzFile);
-    void loadSound(bool bUseLoaderThread = false);
+    void loadSound(bool bUseLoaderThread = false, std::function<void()> *callback = nullptr);
     double getLoadProgress() const;
     sfzero::Sound * getLoadedSound() const;  // TODO: create factory for this and return new sound object every time.
 
@@ -50,8 +50,7 @@ private:
     public:
         explicit LoadThread(SfzLoader *pSfzLoader);
         void run() override;
-
-    protected:
+    private:
         SfzLoader *m_pSfzLoader;
     };
     friend class LoadThread; //TODO: Is this required?? Why?
@@ -61,5 +60,5 @@ private:
     LoadThread m_loadThread;
     sfzero::Sound * m_pSound;
     double m_fLoadProgress;
-
+    std::function<void()> m_callback;
 };
