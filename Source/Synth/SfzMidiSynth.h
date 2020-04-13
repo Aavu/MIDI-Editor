@@ -16,41 +16,50 @@ class SfzSynthAudioSource : public AudioSource
 {
 public:
     explicit SfzSynthAudioSource(MidiKeyboardState& keyState);
-    void setUsingSineWaveSound();
 
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override;
     void getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) override;
 
+    void setUsingSineWaveSound(); //TODO: Is this required?
+    void addSound(sfzero::Sound *sound);
     int getProgramNumber() const;
     juce::String getProgramName() const;
     void setProgramNumber(int iProgramNumber);
 
-    void setSfzFile(File *newSfzFile);
-    void setSfzFileThreaded(File *newSfzFile);
-    void loadSound(Thread *thread = nullptr);
-
 private:
     sfzero::Sound * getSound() const;
-    //-------------------------------------
-
-    // TODO: It might be better to load sounds separately using a different class.
-    //  Don't want to reload sounds for every synth instance
-    friend class LoadThread;
-    class LoadThread : public Thread
-    {
-    public:
-        explicit LoadThread(SfzSynthAudioSource *sfzSynthAudioSrc);
-        void run() override;
-    protected:
-        SfzSynthAudioSource *m_pSfzSynthAudioSource;
-    };
-    //-------------------------------------
 
     MidiKeyboardState& m_keyboardState;
     sfzero::Synth m_synth; //TODO: use ptr and init()
+};
+
+
+class SfzLoader {
+public:
+    SfzLoader();
+    void setSfzFile(File *pNewSfzFile);
+    void loadSound(bool bUseLoaderThread = false);
+    double getLoadProgress() const;
+    sfzero::Sound * getLoadedSound() const;  // TODO: create factory for this and return new sound object every time.
+
+private:
+    void load(Thread *pThread = nullptr);
+
+    class LoadThread : public Thread {
+    public:
+        explicit LoadThread(SfzLoader *pSfzLoader);
+        void run() override;
+
+    protected:
+        SfzLoader *m_pSfzLoader;
+    };
+    friend class LoadThread; //TODO: Is this required?? Why?
+
     File m_sfzFile;
     AudioFormatManager m_formatManager;
     LoadThread m_loadThread;
+    sfzero::Sound * m_pSound;
     double m_fLoadProgress;
+
 };

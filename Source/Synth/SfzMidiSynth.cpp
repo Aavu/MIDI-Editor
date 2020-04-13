@@ -11,9 +11,7 @@
 #include "SfzMidiSynth.h"
 
 SfzSynthAudioSource::SfzSynthAudioSource(MidiKeyboardState &keyState) :
-        m_keyboardState(keyState),
-        m_loadThread(this),
-        m_fLoadProgress(0.0)
+        m_keyboardState(keyState)
 {
     for (auto i=0; i<4; ++i)
         m_synth.addVoice(new sfzero::Voice());
@@ -49,66 +47,87 @@ void SfzSynthAudioSource::setProgramNumber(int iProgramNum) {
     getSound()->useSubsound(iProgramNum);
 }
 
-void SfzSynthAudioSource::setSfzFile(File *newSfzFile)
-{
-    m_sfzFile = *newSfzFile;
-    loadSound();
+sfzero::Sound * SfzSynthAudioSource::getSound() const {
+    SynthesiserSound * s = m_synth.getSound(0).get();
+    return dynamic_cast<sfzero::Sound *>(s);
 }
 
-void SfzSynthAudioSource::setSfzFileThreaded(File *newSfzFile)
-{
-    m_loadThread.stopThread(2000);
-    m_sfzFile = *newSfzFile;
-    m_loadThread.startThread();
+void SfzSynthAudioSource::addSound(sfzero::Sound *sound) {
+    m_synth.clearSounds();
+    m_synth.addSound(sound);
 }
 
+//============================================================================================================
+SfzLoader::SfzLoader() :
+        m_loadThread(this),
+        m_fLoadProgress(0.0),
+        m_pSound(nullptr)
+{
+}
 
-void SfzSynthAudioSource::loadSound(Thread *thread)
+void SfzLoader::setSfzFile(File *pNewSfzFile)
+{
+    m_sfzFile = *pNewSfzFile;
+}
+
+void SfzLoader::loadSound(bool bUseLoaderThread)
+{
+    if (bUseLoaderThread) { // Uses separate thread
+        m_loadThread.stopThread(2000);
+        m_loadThread.startThread();
+    }
+    else {
+        load();
+    }
+}
+
+double SfzLoader::getLoadProgress() const {
+    return m_fLoadProgress;
+}
+
+void SfzLoader::load(Thread *thread)
 {
     m_fLoadProgress = 0.0;
-    m_synth.clearSounds();
 
     if (!m_sfzFile.existsAsFile())
     {
+        std::cout << "Invalid Soundfont File." << std::endl; //TODO: handle errors in a better way
         return;
     }
 
-    sfzero::Sound *sound;
     auto extension = m_sfzFile.getFileExtension();
     if ((extension == ".sf2") || (extension == ".SF2"))
     {
-        sound = new sfzero::SF2Sound(m_sfzFile);
+        m_pSound = new sfzero::SF2Sound(m_sfzFile);
     }
     else
     {
-        sound = new sfzero::Sound(m_sfzFile);
+        m_pSound = new sfzero::Sound(m_sfzFile);
     }
-    sound->loadRegions();
-    sound->loadSamples(m_formatManager, &m_fLoadProgress, thread);
+    m_pSound->loadRegions();
+    m_pSound->loadSamples(m_formatManager, &m_fLoadProgress, thread);
 
     std::cout<< "Load Progress: " << m_fLoadProgress << std::endl;
 
     if (thread && thread->threadShouldExit())
     {
-        delete sound;
         return;
     }
 
-    m_synth.addSound(sound);
-    sound->useSubsound(0); // TODO: Use global variable to set default subsound?
+    m_pSound->useSubsound(0); // TODO: Use global variable to set default subsound?
 }
 
-SfzSynthAudioSource::LoadThread::LoadThread(SfzSynthAudioSource *sfzSynthAudioSrc)
-        : Thread("SFZLoad"), m_pSfzSynthAudioSource(sfzSynthAudioSrc)
+SfzLoader::LoadThread::LoadThread(SfzLoader *pSfzLoader) :
+        Thread("SFZLoad"),
+        m_pSfzLoader(pSfzLoader)
 {
 }
 
-void SfzSynthAudioSource::LoadThread::run()
+void SfzLoader::LoadThread::run()
 {
-    m_pSfzSynthAudioSource->loadSound(this);
+    m_pSfzLoader->load(this);
 }
 
-sfzero::Sound * SfzSynthAudioSource::getSound() const {
-    SynthesiserSound * s = m_synth.getSound(0).get();
-    return dynamic_cast<sfzero::Sound *>(s);
+sfzero::Sound * SfzLoader::getLoadedSound() const {
+    return m_pSound;
 }
