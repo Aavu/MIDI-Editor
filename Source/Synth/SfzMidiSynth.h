@@ -12,16 +12,12 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
-class SfzSynthAudioSource : public AudioSource
+class SfzSynth : public sfzero::Synth
 {
 public:
-    explicit SfzSynthAudioSource(MidiKeyboardState& keyState);
+    SfzSynth();
 
-    void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
-    void releaseResources() override;
-    void getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) override;
-
-    void setUsingSineWaveSound(); //TODO: Is this required?
+    void setUsingSineWaveSound();
     void addSound(sfzero::Sound *sound);
     int getProgramNumber() const;
     juce::String getProgramName() const;
@@ -29,9 +25,6 @@ public:
 
 private:
     sfzero::Sound * getSound() const;
-
-    MidiKeyboardState& m_keyboardState;
-    sfzero::Synth m_synth; //TODO: use ptr and init()
 };
 
 

@@ -14,15 +14,12 @@
 #include <memory>
 #include <vector>
 
-#include "../Synth/MidiSynth.h"
+//#include "../Synth/MidiSynth.h"
+#include "../Synth/SfzMidiSynth.h"
 
 //==============================================================================
 /*
 */
-
-//TODO: Implement play pause stop states.
-//TODO: Use separate thread for timing instead of Timer class.?
-
 class PlayerComponent    : public Component
 {
 public:
@@ -47,11 +44,7 @@ public:
     };
 
     PlayState getPlayState();
-    void updateNumSamples(const AudioSourceChannelInfo &bufferToFill);
     void resetCurrentPosition();
-
-protected:
-    CriticalSection lock;
 
 private:
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
@@ -71,7 +64,9 @@ private:
     PlayState m_playState = PlayState::Stopped;
     int m_iCurrentPosition = 0;
 
-    Synthesiser m_synth;
+    SfzLoader m_sfzLoader;
+    SfzSynth m_synth;
+
     constexpr static int kiNumVoices = 5;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlayerComponent)

@@ -13,9 +13,7 @@
 
 //==============================================================================
 PlayerComponent::PlayerComponent()
-//: m_synthAudioSource(m_keyBoardState)
 {
-//    m_synthAudioSource.setSfzFile(new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2"));
     initSynth();
 }
 
@@ -36,11 +34,14 @@ void PlayerComponent::initSynth() {
     m_synth.clearVoices();
 
     for (int i=0; i < kiNumVoices; i++) {
-        m_synth.addVoice(new SineWaveVoice());
+        m_synth.addVoice(new sfzero::Voice());
     }
 
-    m_synth.clearSounds();
-    m_synth.addSound(new SineWaveSound());
+    // Load sound from SoundFont file and add to synth.
+    File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
+    m_sfzLoader.setSfzFile(soundFontFile);
+    std::function<void()> addLoadedSoundCallback = [this] () {m_synth.addSound(m_sfzLoader.getLoadedSound());};
+    m_sfzLoader.loadSound(true, &addLoadedSoundCallback);
 }
 
 void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
@@ -92,26 +93,21 @@ void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRa
 
 void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) {
     bufferToFill.clearActiveBufferRegion();
-
-    if (m_playState == PlayState::Playing) {
-        updateNumSamples(bufferToFill);
-    }
-}
-
-void PlayerComponent::updateNumSamples(const AudioSourceChannelInfo &bufferToFill) {
     m_currentMidiBuffer.clear();
 
     auto numSamples = bufferToFill.numSamples;
 
-    if (m_midiBuffer.isEmpty()) {
+    if (m_playState == PlayState::Playing) {
+        if (m_midiBuffer.isEmpty()) {
+            m_iCurrentPosition += numSamples;
+            return;
+        }
+
+        m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, numSamples, 0);
+        m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, numSamples);
+
         m_iCurrentPosition += numSamples;
-        return;
     }
-
-    m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, numSamples, 0);
-    m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, numSamples);
-
-    m_iCurrentPosition += numSamples;
 }
 
 void PlayerComponent::resetCurrentPosition() {
