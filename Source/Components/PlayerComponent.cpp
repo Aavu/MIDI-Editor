@@ -37,11 +37,11 @@ void PlayerComponent::initSynth() {
     m_synth.clearVoices();
 
     for (int i=0; i < kiNumVoices; i++) {
-        m_synth.addVoice(new SynthVoice());
+        m_synth.addVoice(new SineWaveVoice());
     }
 
     m_synth.clearSounds();
-    m_synth.addSound(new SynthSound());
+    m_synth.addSound(new SineWaveSound());
 }
 
 void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
@@ -88,56 +88,30 @@ void PlayerComponent::stop() {
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
     m_iSamplesPerBlockExpected = samplesPerBlockExpected;
     m_fSampleRate = sampleRate;
-//    m_synthAudioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
     m_synth.setCurrentPlaybackSampleRate(sampleRate);
 }
 
 void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) {
+    bufferToFill.clearActiveBufferRegion();
+
     if (m_playState == PlayState::Playing) {
         updateNumSamples(bufferToFill);
     }
-
-    bufferToFill.clearActiveBufferRegion();
 }
 
 void PlayerComponent::updateNumSamples(const AudioSourceChannelInfo &bufferToFill) {
+    m_currentMidiBuffer.clear();
+
+    auto numSamples = bufferToFill.numSamples;
+
     if (m_midiBuffer.isEmpty()) {
-        m_iCurrentPosition += bufferToFill.numSamples;
+        m_iCurrentPosition += numSamples;
         return;
     }
 
-    MidiMessage msg;
-    int sampleNumber;
-    m_currentMidiBuffer.clear();
-    m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, bufferToFill.numSamples, 0);
-
-    m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, bufferToFill.numSamples);
-
-//    const ScopedLock sl (lock);
-//
-//    while (m_pIterator->getNextEvent(msg, sampleNumber)) {
-////        DBG(sampleNumber << " " << m_iCurrentPosition);
-//        if (sampleNumber > m_iCurrentPosition)
-//            break;
-//
-//
-//        if (msg.isNoteOn()) {
-//            m_synth.noteOn(msg.getChannel(), msg.getNoteNumber(), msg.getFloatVelocity());
-////            m_synthAudioSource.handleNoteOn(msg);
-//            std::cout << sampleNumber << " --- "
-//                      << msg.getTimeStamp() << " --- "
-//                      << msg.getDescription()
-//                      << std::endl;
-//        }
-//
-//        if (msg.isNoteOff()) {
-//            m_synth.noteOff(msg.getChannel(), msg.getNoteNumber(), msg.getFloatVelocity(), true);
-////            m_synthAudioSource.handleNoteOff(msg);
-//        }
-//    }
-//
-//    m_pIterator->setNextSamplePosition(m_iCurrentPosition);
-    m_iCurrentPosition += bufferToFill.numSamples;
+    m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, numSamples, 0);
+    m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, numSamples);
+    m_iCurrentPosition += numSamples;
 }
 
 void PlayerComponent::resetCurrentPosition() {

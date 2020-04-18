@@ -84,6 +84,7 @@ void SineWaveVoice::renderNextBlock(AudioBuffer<float> &outputBuffer, int startS
             while (--numSamples >=0)
             {
                 auto currentSample = static_cast<float> (std::sin(currentAngle) * level); // Generate sine sample
+//                DBG(currentSample);
                 for (auto c=outputBuffer.getNumChannels(); --c >= 0;)
                     outputBuffer.addSample(c, startSample, currentSample);
                 currentAngle += angleDelta;

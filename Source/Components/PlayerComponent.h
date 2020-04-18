@@ -15,11 +15,6 @@
 #include <vector>
 
 #include "../Synth/MidiSynth.h"
-#include "../Synth/SfzMidiSynth.h"
-
-#include "../Synth/SynthSound.h"
-#include "../Synth/SynthVoice.h"
-
 
 //==============================================================================
 /*
@@ -75,10 +70,6 @@ private:
     int m_iSamplesPerBlockExpected = 0;
     PlayState m_playState = PlayState::Stopped;
     int m_iCurrentPosition = 0;
-
-    // Synth
-//    SfzSynthAudioSource m_synthAudioSource;
-//    MidiKeyboardState m_keyBoardState;
 
     Synthesiser m_synth;
     constexpr static int kiNumVoices = 5;
