@@ -21,7 +21,7 @@
   ==============================================================================
 */
 
-#include "MIDISynth.h"
+#include "MidiSynth.h"
 
 
 SineWaveVoice::SineWaveVoice() = default;

@@ -80,10 +80,14 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 
     // For more details, see the help for AudioProcessor::getNextAudioBlock()
 
-    // Right now we are not producing any data, in which case we need to clear the m_midiBuffer
+    // Right now we are not producing any data, in which case we need to clear the buffer
     // (to prevent the output of random noise)
     m_pPlayer->getNextAudioBlock(bufferToFill);
-    bufferToFill.clearActiveBufferRegion();
+//    AudioBuffer<float>* buffer = bufferToFill.buffer;
+//    for (int i=0; i<bufferToFill.numSamples; i++) {
+//        std::cout << buffer->getSample(0, i) << " ";
+//    }
+//    std::cout << std::endl;
 }
 
 void MainComponent::releaseResources()

@@ -16,7 +16,6 @@ PlayerComponent::PlayerComponent()
 //: m_synthAudioSource(m_keyBoardState)
 {
 //    m_synthAudioSource.setSfzFile(new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2"));
-//    m_keyBoardState.reset();
     initSynth();
 }
 
@@ -111,6 +110,7 @@ void PlayerComponent::updateNumSamples(const AudioSourceChannelInfo &bufferToFil
 
     m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, numSamples, 0);
     m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, numSamples);
+
     m_iCurrentPosition += numSamples;
 }
 
