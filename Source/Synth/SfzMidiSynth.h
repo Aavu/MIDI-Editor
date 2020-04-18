@@ -16,49 +16,39 @@ class SfzSynthAudioSource : public AudioSource
 {
 public:
     explicit SfzSynthAudioSource(MidiKeyboardState& keyState);
-
+    void setUsingSineWaveSound();
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override;
     void getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) override;
+    void renderNextBlock(const MidiBuffer& incomingMidi, const AudioSourceChannelInfo &bufferToFill, int startSample);
 
-    void setUsingSineWaveSound(); //TODO: Is this required?
-    void addSound(sfzero::Sound *sound);
-    int getProgramNumber() const;
-    juce::String getProgramName() const;
-    void setProgramNumber(int iProgramNumber);
+    void handleNoteOn(const MidiMessage& m);
+    void handleNoteOff(const MidiMessage& m);
+    //------------------------------SFZero----------------------------------------
 
-private:
-    sfzero::Sound * getSound() const;
+    void setSfzFile(File *newSfzFile);
+    void setSfzFileThreaded(File *newSfzFile);
 
-    MidiKeyboardState& m_keyboardState;
-    sfzero::Synth m_synth; //TODO: use ptr and init()
-};
-
-
-class SfzLoader {
-public:
-    SfzLoader();
-    void setSfzFile(File *pNewSfzFile);
-    void loadSound(bool bUseLoaderThread = false, std::function<void()> *callback = nullptr);
-    double getLoadProgress() const;
-    sfzero::Sound * getLoadedSound() const;  // TODO: create factory for this and return new sound object every time.
+    void loadSound(Thread *thread = nullptr);
 
 private:
-    void load(Thread *pThread = nullptr);
+    MidiKeyboardState& keyboardState;
+    sfzero::Synth synth;
+    //------------------------------SFZero----------------------------------------
 
-    class LoadThread : public Thread {
+    class LoadThread : public Thread
+    {
     public:
-        explicit LoadThread(SfzLoader *pSfzLoader);
+        LoadThread(SfzSynthAudioSource *sfzSynthAudioSrc);
         void run() override;
-    private:
-        SfzLoader *m_pSfzLoader;
+    protected:
+        SfzSynthAudioSource *sfzSynthAudioSource;
     };
-    friend class LoadThread; //TODO: Is this required?? Why?
 
-    File m_sfzFile;
-    AudioFormatManager m_formatManager;
-    LoadThread m_loadThread;
-    sfzero::Sound * m_pSound;
-    double m_fLoadProgress;
-    std::function<void()> m_callback;
+    friend class LoadThread;
+
+    double loadProgress;
+    File sfzFile;
+    AudioFormatManager formatManager;
+    LoadThread loadThread;
 };

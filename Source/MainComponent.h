@@ -14,9 +14,6 @@
 #include "Components/PlayerComponent.h"
 #include "Components/TrackViewComponent.h"
 
-#include "Synth/MidiSynth.h"
-#include "Synth/SfzMidiSynth.h"
-
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
@@ -52,7 +49,6 @@ private:
 
     // TrackViewComponents
     TrackViewComponent m_trackView;
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

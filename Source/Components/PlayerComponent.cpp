@@ -13,11 +13,16 @@
 
 //==============================================================================
 PlayerComponent::PlayerComponent()
+//: m_synthAudioSource(m_keyBoardState)
 {
+//    m_synthAudioSource.setSfzFile(new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2"));
+//    m_keyBoardState.reset();
+    initSynth();
 }
 
 PlayerComponent::~PlayerComponent()
 {
+//    m_synthAudioSource.releaseResources();
 }
 
 void PlayerComponent::paint (Graphics& g)
@@ -28,10 +33,21 @@ void PlayerComponent::resized()
 {
 }
 
+void PlayerComponent::initSynth() {
+    m_synth.clearVoices();
+
+    for (int i=0; i < kiNumVoices; i++) {
+        m_synth.addVoice(new SynthVoice());
+    }
+
+    m_synth.clearSounds();
+    m_synth.addSound(new SynthSound());
+}
+
 void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
     auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
     //std::cout << message.getTimeStamp() << "\t" << msgSampleNumber << "\t" << message.getDescription() << std::endl;
-    m_buffer.addEvent(message, msgSampleNumber);
+    m_midiBuffer.addEvent(message, msgSampleNumber);
 }
 
 void PlayerComponent::addAllSequenceMessagesToBuffer() {
@@ -45,12 +61,12 @@ void PlayerComponent::addAllSequenceMessagesToBuffer() {
         }
     }
 
-    m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_buffer);
+    m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);
 }
 
 void PlayerComponent::setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq) {
     m_midiMessageSequence = midiMsgSeq;
-    m_buffer.clear();
+    m_midiBuffer.clear();
     addAllSequenceMessagesToBuffer();
 }
 
@@ -72,38 +88,56 @@ void PlayerComponent::stop() {
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
     m_iSamplesPerBlockExpected = samplesPerBlockExpected;
     m_fSampleRate = sampleRate;
+//    m_synthAudioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    m_synth.setCurrentPlaybackSampleRate(sampleRate);
 }
 
 void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) {
-    bufferToFill.clearActiveBufferRegion();
+    if (m_playState == PlayState::Playing) {
+        updateNumSamples(bufferToFill);
+    }
 
-    if (m_playState == PlayState::Playing)
-        updateNumSamples(bufferToFill.numSamples);
+    bufferToFill.clearActiveBufferRegion();
 }
 
-void PlayerComponent::updateNumSamples(int bufferSize) {
-    if (m_buffer.isEmpty()) {
-        m_iCurrentPosition += bufferSize;
+void PlayerComponent::updateNumSamples(const AudioSourceChannelInfo &bufferToFill) {
+    if (m_midiBuffer.isEmpty()) {
+        m_iCurrentPosition += bufferToFill.numSamples;
         return;
     }
 
     MidiMessage msg;
     int sampleNumber;
+    m_currentMidiBuffer.clear();
+    m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, bufferToFill.numSamples, 0);
 
-    while (m_pIterator->getNextEvent(msg, sampleNumber)) {
-//        DBG(sampleNumber << " " << m_iCurrentPosition);
-        if (sampleNumber > m_iCurrentPosition)
-            break;
+    m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, bufferToFill.numSamples);
 
-        if (msg.isNoteOnOrOff())
-            std::cout   << sampleNumber << " --- "
-                        << msg.getTimeStamp() << " --- "
-                        << msg.getDescription()
-                        << std::endl;
-    }
-
-    m_pIterator->setNextSamplePosition(m_iCurrentPosition);
-    m_iCurrentPosition += bufferSize;
+//    const ScopedLock sl (lock);
+//
+//    while (m_pIterator->getNextEvent(msg, sampleNumber)) {
+////        DBG(sampleNumber << " " << m_iCurrentPosition);
+//        if (sampleNumber > m_iCurrentPosition)
+//            break;
+//
+//
+//        if (msg.isNoteOn()) {
+//            m_synth.noteOn(msg.getChannel(), msg.getNoteNumber(), msg.getFloatVelocity());
+////            m_synthAudioSource.handleNoteOn(msg);
+//            std::cout << sampleNumber << " --- "
+//                      << msg.getTimeStamp() << " --- "
+//                      << msg.getDescription()
+//                      << std::endl;
+//        }
+//
+//        if (msg.isNoteOff()) {
+//            m_synth.noteOff(msg.getChannel(), msg.getNoteNumber(), msg.getFloatVelocity(), true);
+////            m_synthAudioSource.handleNoteOff(msg);
+//        }
+//    }
+//
+//    m_pIterator->setNextSamplePosition(m_iCurrentPosition);
+    m_iCurrentPosition += bufferToFill.numSamples;
 }
 
 void PlayerComponent::resetCurrentPosition() {
@@ -113,4 +147,15 @@ void PlayerComponent::resetCurrentPosition() {
 
 PlayerComponent::PlayState PlayerComponent::getPlayState() {
     return m_playState;
+}
+
+String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {
+    File currentDir = File::getCurrentWorkingDirectory();
+
+    while (currentDir.getFileName() != projectFolderName) {
+        currentDir = currentDir.getParentDirectory();
+        if (currentDir.getFullPathName() == "/")
+            return String();
+    }
+    return currentDir.getFullPathName();
 }

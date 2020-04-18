@@ -14,6 +14,13 @@
 #include <memory>
 #include <vector>
 
+#include "../Synth/MidiSynth.h"
+#include "../Synth/SfzMidiSynth.h"
+
+#include "../Synth/SynthSound.h"
+#include "../Synth/SynthVoice.h"
+
+
 //==============================================================================
 /*
 */
@@ -45,23 +52,36 @@ public:
     };
 
     PlayState getPlayState();
-    void updateNumSamples(int bufferSize);
+    void updateNumSamples(const AudioSourceChannelInfo &bufferToFill);
     void resetCurrentPosition();
 
+protected:
+    CriticalSection lock;
+
 private:
+    static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
+
+    void initSynth();
+
     void addMessageToBuffer(const MidiMessage& message);
     void addAllSequenceMessagesToBuffer();
 
-
+    //==============================================================================
     const MidiMessageSequence* m_midiMessageSequence = nullptr;
-    MidiBuffer m_buffer;
+    MidiBuffer m_midiBuffer;
+    MidiBuffer m_currentMidiBuffer;
     std::unique_ptr<MidiBuffer::Iterator> m_pIterator;
     double m_fSampleRate = 0;
     int m_iSamplesPerBlockExpected = 0;
     PlayState m_playState = PlayState::Stopped;
     int m_iCurrentPosition = 0;
 
+    // Synth
+//    SfzSynthAudioSource m_synthAudioSource;
+//    MidiKeyboardState m_keyBoardState;
 
+    Synthesiser m_synth;
+    constexpr static int kiNumVoices = 5;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlayerComponent)
 };

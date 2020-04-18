@@ -17,8 +17,6 @@ MainComponent::MainComponent()
     addAndMakeVisible(m_menu);
     m_menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
 
-    setSize (1000, 500);
-
     // Create Player
     // Create Player
     m_pPlayer = new PlayerComponent();
@@ -52,6 +50,8 @@ MainComponent::MainComponent()
     {
         DBG ("No audio device open");
     }
+
+    setSize (1000, 500);
 }
 
 MainComponent::~MainComponent()
@@ -80,7 +80,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 
     // For more details, see the help for AudioProcessor::getNextAudioBlock()
 
-    // Right now we are not producing any data, in which case we need to clear the m_buffer
+    // Right now we are not producing any data, in which case we need to clear the m_midiBuffer
     // (to prevent the output of random noise)
     m_pPlayer->getNextAudioBlock(bufferToFill);
     bufferToFill.clearActiveBufferRegion();

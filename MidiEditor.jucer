@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.4">
+<JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.7">
   <MAINGROUP id="bseg78" name="MidiEditor">
     <GROUP id="{4D02D25C-6694-ABA1-B776-755A0F43BA73}" name="Source">
       <FILE id="jSDrYV" name="MainComponentK.cpp" compile="1" resource="0"
@@ -13,6 +13,8 @@
         <FILE id="VI29rW" name="SfzMidiSynth.cpp" compile="1" resource="0"
               file="Source/Synth/SfzMidiSynth.cpp"/>
         <FILE id="bGmZVz" name="SfzMidiSynth.h" compile="0" resource="0" file="Source/Synth/SfzMidiSynth.h"/>
+        <FILE id="ev6X63" name="SynthSound.h" compile="0" resource="0" file="Source/Synth/SynthSound.h"/>
+        <FILE id="O6FITK" name="SynthVoice.h" compile="0" resource="0" file="Source/Synth/SynthVoice.h"/>
       </GROUP>
       <GROUP id="{B3A1646D-D871-7097-4903-DFA0B16447B6}" name="Components">
         <FILE id="cfxNXd" name="Track.h" compile="0" resource="0" file="Source/Components/Track.h"/>
@@ -66,7 +68,7 @@
         <MODULEPATH id="SFZero" path="JuceLibraryCode/modules/SFZero"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <CLION targetFolder="Builds/CLion">
+    <CLION targetFolder="Builds/CLion" clionXcodeEnabled="1">
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_audio_devices" path="../../../../../Software/JUCE/modules"/>
