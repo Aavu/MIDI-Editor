@@ -31,12 +31,12 @@ MainComponent::MainComponent()
         && ! RuntimePermissions::isGranted (RuntimePermissions::recordAudio))
     {
         RuntimePermissions::request (RuntimePermissions::recordAudio,
-                                     [&] (bool granted) { if (granted)  setAudioChannels (2, 2); });
+                                     [&] (bool granted) { if (granted)  setAudioChannels (m_iNumChannels, m_iNumChannels); });
     }
     else
     {
         // Specify the number of input and output channels that we want to open
-        setAudioChannels (2, 2);
+        setAudioChannels (m_iNumChannels, m_iNumChannels);
     }
 
     if (auto* device = deviceManager.getCurrentAudioDevice())
@@ -53,7 +53,10 @@ MainComponent::MainComponent()
         DBG ("No audio device open");
     }
 
-    addActionListener(m_audioExporter);
+    addActionListener(m_pPlayer);
+    m_pPlayer->addActionListener(this);
+    addActionListener(&m_transportBar);
+
 
     setSize (1000, 500);
 }
@@ -62,6 +65,9 @@ MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
     delete m_pPlayer;
+    m_pPlayer = nullptr;
+
+    removeAllActionListeners();
     shutdownAudio();
 }
 
@@ -87,10 +93,9 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 
     // Right now we are not producing any data, in which case we need to clear the buffer
     // (to prevent the output of random noise)
-    m_iNumChannels = bufferToFill.buffer->getNumChannels();
     m_pPlayer->getNextAudioBlock(bufferToFill);
-    if (m_audioExporter)
-        m_audioExporter->write(bufferToFill);
+    if (m_pAudioExporter)
+        m_pAudioExporter->write(bufferToFill);
 //    AudioBuffer<float>* buffer = bufferToFill.buffer;
 //    for (int i=0; i<bufferToFill.numSamples; i++) {
 //        std::cout << buffer->getSample(0, i) << " ";
@@ -179,13 +184,18 @@ void MainComponent::handleExportAudio() {
 
     if (chooser.browseForFileToSave(true)) {
         auto file = chooser.getResult();
-        m_audioExporter = new AudioExportComponent(m_fSampleRate, m_iNumChannels, 16); // hard coded bitdepth for now
-        m_audioExporter->init(file);
+
+        if (!m_pAudioExporter)
+            m_pAudioExporter = std::make_unique<AudioExportComponent>(m_fSampleRate, m_iNumChannels, 16); // hard coded bitdepth for now
+
+        m_pAudioExporter->startThread();
+        m_pAudioExporter->init(file);
+        sendActionMessage("playForExport");
     }
 }
 
 void MainComponent::actionListenerCallback (const String& message) {
     if (message == "stop") {
-        sendActionMessage("finishExport");
+        m_pAudioExporter->finish();
     }
 }

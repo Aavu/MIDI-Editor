@@ -15,6 +15,7 @@
 PlayerComponent::PlayerComponent()
 {
     initSynth();
+
 }
 
 PlayerComponent::~PlayerComponent()
@@ -62,7 +63,7 @@ void PlayerComponent::addAllSequenceMessagesToBuffer() {
 
     m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);
     m_ulMaxBufferLength = m_midiBuffer.getLastEventTime();
-    DBG("max length : " << m_ulMaxBufferLength);
+//    DBG("max length : " << m_ulMaxBufferLength);
 }
 
 void PlayerComponent::setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq) {
@@ -144,4 +145,7 @@ String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName
             return String();
     }
     return currentDir.getFullPathName();
+}
+
+void PlayerComponent::actionListenerCallback (const String& message) {
 }

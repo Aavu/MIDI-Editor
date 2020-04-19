@@ -48,7 +48,7 @@ private:
     // Your private member variables go here...
     double m_fSampleRate = 0;
     int m_iBitDepth = 0;
-    int m_iNumChannels = 0;
+    int m_iNumChannels = 2;
     int m_iNextSampleNum = 0;
 
     TransportComponent m_transportBar;
@@ -61,7 +61,8 @@ private:
     TrackViewComponent m_trackView;
 
     // Audio Export
-    AudioExportComponent* m_audioExporter;
+    std::unique_ptr<AudioExportComponent> m_pAudioExporter;
+//    AudioExportComponent* m_pAudioExporter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

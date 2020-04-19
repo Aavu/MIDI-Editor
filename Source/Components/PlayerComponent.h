@@ -19,7 +19,7 @@
 //==============================================================================
 /*
 */
-class PlayerComponent : public Component, public ActionBroadcaster
+class PlayerComponent : public Component, public ActionBroadcaster, public ActionListener
 {
 public:
     PlayerComponent();
@@ -54,6 +54,8 @@ private:
 
     void addMessageToBuffer(const MidiMessage& message);
     void addAllSequenceMessagesToBuffer();
+
+    void actionListenerCallback (const String& message) override;
 
     size_t m_ulMaxBufferLength = 0;
 

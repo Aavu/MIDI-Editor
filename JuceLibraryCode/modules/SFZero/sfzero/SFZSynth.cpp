@@ -91,7 +91,7 @@ void sfzero::Synth::noteOn(int midiChannel, int midiNoteNumber, float velocity)
                 {
                     voice->setRegion(region);
                     startVoice(voice, sound, midiChannel, midiNoteNumber, velocity);
-                    DBG("noteON: " << midiNoteNumber << " " << midiChannel << " " << velocity);
+//                    DBG("noteON: " << midiNoteNumber << " " << midiChannel << " " << velocity);
                 }
             }
         }

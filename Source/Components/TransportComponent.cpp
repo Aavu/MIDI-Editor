@@ -89,7 +89,12 @@ void TransportComponent::actionListenerCallback (const String& message) {
     if (message == "stop") {
         stopBtnClicked(); // pause
         stopBtnClicked(); // stop
+    } else if (message == "playForExport") {
+        stopBtnClicked(); // pause
+        stopBtnClicked(); // stop
+        playBtnClicked();
     }
+    DBG(message);
 }
 
 bool TransportComponent::getCurrentPosition (CurrentPositionInfo& result) {
