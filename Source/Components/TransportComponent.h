@@ -16,7 +16,7 @@
 //==============================================================================
 /*
 */
-class TransportComponent    : public Component
+class TransportComponent : public Component, public ActionListener, public AudioPlayHead
 {
 public:
     TransportComponent();
@@ -31,9 +31,15 @@ private:
     void playBtnClicked();
     void stopBtnClicked();
 
+    void actionListenerCallback (const String& message) override;
+
+    bool getCurrentPosition (CurrentPositionInfo& result) override;
+
     TextButton m_playBtn;
     TextButton m_stopBtn;
     PlayerComponent *m_pPlayer = nullptr;
+
+    unsigned int bpm = 120;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TransportComponent)
 };

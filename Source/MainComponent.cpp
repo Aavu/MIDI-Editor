@@ -41,15 +41,19 @@ MainComponent::MainComponent()
 
     if (auto* device = deviceManager.getCurrentAudioDevice())
     {
+        m_fSampleRate = device->getCurrentSampleRate();
+        m_iBitDepth = device->getCurrentBitDepth();
         DBG ("Current audio device: "   + device->getName().quoted());
-        DBG ("Sample rate: "    + String (device->getCurrentSampleRate()) + " Hz");
+        DBG ("Sample rate: "    + String (m_fSampleRate) + " Hz");
         DBG ("Block size: "     + String (device->getCurrentBufferSizeSamples()) + " samples");
-        DBG ("Bit depth: "      + String (device->getCurrentBitDepth()));
+        DBG ("Bit depth: "      + String (m_iBitDepth));
     }
     else
     {
         DBG ("No audio device open");
     }
+
+    addActionListener(m_audioExporter);
 
     setSize (1000, 500);
 }
@@ -72,6 +76,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 
     // For more details, see the help for AudioProcessor::prepareToPlay()
     m_pPlayer->prepareToPlay(samplesPerBlockExpected, sampleRate);
+    m_fSampleRate = sampleRate;
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -82,12 +87,16 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 
     // Right now we are not producing any data, in which case we need to clear the buffer
     // (to prevent the output of random noise)
+    m_iNumChannels = bufferToFill.buffer->getNumChannels();
     m_pPlayer->getNextAudioBlock(bufferToFill);
+    if (m_audioExporter)
+        m_audioExporter->write(bufferToFill);
 //    AudioBuffer<float>* buffer = bufferToFill.buffer;
 //    for (int i=0; i<bufferToFill.numSamples; i++) {
 //        std::cout << buffer->getSample(0, i) << " ";
 //    }
 //    std::cout << std::endl;
+
 }
 
 void MainComponent::releaseResources()
@@ -96,6 +105,7 @@ void MainComponent::releaseResources()
     // restarted due to a setting change.
 
     // For more details, see the help for AudioProcessor::releaseResources()
+    removeAllActionListeners();
 }
 
 //==============================================================================
@@ -132,6 +142,7 @@ bool MainComponent::fileCallback(CommandID commandID) {
             break;
 
         case MenuComponent::fileExportAudio:
+            handleExportAudio();
             break;
 
         case MenuComponent::fileExportMIDI:
@@ -157,9 +168,24 @@ void MainComponent::handleFileOpen() {
         const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
         m_midiFile.convertTimestampTicksToSeconds();
         m_trackView.addTrack();
-        // Add sequence to m_pPlayer
 
         m_pPlayer->setMidiMessageSequence(sequence);
         delete stream;
+    }
+}
+
+void MainComponent::handleExportAudio() {
+    FileChooser chooser("Select path to save WAV file...");
+
+    if (chooser.browseForFileToSave(true)) {
+        auto file = chooser.getResult();
+        m_audioExporter = new AudioExportComponent(m_fSampleRate, m_iNumChannels, 16); // hard coded bitdepth for now
+        m_audioExporter->init(file);
+    }
+}
+
+void MainComponent::actionListenerCallback (const String& message) {
+    if (message == "stop") {
+        sendActionMessage("finishExport");
     }
 }

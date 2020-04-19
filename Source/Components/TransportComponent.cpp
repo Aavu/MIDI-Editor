@@ -82,4 +82,30 @@ void TransportComponent::stopBtnClicked()
 
 void TransportComponent::init(PlayerComponent* playerComponent) {
     m_pPlayer = playerComponent;
+    m_pPlayer->addActionListener(this);
+}
+
+void TransportComponent::actionListenerCallback (const String& message) {
+    if (message == "stop") {
+        stopBtnClicked(); // pause
+        stopBtnClicked(); // stop
+    }
+}
+
+bool TransportComponent::getCurrentPosition (CurrentPositionInfo& result) {
+    if (!m_pPlayer)
+        return false;
+
+    auto pos = m_pPlayer->getCurrentPosition(AudioPlayHead::CurrentPositionInfo());
+    result.resetToDefault();
+    result.isPlaying = (m_pPlayer->getPlayState() == PlayerComponent::PlayState::Playing);
+    result.timeInSamples = pos;
+    result.bpm = bpm;
+    result.timeInSeconds = pos/m_pPlayer->getSampleRate();
+    result.timeSigNumerator = 4;
+    result.timeSigDenominator = 4;
+    result.editOriginTime = 0;
+    result.isLooping = false;
+    result.isRecording  = false;
+    return true;
 }

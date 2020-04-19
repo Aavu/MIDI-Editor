@@ -14,13 +14,12 @@
 #include <memory>
 #include <vector>
 
-//#include "../Synth/MidiSynth.h"
 #include "../Synth/SfzMidiSynth.h"
 
 //==============================================================================
 /*
 */
-class PlayerComponent    : public Component
+class PlayerComponent : public Component, public ActionBroadcaster
 {
 public:
     PlayerComponent();
@@ -44,6 +43,8 @@ public:
     };
 
     PlayState getPlayState();
+    int getCurrentPosition(AudioPlayHead::CurrentPositionInfo info);
+    double getSampleRate();
     void resetCurrentPosition();
 
 private:
@@ -54,7 +55,8 @@ private:
     void addMessageToBuffer(const MidiMessage& message);
     void addAllSequenceMessagesToBuffer();
 
-    //==============================================================================
+    size_t m_ulMaxBufferLength = 0;
+
     const MidiMessageSequence* m_midiMessageSequence = nullptr;
     MidiBuffer m_midiBuffer;
     MidiBuffer m_currentMidiBuffer;
@@ -69,5 +71,7 @@ private:
 
     constexpr static int kiNumVoices = 5;
 
+
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlayerComponent)
 };
