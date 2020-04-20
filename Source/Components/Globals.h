@@ -22,6 +22,8 @@ namespace Globals {
     namespace GUI {
         static constexpr int iUpdateInterval_ms = 20;
         static constexpr int iPlayHeadWidth     = 4;
+        static constexpr int iSideBarWidth      = 128;
+        static constexpr int iHeaderHeight      = 32;
     }
 }
 #endif

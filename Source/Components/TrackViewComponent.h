@@ -13,7 +13,9 @@
 #include "SidebarComponent.h"
 #include "TrackParameters.h"
 #include "PlayHeadComponent.h"
+#include "PlayHeadScrollComponent.h"
 #include "PlayerComponent.h"
+#include "Globals.h"
 
 class TrackViewComponent : public TrackParameters, public Component {
 public:
@@ -30,11 +32,14 @@ public:
     void addTrack();
 
 private:
+    void handleClick();
+
     TextButton m_header;
     SidebarComponent m_sidebar;
     std::vector<TextButton*> m_tracks;
 
-    std::unique_ptr<PlayHeadComponent> m_pPlayHead = nullptr;
+    PlayHeadScrollComponent m_playHeadScroll;
+    std::shared_ptr<PlayHeadComponent> m_pPlayHead = nullptr;
 
 //    int m_iNumTracks = 0;
 //    std::vector<int> m_trackHeight;

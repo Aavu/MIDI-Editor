@@ -63,6 +63,8 @@ public:
         return m_ulMaxBufferLength;
     }
 
+    void setCurrentPosition(int value);
+
     void resetCurrentPosition();
 
 private:

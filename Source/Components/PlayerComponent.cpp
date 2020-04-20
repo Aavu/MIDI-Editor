@@ -116,10 +116,14 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
     }
 }
 
-void PlayerComponent::resetCurrentPosition() {
-    m_iCurrentPosition = 0;
+void PlayerComponent::setCurrentPosition(int value) {
+    m_iCurrentPosition = value;
     if (m_pIterator)
         m_pIterator->setNextSamplePosition(m_iCurrentPosition);
+}
+
+void PlayerComponent::resetCurrentPosition() {
+    setCurrentPosition(0);
 }
 
 String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {
