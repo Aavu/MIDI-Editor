@@ -32,8 +32,8 @@ void TrackViewComponent::init(int noOfTracks) {
 
     if (m_iNumTracks > 0) {
         for(int i=0; i<m_iNumTracks; i++) {
-            m_tracks.push_back(new TextButton());
-            m_tracks.at(i)->setColour (TextButton::buttonColourId, Colours::lime);
+            m_tracks.push_back(new ScrollablePianoRollComponent());
+            //m_tracks.at(i)->setColour (TextButton::buttonColourId, Colours::lime);
             addAndMakeVisible (m_tracks[i]);
             m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
         }
@@ -68,7 +68,7 @@ int TrackViewComponent::getNumTracks() const {
 }
 
 void TrackViewComponent::addTrack() {
-    m_tracks.push_back(new TextButton());
+    m_tracks.push_back(new ScrollablePianoRollComponent());
     m_tracks.at(m_iNumTracks)->setColour (TextButton::buttonColourId, Colours::lime);
     addAndMakeVisible (m_tracks[m_iNumTracks]);
     m_aiTrackHeight.push_back(k_iDefaultTrackHeight);

@@ -52,6 +52,8 @@ void PianoRollComponent::resized()
 {
     auto area = getLocalBounds();
     
+    auto area_parent = getBoundsInParent();
+    
     auto sidebarWidth = 80;
     m_pKeyboardComponent->setBounds (area.removeFromLeft (sidebarWidth));
     
@@ -78,22 +80,26 @@ ComponentType* PianoRollComponent::addToList (ComponentType* newComp)
 
 ScrollablePianoRollComponent::ScrollablePianoRollComponent()
 {
-    m_Cpn.setSize(800,Globals::midiNoteNum*Globals::initNoteHeight);
-    m_ViewPort.setScrollBarsShown(true, false, true, false);
+    m_Cpn.setSize(1000,Globals::midiNoteNum*Globals::initNoteHeight);
+    m_ViewPort.setScrollBarsShown(false, false, true, false);
     m_ViewPort.setViewedComponent(&m_Cpn, false);
     
     addAndMakeVisible(&m_ViewPort);
 
-    setSize (800, 100);
+    setSize (1000, 100);
     
     setPreview(false);
 }
 
 void ScrollablePianoRollComponent::resized()
 {
+    auto area = getLocalBounds();
+    
     m_ViewPort.setBoundsRelative(0.0f, 0.0f, 1.0f, 1.0f);
+    
+    // change pianoroll visible area width
+    m_Cpn.setSize(area.getWidth(),Globals::midiNoteNum*Globals::initNoteHeight);
 
-    m_Cpn.resized();
 }
 
 void ScrollablePianoRollComponent::setPreview(bool ifPreview)

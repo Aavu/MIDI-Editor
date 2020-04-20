@@ -13,6 +13,8 @@
 #include "SidebarComponent.h"
 #include "TrackParameters.h"
 
+#include "GUIComponent/ScrollablePianoRollComponent/ScrollablePianoRollComponent.h"
+
 class TrackViewComponent : public TrackParameters, public juce::Component {
 public:
     TrackViewComponent();
@@ -30,7 +32,7 @@ public:
 private:
     TextButton m_header;
     SidebarComponent m_sidebar;
-    std::vector<TextButton*> m_tracks;
+    std::vector<ScrollablePianoRollComponent*> m_tracks;
 
 //    int m_iNumTracks = 0;
 //    std::vector<int> m_trackHeight;
