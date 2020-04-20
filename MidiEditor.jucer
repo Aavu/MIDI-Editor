@@ -13,8 +13,6 @@
         <FILE id="VI29rW" name="SfzMidiSynth.cpp" compile="1" resource="0"
               file="Source/Synth/SfzMidiSynth.cpp"/>
         <FILE id="bGmZVz" name="SfzMidiSynth.h" compile="0" resource="0" file="Source/Synth/SfzMidiSynth.h"/>
-        <FILE id="ev6X63" name="SynthSound.h" compile="0" resource="0" file="Source/Synth/SynthSound.h"/>
-        <FILE id="O6FITK" name="SynthVoice.h" compile="0" resource="0" file="Source/Synth/SynthVoice.h"/>
       </GROUP>
       <GROUP id="{B3A1646D-D871-7097-4903-DFA0B16447B6}" name="Components">
         <FILE id="cfxNXd" name="Track.h" compile="0" resource="0" file="Source/Components/Track.h"/>

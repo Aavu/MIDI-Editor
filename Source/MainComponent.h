@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "Components/Globals.h"
 #include "Components/TransportComponent.h"
 #include "Components/MenuComponent.h"
 #include "Components/PlayerComponent.h"
@@ -41,6 +42,7 @@ public:
 private:
     void handleFileOpen();
     void handleExportAudio();
+    void handleExportMidi();
 
     void actionListenerCallback (const String& message) override;
 
@@ -51,18 +53,19 @@ private:
     int m_iNumChannels = 2;
     int m_iNextSampleNum = 0;
 
+    std::atomic<bool> m_bExporting{false};
+
     TransportComponent m_transportBar;
     MenuComponent m_menu;
     MidiFile m_midiFile;
 
-    PlayerComponent* m_pPlayer;
+    std::shared_ptr<PlayerComponent> m_pPlayer;
 
     // TrackViewComponents
-    TrackViewComponent m_trackView;
+    std::unique_ptr<TrackViewComponent> m_pTrackView;
 
     // Audio Export
     std::unique_ptr<AudioExportComponent> m_pAudioExporter;
-//    AudioExportComponent* m_pAudioExporter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

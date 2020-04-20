@@ -9,7 +9,9 @@
 #include "MainComponent.h"
 
 //==============================================================================
-MainComponent::MainComponent()
+MainComponent::MainComponent() :
+m_pPlayer(std::make_shared<PlayerComponent>()),
+m_pTrackView(std::make_unique<TrackViewComponent>())
 {
     // Make sure you set the size of the component after
     // you add any child components.
@@ -18,13 +20,11 @@ MainComponent::MainComponent()
     m_menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
 
     // Create Player
-    // Create Player
-    m_pPlayer = new PlayerComponent();
-    m_transportBar.init(m_pPlayer);
+    m_transportBar.init(m_pPlayer.get());
 
     //TracksView
-    m_trackView.init(0);
-    addAndMakeVisible(m_trackView);
+    m_pTrackView->init(m_pPlayer.get());
+    addAndMakeVisible(*m_pTrackView);
 
     // Some platforms require permissions to open input channels so request that here
     if (RuntimePermissions::isRequired (RuntimePermissions::recordAudio)
@@ -53,7 +53,6 @@ MainComponent::MainComponent()
         DBG ("No audio device open");
     }
 
-    addActionListener(m_pPlayer);
     m_pPlayer->addActionListener(this);
     addActionListener(&m_transportBar);
 
@@ -64,9 +63,6 @@ MainComponent::MainComponent()
 MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
-    delete m_pPlayer;
-    m_pPlayer = nullptr;
-
     removeAllActionListeners();
     shutdownAudio();
 }
@@ -94,7 +90,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     // Right now we are not producing any data, in which case we need to clear the buffer
     // (to prevent the output of random noise)
     m_pPlayer->getNextAudioBlock(bufferToFill);
-    if (m_pAudioExporter)
+    if (m_bExporting)
         m_pAudioExporter->write(bufferToFill);
 //    AudioBuffer<float>* buffer = bufferToFill.buffer;
 //    for (int i=0; i<bufferToFill.numSamples; i++) {
@@ -136,7 +132,7 @@ void MainComponent::resized()
 
     bounds = getLocalBounds();
     bounds.removeFromBottom(m_transportBar.getBounds().getHeight());
-    m_trackView.setBounds(bounds);
+    m_pTrackView->setBounds(bounds);
 }
 
 bool MainComponent::fileCallback(CommandID commandID) {
@@ -172,7 +168,7 @@ void MainComponent::handleFileOpen() {
         }
         const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
         m_midiFile.convertTimestampTicksToSeconds();
-        m_trackView.addTrack();
+        m_pTrackView->addTrack();
 
         m_pPlayer->setMidiMessageSequence(sequence);
         delete stream;
@@ -190,12 +186,26 @@ void MainComponent::handleExportAudio() {
 
         m_pAudioExporter->startThread();
         m_pAudioExporter->init(file);
-        sendActionMessage("playForExport");
+        sendActionMessage(Globals::ActionMessage::PlayForExport);
+        m_bExporting = true;
     }
 }
 
+void MainComponent::handleExportMidi() {
+    FileChooser chooser("Select path to save MIDI file...");
+
+    if (chooser.browseForFileToSave(true)) {
+        auto file = chooser.getResult();
+        if (auto* stream = file.createOutputStream()) {
+
+        }
+    }
+
+}
+
 void MainComponent::actionListenerCallback (const String& message) {
-    if (message == "stop") {
+    if ((message == Globals::ActionMessage::PlayForExport) && m_bExporting) {
         m_pAudioExporter->finish();
+        m_bExporting = false;
     }
 }

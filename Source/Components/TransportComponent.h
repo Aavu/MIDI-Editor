@@ -12,11 +12,12 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PlayerComponent.h"
+#include "Globals.h"
 
 //==============================================================================
 /*
 */
-class TransportComponent : public Component, public ActionListener, public AudioPlayHead
+class TransportComponent : public Component, public ActionListener
 {
 public:
     TransportComponent();
@@ -32,8 +33,6 @@ private:
     void stopBtnClicked();
 
     void actionListenerCallback (const String& message) override;
-
-    bool getCurrentPosition (CurrentPositionInfo& result) override;
 
     TextButton m_playBtn;
     TextButton m_stopBtn;

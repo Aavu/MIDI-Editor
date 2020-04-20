@@ -63,7 +63,7 @@ void PlayerComponent::addAllSequenceMessagesToBuffer() {
 
     m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);
     m_ulMaxBufferLength = m_midiBuffer.getLastEventTime();
-//    DBG("max length : " << m_ulMaxBufferLength);
+    DBG("max length : " << m_ulMaxBufferLength);
 }
 
 void PlayerComponent::setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq) {
@@ -111,29 +111,15 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
         m_iCurrentPosition += numSamples;
 
         if (m_iCurrentPosition > m_ulMaxBufferLength) {
-            juce::AudioPlayHead::CurrentPositionInfo result{};
-            getCurrentPosition(result);
-            std::cout << result.timeInSamples << std::endl;
-            sendActionMessage("stop");
+            sendActionMessage(Globals::ActionMessage::Stop);
         }
     }
 }
 
 void PlayerComponent::resetCurrentPosition() {
     m_iCurrentPosition = 0;
-    m_pIterator->setNextSamplePosition(m_iCurrentPosition);
-}
-
-PlayerComponent::PlayState PlayerComponent::getPlayState() {
-    return m_playState;
-}
-
-int PlayerComponent::getCurrentPosition(AudioPlayHead::CurrentPositionInfo info) {
-    return m_iCurrentPosition;
-}
-
-double PlayerComponent::getSampleRate() {
-    return m_fSampleRate;
+    if (m_pIterator)
+        m_pIterator->setNextSamplePosition(m_iCurrentPosition);
 }
 
 String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {
@@ -145,7 +131,4 @@ String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName
             return String();
     }
     return currentDir.getFullPathName();
-}
-
-void PlayerComponent::actionListenerCallback (const String& message) {
 }

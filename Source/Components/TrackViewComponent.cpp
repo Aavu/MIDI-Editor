@@ -13,31 +13,21 @@ int TrackParameters::m_iNumTracks = 0;
 int TrackParameters::k_iDefaultTrackHeight = 128;
 std::vector<int> TrackParameters::m_aiTrackHeight {};
 
-TrackViewComponent::TrackViewComponent()
+TrackViewComponent::TrackViewComponent() : m_pPlayHead(std::make_unique<PlayHeadComponent>())
 {
 }
 
-void TrackViewComponent::init(int noOfTracks) {
-    m_iNumTracks = noOfTracks;
-
+void TrackViewComponent::init(PlayerComponent* player) {
 //    m_tracks = new TextButton*[m_iNumTracks];
 
     m_header.setColour (TextButton::buttonColourId, Colours::cornflowerblue);
-//    m_header.setButtonText ("Header");
     addAndMakeVisible (m_header);
 
     m_sidebar.setColour (TextButton::buttonColourId, Colours::grey);
-//    m_sidebar.setButtonText ("Sidebar");
     addAndMakeVisible (m_sidebar);
 
-    if (m_iNumTracks > 0) {
-        for(int i=0; i<m_iNumTracks; i++) {
-            m_tracks.push_back(new TextButton());
-            m_tracks.at(i)->setColour (TextButton::buttonColourId, Colours::lime);
-            addAndMakeVisible (m_tracks[i]);
-            m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
-        }
-    }
+    m_pPlayHead->init(player);
+    addAndMakeVisible(*m_pPlayHead);
 }
 
 TrackViewComponent::~TrackViewComponent() {
@@ -58,6 +48,8 @@ void TrackViewComponent::resized() {
     auto sidebarWidth = 128;
     m_sidebar.setBounds (area.removeFromLeft(sidebarWidth));
 
+    m_pPlayHead->setBounds(sidebarWidth, headerHeight, area.getWidth(), area.getHeight());
+
     for(int i=0; i< m_iNumTracks; i++) {
         m_tracks.at(i)->setBounds(area.removeFromTop(m_aiTrackHeight.at(i)));
     }
@@ -70,7 +62,7 @@ int TrackViewComponent::getNumTracks() const {
 void TrackViewComponent::addTrack() {
     m_tracks.push_back(new TextButton());
     m_tracks.at(m_iNumTracks)->setColour (TextButton::buttonColourId, Colours::lime);
-    addAndMakeVisible (m_tracks[m_iNumTracks]);
+    addAndMakeVisible (m_tracks[m_iNumTracks], 0);
     m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
     m_iNumTracks++;
 

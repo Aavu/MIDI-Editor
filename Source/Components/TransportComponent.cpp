@@ -86,31 +86,13 @@ void TransportComponent::init(PlayerComponent* playerComponent) {
 }
 
 void TransportComponent::actionListenerCallback (const String& message) {
-    if (message == "stop") {
+    using namespace Globals::ActionMessage;
+    if (message == Stop) {
         stopBtnClicked(); // pause
         stopBtnClicked(); // stop
-    } else if (message == "playForExport") {
+    } else if (message == PlayForExport) {
         stopBtnClicked(); // pause
         stopBtnClicked(); // stop
         playBtnClicked();
     }
-    DBG(message);
-}
-
-bool TransportComponent::getCurrentPosition (CurrentPositionInfo& result) {
-    if (!m_pPlayer)
-        return false;
-
-    auto pos = m_pPlayer->getCurrentPosition(AudioPlayHead::CurrentPositionInfo());
-    result.resetToDefault();
-    result.isPlaying = (m_pPlayer->getPlayState() == PlayerComponent::PlayState::Playing);
-    result.timeInSamples = pos;
-    result.bpm = bpm;
-    result.timeInSeconds = pos/m_pPlayer->getSampleRate();
-    result.timeSigNumerator = 4;
-    result.timeSigDenominator = 4;
-    result.editOriginTime = 0;
-    result.isLooping = false;
-    result.isRecording  = false;
-    return true;
 }

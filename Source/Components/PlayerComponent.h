@@ -15,11 +15,12 @@
 #include <vector>
 
 #include "../Synth/SfzMidiSynth.h"
+#include "Globals.h"
 
 //==============================================================================
 /*
 */
-class PlayerComponent : public Component, public ActionBroadcaster, public ActionListener
+class PlayerComponent : public Component, public ActionBroadcaster
 {
 public:
     PlayerComponent();
@@ -42,9 +43,26 @@ public:
         Stopped
     };
 
-    PlayState getPlayState();
-    int getCurrentPosition(AudioPlayHead::CurrentPositionInfo info);
-    double getSampleRate();
+    PlayState getPlayState() {
+        return m_playState;
+    }
+
+    int getCurrentPosition() {
+        return m_iCurrentPosition;
+    }
+
+    double getSampleRate() {
+        return m_fSampleRate;
+    }
+
+    unsigned int getBPM() {
+        return BPM;
+    }
+
+    int getMaxBufferLength() {
+        return m_ulMaxBufferLength;
+    }
+
     void resetCurrentPosition();
 
 private:
@@ -55,9 +73,9 @@ private:
     void addMessageToBuffer(const MidiMessage& message);
     void addAllSequenceMessagesToBuffer();
 
-    void actionListenerCallback (const String& message) override;
+    int m_ulMaxBufferLength = 0;
 
-    size_t m_ulMaxBufferLength = 0;
+    unsigned int BPM = 120;
 
     const MidiMessageSequence* m_midiMessageSequence = nullptr;
     MidiBuffer m_midiBuffer;
