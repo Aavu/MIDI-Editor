@@ -14,10 +14,15 @@
 #define GLOBALS
 namespace Globals {
     //MidiFile midiFile;
+    
+    // piano roll parameters
     const int midiNoteNum = 128;
     const int initTimeStamps = 30;
-    const int initNoteHeight = 10;
+    const int initNoteHeight = 8;
     const int initNoteWidth = 40;
     const int longestNote = 20;
+    
+    // track view parameter
+    
 };
 #endif

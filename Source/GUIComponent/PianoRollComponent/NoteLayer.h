@@ -34,10 +34,12 @@ public:
     
     bool keyPressed(const KeyPress & key) override;
     
+    void setPreview(bool ifPreview);
+    
     class RowComponent  : public Component
     {
     public:
-        RowComponent (NoteLayer& lb, int row_n, int col_n, int tickNum);
+        RowComponent (NoteLayer& lb, int row_n, int col_n, int tickNum, int curNoteWidth, int curNoteHeight, bool preview_n);
         
         void setRowAndColumn (const int newRow, const int newColumn, bool isRowSelected);
         
@@ -54,6 +56,8 @@ public:
         void addToSelected(PianoRollNote* noteToAdd);
 
         void mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel) override;
+        
+        void setPreview(bool ifPreview);
     
         NoteLayer& owner;
         int row = -1;
@@ -62,10 +66,21 @@ public:
         int boxNum = -1;
         
         bool selected = false;
+        bool preview = true;
         
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RowComponent)
     };
     
 private:
+    
     TableListBox oneColumnTable;
+    
+    int initNoteWidth = Globals::initNoteWidth;
+    int initNoteHeight = Globals::initNoteHeight;
+    int curTimeStamps = Globals::initTimeStamps;
+    
+    float facNoteWidth = 1.F;
+    float facNoteHeight = 1.F;
+    
+    bool preview = true;
 };

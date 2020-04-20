@@ -3,26 +3,31 @@
 <JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.5">
   <MAINGROUP id="bseg78" name="MidiEditor">
     <GROUP id="{4D02D25C-6694-ABA1-B776-755A0F43BA73}" name="Source">
-      <FILE id="uGbMkU" name="Globals.h" compile="0" resource="0" file="Source/PianoRollComponent/Globals.h"/>
-      <GROUP id="{103ADE2F-5893-FA2C-69AE-13E6AB726A03}" name="PianoRollComponent">
-        <FILE id="TakcGX" name="CustomKeyboardComponent.cpp" compile="1" resource="0"
-              file="Source/PianoRollComponent/CustomKeyboardComponent.cpp"/>
-        <FILE id="lhxqSx" name="CustomKeyboardComponent.h" compile="0" resource="0"
-              file="Source/PianoRollComponent/CustomKeyboardComponent.h"/>
-        <FILE id="McmKnx" name="NoteLayer.cpp" compile="1" resource="0" file="Source/PianoRollComponent/NoteLayer.cpp"/>
-        <FILE id="w6yLaT" name="NoteLayer.h" compile="0" resource="0" file="Source/PianoRollComponent/NoteLayer.h"/>
-        <FILE id="nJjnUz" name="PianoRollHeader.cpp" compile="1" resource="0"
-              file="Source/PianoRollComponent/PianoRollHeader.cpp"/>
-        <FILE id="nzk1ON" name="PianoRollHeader.h" compile="0" resource="0"
-              file="Source/PianoRollComponent/PianoRollHeader.h"/>
-        <FILE id="lOjgZW" name="PianoRollNote.cpp" compile="1" resource="0"
-              file="Source/PianoRollComponent/PianoRollNote.cpp"/>
-        <FILE id="tKQgWT" name="PianoRollNote.h" compile="0" resource="0" file="Source/PianoRollComponent/PianoRollNote.h"/>
-        <FILE id="GP8NGL" name="ScrollablePianoRollComponent.cpp" compile="1"
-              resource="0" file="Source/PianoRollComponent/ScrollablePianoRollComponent.cpp"/>
-        <FILE id="qK7TeQ" name="ScrollablePianoRollComponent.h" compile="0"
-              resource="0" file="Source/PianoRollComponent/ScrollablePianoRollComponent.h"/>
+      <GROUP id="{8FC33BF7-17E3-6149-54F2-639D2DCAC55A}" name="Components">
+        <GROUP id="{103ADE2F-5893-FA2C-69AE-13E6AB726A03}" name="PianoRollComponent">
+          <FILE id="SDX6xD" name="CustomKeyboardComponent.cpp" compile="1" resource="0"
+                file="Source/GUIComponent/PianoRollComponent/CustomKeyboardComponent.cpp"/>
+          <FILE id="rT30pv" name="CustomKeyboardComponent.h" compile="0" resource="0"
+                file="Source/GUIComponent/PianoRollComponent/CustomKeyboardComponent.h"/>
+          <FILE id="CkiRBp" name="NoteLayer.cpp" compile="1" resource="0" file="Source/GUIComponent/PianoRollComponent/NoteLayer.cpp"/>
+          <FILE id="FZ8HuQ" name="NoteLayer.h" compile="0" resource="0" file="Source/GUIComponent/PianoRollComponent/NoteLayer.h"/>
+          <FILE id="I9UDxC" name="PianoRollHeader.cpp" compile="1" resource="0"
+                file="Source/GUIComponent/PianoRollComponent/PianoRollHeader.cpp"/>
+          <FILE id="LWqJLc" name="PianoRollHeader.h" compile="0" resource="0"
+                file="Source/GUIComponent/PianoRollComponent/PianoRollHeader.h"/>
+          <FILE id="sGfLnU" name="PianoRollNote.cpp" compile="1" resource="0"
+                file="Source/GUIComponent/PianoRollComponent/PianoRollNote.cpp"/>
+          <FILE id="yHXvcN" name="PianoRollNote.h" compile="0" resource="0" file="Source/GUIComponent/PianoRollComponent/PianoRollNote.h"/>
+          <FILE id="L30s3g" name="ScrollablePianoRollComponent.cpp" compile="1"
+                resource="0" file="Source/GUIComponent/PianoRollComponent/ScrollablePianoRollComponent.cpp"/>
+          <FILE id="synUKq" name="ScrollablePianoRollComponent.h" compile="0"
+                resource="0" file="Source/GUIComponent/PianoRollComponent/ScrollablePianoRollComponent.h"/>
+        </GROUP>
+        <FILE id="a8C5oQ" name="GUIComponent.cpp" compile="1" resource="0"
+              file="Source/GUIComponent/GUIComponent.cpp"/>
+        <FILE id="OV9kxu" name="GUIComponent.h" compile="0" resource="0" file="Source/GUIComponent/GUIComponent.h"/>
       </GROUP>
+      <FILE id="xrkwiV" name="Globals.h" compile="0" resource="0" file="Source/Globals.h"/>
       <FILE id="zSqALl" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
     </GROUP>
   </MAINGROUP>

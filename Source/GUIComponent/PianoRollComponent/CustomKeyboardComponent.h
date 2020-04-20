@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "Globals.h"
+#include "../../Globals.h"
 
 // TODO: change keyboardcomponent as a child
 class CustomKeyboardComponent: public MidiKeyboardState, public MidiKeyboardComponent
@@ -19,11 +19,16 @@ class CustomKeyboardComponent: public MidiKeyboardState, public MidiKeyboardComp
 public:
     CustomKeyboardComponent();
     
-    Range<float> getKeyPosition(int midiNoteNumber,float keyWidth) const override;
+    Range<float> getKeyPosition (int midiNoteNumber,float keyWidth) const override;
+    
+    String getWhiteNoteText (int midiNoteNumber) override;
 
     void mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel) override;
+    
+    void setPreview(bool ifPreview);
 
 private:
     float           ratio=0.7;
+    bool            preview = true;
     Viewport        viewport;
 };

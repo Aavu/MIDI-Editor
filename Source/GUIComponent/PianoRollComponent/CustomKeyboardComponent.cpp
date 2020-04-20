@@ -9,7 +9,7 @@
 */
 
 #include "CustomKeyboardComponent.h"
-#include "Globals.h"
+#include "../../Globals.h"
 
 CustomKeyboardComponent::CustomKeyboardComponent(): MidiKeyboardComponent(*this, MidiKeyboardComponent::verticalKeyboardFacingRight)
 {
@@ -41,7 +41,20 @@ Range<float> CustomKeyboardComponent::getKeyPosition(int midiNoteNumber,float ke
     return { start, start + width };
 }
 
+String CustomKeyboardComponent::getWhiteNoteText (int midiNoteNumber)
+{
+    if (midiNoteNumber % 12 == 0 && !preview)
+        return MidiMessage::getMidiNoteName (midiNoteNumber, true, true, 3);
+    
+    return {};
+}
+
 void CustomKeyboardComponent::mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel)
 {
     Component::mouseWheelMove(e, wheel);
+}
+
+void CustomKeyboardComponent::setPreview(bool ifPreview)
+{
+    preview = ifPreview;
 }

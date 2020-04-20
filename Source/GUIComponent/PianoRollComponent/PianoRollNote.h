@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "Globals.h"
+#include "../../Globals.h"
 
 // midi message associated with that note
 // TODO: add members and functions later

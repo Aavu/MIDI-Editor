@@ -9,18 +9,17 @@
 */
 
 #include "NoteLayer.h"
-#include "Globals.h"
 
 NoteLayer::NoteLayer(): NoteList(this), SelectedNoteList(this)
 {
-    oneColumnTable.getHeader().addColumn("notelayer", 1, Globals::initNoteWidth * Globals::initTimeStamps, 30, -1,  TableHeaderComponent::ColumnPropertyFlags::notSortable);
+    oneColumnTable.getHeader().addColumn("notelayer", 1, initNoteWidth * curTimeStamps, 30, -1,  TableHeaderComponent::ColumnPropertyFlags::notSortable);
     oneColumnTable.setModel(this);
     
     // hide horizontal scroll bars
     oneColumnTable.getViewport()->setScrollBarsShown(false, false, false, true);
     // hide header
     oneColumnTable.setHeaderHeight(0);
-    oneColumnTable.setRowHeight(Globals::initNoteHeight);
+    oneColumnTable.setRowHeight(initNoteHeight);
     
     addAndMakeVisible(oneColumnTable);
 }
@@ -53,9 +52,10 @@ Component* NoteLayer::refreshComponentForCell (int rowNumber, int columnId, bool
     auto* pianoRollRow = static_cast<RowComponent*> (existingComponentToUpdate);
     
     if (pianoRollRow == nullptr)
-        pianoRollRow = new RowComponent (*this, rowNumber, columnId, Globals::initTimeStamps);
+        pianoRollRow = new RowComponent (*this, rowNumber, columnId, curTimeStamps, static_cast<int>(facNoteWidth*initNoteWidth), static_cast<int>(facNoteHeight*initNoteHeight), preview);
     
     pianoRollRow->setRowAndColumn (rowNumber, 0, isRowSelected);
+    pianoRollRow->setPreview(preview);
     
     return pianoRollRow;
 }
@@ -74,11 +74,18 @@ bool NoteLayer::keyPressed(const KeyPress & key)
     }
 }
 
-NoteLayer::RowComponent::RowComponent (NoteLayer& lb, int row_n, int col_n, int tickNum) : owner (lb), row(row_n)
+void NoteLayer::setPreview(bool ifPreview)
 {
-    boxWidth = Globals::initNoteWidth;
-    boxHeight = Globals::initNoteHeight;
+    preview = ifPreview;
+    oneColumnTable.repaint();
+}
+
+NoteLayer::RowComponent::RowComponent (NoteLayer& lb, int row_n, int col_n, int tickNum, int curNoteWidth, int curNoteHeight, bool preview_n) : owner (lb), row(row_n)
+{
+    boxWidth = curNoteWidth;
+    boxHeight = curNoteHeight;
     boxNum = tickNum;
+    preview = preview_n;
     
     Array<PianoRollNote*> notesInRow = owner.getNotesByRow(row);
     for (int i = 0; i < notesInRow.size(); i++)
@@ -105,9 +112,13 @@ void NoteLayer::RowComponent::setRowAndColumn (const int newRow, const int newCo
 void NoteLayer::RowComponent::paint (Graphics& g)
 {
     g.setColour (Colours::grey);
-    // draw boxes
-    for (int i = 0; i < boxNum; i++)
-        g.drawRect(1.F*i*boxWidth, 0.F, 1.F*boxWidth, 1.F*boxHeight, 0.5);
+    
+    if (!preview)
+    {
+        // draw boxes
+        for (int i = 0; i < boxNum; i++)
+            g.drawRect(1.F*i*boxWidth, 0.F, 1.F*boxWidth, 1.F*boxHeight, 0.5);
+    }
 }
 
 void NoteLayer::RowComponent::mouseDown (const MouseEvent& event)
@@ -182,7 +193,10 @@ void NoteLayer::RowComponent::mouseWheelMove (const MouseEvent& e, const MouseWh
     getParentComponent()->mouseWheelMove(e, wheel_h);
 }
 
-
+void NoteLayer::RowComponent::setPreview(bool ifPreview)
+{
+    preview = ifPreview;
+}
 
 
 

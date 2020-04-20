@@ -11,10 +11,9 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "Globals.h"
 #include <functional>
 
-#include "Globals.h"
+#include "../../Globals.h"
 #include "PianoRollHeader.h"
 #include "PianoRollNote.h"
 #include "NoteLayer.h"
@@ -47,6 +46,9 @@ public:
     
     void resized() override;
     
+    //==============================================================================
+    void setPreview(bool ifPreview);
+    
     // This little function avoids a bit of code-duplication by adding a component to
     // our list as well as calling addAndMakeVisible on it..
     template <typename ComponentType>
@@ -57,13 +59,11 @@ private:
     
     OtherLookAndFeel otherLookAndFeel;
     
-    PianoRollHeader                 *header;
-    
     CustomKeyboardComponent         *keyboardComponent;
     
     NoteLayer                       *noteLayer;
     
-    TextButton                      *sidebar;
+    bool                            preview = true;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PianoRollComponent)
@@ -76,9 +76,12 @@ public:
     ScrollablePianoRollComponent();
 
     void resized() override;
+    
+    void setPreview(bool ifPreview);
 
 private:
 
-    Viewport viewPort;
-    PianoRollComponent cpn;
+    Viewport m_viewPort;
+    PianoRollComponent m_cpn;
+    bool m_preview = true;
 };
