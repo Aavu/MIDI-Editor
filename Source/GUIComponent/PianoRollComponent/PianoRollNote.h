@@ -51,20 +51,20 @@ public:
     
 private:
     
-    bool                init = false;
-    int                 row;                          // midi number (0~127)
-    float               offset;
-    float               length;                      // relative length (1 means 1 quarter note)
-    int                 velocity;
-    int                 boxWidth;
-    int                 boxHeight;
+    bool                m_bInit = false;
+    int                 m_iRow;                          // midi number (0~127)
+    float               m_fOffset;
+    float               m_fLength;                      // relative length (1 means 1 quarter note)
+    int                 m_iVelocity;
+    int                 m_iBoxWidth;
+    int                 m_iBoxHeight;
     
-    NoteMessage         *noteMessage;
+    NoteMessage         *m_pNoteMessage;
     
     // dragger
-    ComponentDragger                myDragger;
-    ResizableBorderComponent*       border;
-    ComponentBoundsConstrainer*     constrainer;
+    ComponentDragger                m_pMyDragger;
+    ResizableBorderComponent*       m_pBorder;
+    ComponentBoundsConstrainer*     m_pConstrainer;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PianoRollNote)
 };
@@ -91,8 +91,8 @@ public:
     void deleteNote(PianoRollNote *noteToBeRemoved);
     
 private:
-    Array<PianoRollNote*>               *noteList;
-    SelectedNoteList                    *selected;
+    Array<PianoRollNote*>               *m_pNoteList;
+    SelectedNoteList                    *m_pSelected;
 };
 
 class SelectedNoteList
@@ -109,6 +109,6 @@ public:
     void removeSelectedNotes();
     
 private:
-    Array<PianoRollNote*>               *selected;
-    NoteList                            *noteList;
+    Array<PianoRollNote*>               *m_pSelected;
+    NoteList                            *m_pNoteList;
 };

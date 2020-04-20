@@ -13,7 +13,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "../../Globals.h"
 
-// TODO: change keyboardcomponent as a child
 class CustomKeyboardComponent: public MidiKeyboardState, public MidiKeyboardComponent
 {
 public:
@@ -28,7 +27,6 @@ public:
     void setPreview(bool ifPreview);
 
 private:
-    float           ratio=0.7;
-    bool            preview = true;
-    Viewport        viewport;
+    float           m_fRatio = 0.7;
+    bool            m_bPreview = true;
 };

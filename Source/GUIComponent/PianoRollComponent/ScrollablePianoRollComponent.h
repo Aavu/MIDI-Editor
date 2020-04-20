@@ -14,7 +14,7 @@
 #include <functional>
 
 #include "../../Globals.h"
-#include "PianoRollHeader.h"
+
 #include "PianoRollNote.h"
 #include "NoteLayer.h"
 #include "CustomKeyboardComponent.h"
@@ -59,11 +59,11 @@ private:
     
     OtherLookAndFeel otherLookAndFeel;
     
-    CustomKeyboardComponent         *keyboardComponent;
+    CustomKeyboardComponent         *m_pKeyboardComponent;
     
-    NoteLayer                       *noteLayer;
+    NoteLayer                       *m_pNoteLayer;
     
-    bool                            preview = true;
+    bool                            m_Preview = true;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PianoRollComponent)
@@ -81,7 +81,7 @@ public:
 
 private:
 
-    Viewport m_viewPort;
-    PianoRollComponent m_cpn;
-    bool m_preview = true;
+    Viewport m_ViewPort;
+    PianoRollComponent m_Cpn;
+    bool m_bPreview = true;
 };

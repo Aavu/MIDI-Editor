@@ -59,14 +59,14 @@ public:
         
         void setPreview(bool ifPreview);
     
-        NoteLayer& owner;
-        int row = -1;
-        int boxWidth = -1;
-        int boxHeight = -1;
-        int boxNum = -1;
+        NoteLayer& m_Owner;
+        int m_iRow = -1;
+        int m_iBoxWidth = -1;
+        int m_iBoxHeight = -1;
+        int m_iBoxNum = -1;
         
-        bool selected = false;
-        bool preview = true;
+        bool m_bSelected = false;
+        bool m_bPreview = true;
         
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RowComponent)
     };
@@ -75,12 +75,12 @@ private:
     
     TableListBox oneColumnTable;
     
-    int initNoteWidth = Globals::initNoteWidth;
-    int initNoteHeight = Globals::initNoteHeight;
-    int curTimeStamps = Globals::initTimeStamps;
+    int m_iInitNoteWidth = Globals::initNoteWidth;
+    int m_iInitNoteHeight = Globals::initNoteHeight;
+    int m_iCurTimeStamps = Globals::initTimeStamps;
     
-    float facNoteWidth = 1.F;
-    float facNoteHeight = 1.F;
+    float m_fFacNoteWidth = 1.F;
+    float m_fFacNoteHeight = 1.F;
     
-    bool preview = true;
+    bool m_bPreview = true;
 };
