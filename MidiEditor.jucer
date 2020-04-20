@@ -3,31 +3,63 @@
 <JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.5">
   <MAINGROUP id="bseg78" name="MidiEditor">
     <GROUP id="{4D02D25C-6694-ABA1-B776-755A0F43BA73}" name="Source">
-      <GROUP id="{8FC33BF7-17E3-6149-54F2-639D2DCAC55A}" name="Components">
-        <GROUP id="{103ADE2F-5893-FA2C-69AE-13E6AB726A03}" name="PianoRollComponent">
-          <FILE id="SDX6xD" name="CustomKeyboardComponent.cpp" compile="1" resource="0"
-                file="Source/GUIComponent/PianoRollComponent/CustomKeyboardComponent.cpp"/>
-          <FILE id="rT30pv" name="CustomKeyboardComponent.h" compile="0" resource="0"
-                file="Source/GUIComponent/PianoRollComponent/CustomKeyboardComponent.h"/>
-          <FILE id="CkiRBp" name="NoteLayer.cpp" compile="1" resource="0" file="Source/GUIComponent/PianoRollComponent/NoteLayer.cpp"/>
-          <FILE id="FZ8HuQ" name="NoteLayer.h" compile="0" resource="0" file="Source/GUIComponent/PianoRollComponent/NoteLayer.h"/>
-          <FILE id="I9UDxC" name="PianoRollHeader.cpp" compile="1" resource="0"
-                file="Source/GUIComponent/PianoRollComponent/PianoRollHeader.cpp"/>
-          <FILE id="LWqJLc" name="PianoRollHeader.h" compile="0" resource="0"
-                file="Source/GUIComponent/PianoRollComponent/PianoRollHeader.h"/>
-          <FILE id="sGfLnU" name="PianoRollNote.cpp" compile="1" resource="0"
-                file="Source/GUIComponent/PianoRollComponent/PianoRollNote.cpp"/>
-          <FILE id="yHXvcN" name="PianoRollNote.h" compile="0" resource="0" file="Source/GUIComponent/PianoRollComponent/PianoRollNote.h"/>
-          <FILE id="L30s3g" name="ScrollablePianoRollComponent.cpp" compile="1"
-                resource="0" file="Source/GUIComponent/PianoRollComponent/ScrollablePianoRollComponent.cpp"/>
-          <FILE id="synUKq" name="ScrollablePianoRollComponent.h" compile="0"
-                resource="0" file="Source/GUIComponent/PianoRollComponent/ScrollablePianoRollComponent.h"/>
-        </GROUP>
-        <FILE id="a8C5oQ" name="GUIComponent.cpp" compile="1" resource="0"
-              file="Source/GUIComponent/GUIComponent.cpp"/>
-        <FILE id="OV9kxu" name="GUIComponent.h" compile="0" resource="0" file="Source/GUIComponent/GUIComponent.h"/>
+      <FILE id="jSDrYV" name="MainComponentK.cpp" compile="1" resource="0"
+            file="Source/MainComponentK.cpp"/>
+      <FILE id="z7bqiJ" name="MainComponentK.h" compile="0" resource="0"
+            file="Source/MainComponentK.h"/>
+      <GROUP id="{B3A1646D-D871-7097-4903-DFA0B16447B6}" name="Synth">
+        <FILE id="J8O2hq" name="MidiSynth.cpp" compile="1" resource="0" file="Source/Synth/MidiSynth.cpp"/>
+        <FILE id="eAye7x" name="MidiSynth.h" compile="0" resource="0" file="Source/Synth/MidiSynth.h"/>
+        <FILE id="VI29rW" name="SfzMidiSynth.cpp" compile="1" resource="0"
+              file="Source/Synth/SfzMidiSynth.cpp"/>
+        <FILE id="bGmZVz" name="SfzMidiSynth.h" compile="0" resource="0" file="Source/Synth/SfzMidiSynth.h"/>
       </GROUP>
-      <FILE id="xrkwiV" name="Globals.h" compile="0" resource="0" file="Source/Globals.h"/>
+      <GROUP id="{B3A1646D-D871-7097-4903-DFA0B16447B6}" name="Components">
+        <GROUP id="{B924E80D-C1CA-68D7-E1D4-EE34D7E69C5D}" name="GUIComponent">
+          <GROUP id="{B47CF68A-AFA4-6666-FD15-6A8B6612AC4E}" name="ScrollablePianoRollComponent">
+            <FILE id="NZhSBX" name="CustomKeyboardComponent.cpp" compile="1" resource="0"
+                  file="Source/Components/GUIComponent/ScrollablePianoRollComponent/CustomKeyboardComponent.cpp"/>
+            <FILE id="XWtAMC" name="CustomKeyboardComponent.h" compile="0" resource="0"
+                  file="Source/Components/GUIComponent/ScrollablePianoRollComponent/CustomKeyboardComponent.h"/>
+            <FILE id="qkL5vy" name="NoteLayer.cpp" compile="1" resource="0" file="Source/Components/GUIComponent/ScrollablePianoRollComponent/NoteLayer.cpp"/>
+            <FILE id="yyIGIq" name="NoteLayer.h" compile="0" resource="0" file="Source/Components/GUIComponent/ScrollablePianoRollComponent/NoteLayer.h"/>
+            <FILE id="I41U7V" name="PianoRollNote.cpp" compile="1" resource="0"
+                  file="Source/Components/GUIComponent/ScrollablePianoRollComponent/PianoRollNote.cpp"/>
+            <FILE id="UUFpfr" name="PianoRollNote.h" compile="0" resource="0" file="Source/Components/GUIComponent/ScrollablePianoRollComponent/PianoRollNote.h"/>
+            <FILE id="bSrnQo" name="ScrollablePianoRollComponent.cpp" compile="1"
+                  resource="0" file="Source/Components/GUIComponent/ScrollablePianoRollComponent/ScrollablePianoRollComponent.cpp"/>
+            <FILE id="uj2VL4" name="ScrollablePianoRollComponent.h" compile="0"
+                  resource="0" file="Source/Components/GUIComponent/ScrollablePianoRollComponent/ScrollablePianoRollComponent.h"/>
+          </GROUP>
+          <FILE id="o7eWP2" name="GUIComponent.cpp" compile="1" resource="0"
+                file="Source/Components/GUIComponent/GUIComponent.cpp"/>
+          <FILE id="SSbw7e" name="GUIComponent.h" compile="0" resource="0" file="Source/Components/GUIComponent/GUIComponent.h"/>
+        </GROUP>
+        <FILE id="cfxNXd" name="Track.h" compile="0" resource="0" file="Source/Components/Track.h"/>
+        <FILE id="xIjdCC" name="TrackParameters.h" compile="0" resource="0"
+              file="Source/Components/TrackParameters.h"/>
+        <FILE id="phIXgK" name="SidebarComponent.h" compile="0" resource="0"
+              file="Source/Components/SidebarComponent.h"/>
+        <FILE id="TRFyKS" name="Globals.h" compile="0" resource="0" file="Source/Components/Globals.h"/>
+        <FILE id="ddZtCU" name="MenuComponent.cpp" compile="1" resource="0"
+              file="Source/Components/MenuComponent.cpp"/>
+        <FILE id="SIK8yb" name="MenuComponent.h" compile="0" resource="0" file="Source/Components/MenuComponent.h"/>
+        <FILE id="bqau8k" name="PlayerComponent.cpp" compile="1" resource="0"
+              file="Source/Components/PlayerComponent.cpp"/>
+        <FILE id="xYNs8M" name="PlayerComponent.h" compile="0" resource="0"
+              file="Source/Components/PlayerComponent.h"/>
+        <FILE id="T4QACN" name="TransportComponent.cpp" compile="1" resource="0"
+              file="Source/Components/TransportComponent.cpp"/>
+        <FILE id="Evexho" name="TransportComponent.h" compile="0" resource="0"
+              file="Source/Components/TransportComponent.h"/>
+        <FILE id="bhPhQ7" name="TrackViewComponent.cpp" compile="1" resource="0"
+              file="Source/Components/TrackViewComponent.cpp"/>
+        <FILE id="sjiuHY" name="TrackViewComponent.h" compile="0" resource="0"
+              file="Source/Components/TrackViewComponent.h"/>
+      </GROUP>
+      <FILE id="SGJ7oP" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="BOWg84" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
       <FILE id="zSqALl" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
     </GROUP>
   </MAINGROUP>
@@ -51,10 +83,10 @@
         <MODULEPATH id="juce_gui_basics" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_opengl" path="../../../../../Software/JUCE/modules"/>
-        <MODULEPATH id="juce_box2d" path="../../../JUCE/modules"/>
+        <MODULEPATH id="SFZero" path="JuceLibraryCode/modules/SFZero"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <CLION targetFolder="Builds/CLion" clionXcodeEnabled="1">
+    <CLION targetFolder="Builds/CLion">
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_audio_devices" path="../../../../../Software/JUCE/modules"/>
@@ -69,7 +101,7 @@
         <MODULEPATH id="juce_gui_basics" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../../../Software/JUCE/modules"/>
         <MODULEPATH id="juce_opengl" path="../../../../../Software/JUCE/modules"/>
-        <MODULEPATH id="juce_box2d" path="../../../JUCE/modules"/>
+        <MODULEPATH id="SFZero" path="../../../../../Software/JUCE/user_modules"/>
       </MODULEPATHS>
     </CLION>
   </EXPORTFORMATS>
@@ -79,7 +111,6 @@
     <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="juce_box2d" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
@@ -88,9 +119,10 @@
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="SFZero" showAllCode="1" useLocalCopy="1" useGlobalPath="0"/>
   </MODULES>
   <LIVE_SETTINGS>
-    <OSX buildEnabled="1"/>
+    <OSX/>
   </LIVE_SETTINGS>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
 </JUCERPROJECT>
