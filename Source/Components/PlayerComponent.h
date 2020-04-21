@@ -93,6 +93,7 @@ private:
     SfzSynth m_synth;
 
     constexpr static int kiNumVoices = 24;
+    constexpr static int kiNumChannels = 16;
 
 
     //==============================================================================

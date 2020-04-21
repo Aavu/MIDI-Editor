@@ -45,8 +45,8 @@ void SfzSynth::addSound(sfzero::Sound *sound) {
 //============================================================================================================
 SfzLoader::SfzLoader() :
         m_loadThread(this),
-        m_pSound(nullptr),
         m_fLoadProgress(0.0),
+        m_iNumInstances(0),
         m_callback(nullptr)
 {
 }
@@ -56,9 +56,10 @@ void SfzLoader::setSfzFile(File *pNewSfzFile)
     m_sfzFile = *pNewSfzFile;
 }
 
-void SfzLoader::loadSound(bool bUseLoaderThread /*= false*/, std::function<void()> *callback /*= nullptr*/)
+void SfzLoader::loadSounds(int iNumInstances /*= 1*/, bool bUseLoaderThread /*= false*/, std::function<void()> *callback /*= nullptr*/)
 {
-    m_callback = *callback; //TODO: is this a good practice??
+    m_callback = *callback;
+    m_iNumInstances = iNumInstances;
     if (bUseLoaderThread) {
         m_loadThread.stopThread(2000);
         m_loadThread.startThread();
@@ -74,37 +75,32 @@ double SfzLoader::getLoadProgress() const {
 
 void SfzLoader::load(Thread *thread)
 {
-    m_fLoadProgress = 0.0;
-
-    if (!m_sfzFile.existsAsFile())
-    {
+    if (!m_sfzFile.existsAsFile()) {
         std::cout << "Invalid Soundfont File." << std::endl; //TODO: handle errors in a better way
         return;
     }
 
+    m_fLoadProgress = 0.0;
     auto extension = m_sfzFile.getFileExtension();
-    if ((extension == ".sf2") || (extension == ".SF2"))
-    {
-        m_pSound = new sfzero::SF2Sound(m_sfzFile);
-    }
-    else
-    {
-        m_pSound = new sfzero::Sound(m_sfzFile);
-    }
-    m_pSound->loadRegions();
-    m_pSound->loadSamples(m_formatManager, &m_fLoadProgress, thread);
+    sfzero::Sound * pSoundInstance;
 
-    std::cout<< "Load Progress: " << m_fLoadProgress << std::endl;
+    for (auto i=0; i<m_iNumInstances; i++) {
+        if ((extension == ".sf2") || (extension == ".SF2")) {
+            pSoundInstance = new sfzero::SF2Sound(m_sfzFile);
+        } else {
+            pSoundInstance = new sfzero::Sound(m_sfzFile);
+        }
+        pSoundInstance->loadRegions();
+        pSoundInstance->loadSamples(m_formatManager, &m_fLoadProgress, thread);
+        m_sounds.add(pSoundInstance);
 
-    m_pSound->useSubsound(0); // TODO: Use global variable to set default subsound?
+        if (thread && thread->threadShouldExit()) {
+            return;
+        }
+    }
 
     if (m_callback) {
         m_callback();
-    }
-
-    if (thread && thread->threadShouldExit())
-    {
-        return;
     }
 }
 
@@ -119,6 +115,6 @@ void SfzLoader::LoadThread::run()
     m_pSfzLoader->load(this);
 }
 
-sfzero::Sound * SfzLoader::getLoadedSound() const {
-    return m_pSound;
+ReferenceCountedArray<sfzero::Sound> SfzLoader::getLoadedSounds() const {
+    return m_sounds;
 }
