@@ -14,6 +14,8 @@
 //==============================================================================
 PlayerComponent::PlayerComponent()
 {
+    initSynth();
+
 }
 
 PlayerComponent::~PlayerComponent()
@@ -28,10 +30,24 @@ void PlayerComponent::resized()
 {
 }
 
+void PlayerComponent::initSynth() {
+    m_synth.clearVoices();
+
+    for (int i=0; i < kiNumVoices; i++) {
+        m_synth.addVoice(new sfzero::Voice());
+    }
+
+    // Load sound from SoundFont file and add to synth.
+    File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
+    m_sfzLoader.setSfzFile(soundFontFile);
+    std::function<void()> addLoadedSoundCallback = [this] () {m_synth.addSound(m_sfzLoader.getLoadedSound());};
+    m_sfzLoader.loadSound(true, &addLoadedSoundCallback);
+}
+
 void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
     auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
     //std::cout << message.getTimeStamp() << "\t" << msgSampleNumber << "\t" << message.getDescription() << std::endl;
-    m_buffer.addEvent(message, msgSampleNumber);
+    m_midiBuffer.addEvent(message, msgSampleNumber);
 }
 
 void PlayerComponent::addAllSequenceMessagesToBuffer() {
@@ -45,12 +61,14 @@ void PlayerComponent::addAllSequenceMessagesToBuffer() {
         }
     }
 
-    m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_buffer);
+    m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);
+    m_ulMaxBufferLength = m_midiBuffer.getLastEventTime();
+    DBG("max length : " << m_ulMaxBufferLength);
 }
 
 void PlayerComponent::setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq) {
     m_midiMessageSequence = midiMsgSeq;
-    m_buffer.clear();
+    m_midiBuffer.clear();
     addAllSequenceMessagesToBuffer();
 }
 
@@ -72,45 +90,49 @@ void PlayerComponent::stop() {
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
     m_iSamplesPerBlockExpected = samplesPerBlockExpected;
     m_fSampleRate = sampleRate;
+    m_synth.setCurrentPlaybackSampleRate(sampleRate);
 }
 
 void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) {
     bufferToFill.clearActiveBufferRegion();
+    m_currentMidiBuffer.clear();
 
-    if (m_playState == PlayState::Playing)
-        updateNumSamples(bufferToFill.numSamples);
+    auto numSamples = bufferToFill.numSamples;
+
+    if (m_playState == PlayState::Playing) {
+        if (m_midiBuffer.isEmpty()) {
+            m_iCurrentPosition += numSamples;
+            return;
+        }
+
+        m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, numSamples, 0);
+        m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, numSamples);
+
+        m_iCurrentPosition += numSamples;
+
+        if (m_iCurrentPosition > m_ulMaxBufferLength) {
+            sendActionMessage(Globals::ActionMessage::Stop);
+        }
+    }
 }
 
-void PlayerComponent::updateNumSamples(int bufferSize) {
-    if (m_buffer.isEmpty()) {
-        m_iCurrentPosition += bufferSize;
-        return;
-    }
-
-    MidiMessage msg;
-    int sampleNumber;
-
-    while (m_pIterator->getNextEvent(msg, sampleNumber)) {
-//        DBG(sampleNumber << " " << m_iCurrentPosition);
-        if (sampleNumber > m_iCurrentPosition)
-            break;
-
-        if (msg.isNoteOnOrOff())
-            std::cout   << sampleNumber << " --- "
-                        << msg.getTimeStamp() << " --- "
-                        << msg.getDescription()
-                        << std::endl;
-    }
-
-    m_pIterator->setNextSamplePosition(m_iCurrentPosition);
-    m_iCurrentPosition += bufferSize;
+void PlayerComponent::setCurrentPosition(int value) {
+    m_iCurrentPosition = value;
+    if (m_pIterator)
+        m_pIterator->setNextSamplePosition(m_iCurrentPosition);
 }
 
 void PlayerComponent::resetCurrentPosition() {
-    m_iCurrentPosition = 0;
-    m_pIterator->setNextSamplePosition(m_iCurrentPosition);
+    setCurrentPosition(0);
 }
 
-PlayerComponent::PlayState PlayerComponent::getPlayState() {
-    return m_playState;
+String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {
+    File currentDir = File::getCurrentWorkingDirectory();
+
+    while (currentDir.getFileName() != projectFolderName) {
+        currentDir = currentDir.getParentDirectory();
+        if (currentDir.getFullPathName() == "/")
+            return String();
+    }
+    return currentDir.getFullPathName();
 }

@@ -14,14 +14,13 @@
 #include <memory>
 #include <vector>
 
+#include "../Synth/SfzMidiSynth.h"
+#include "Globals.h"
+
 //==============================================================================
 /*
 */
-
-//TODO: Implement play pause stop states.
-//TODO: Use separate thread for timing instead of Timer class.?
-
-class PlayerComponent    : public Component
+class PlayerComponent : public Component, public ActionBroadcaster
 {
 public:
     PlayerComponent();
@@ -44,24 +43,57 @@ public:
         Stopped
     };
 
-    PlayState getPlayState();
-    void updateNumSamples(int bufferSize);
+    PlayState getPlayState() {
+        return m_playState;
+    }
+
+    int getCurrentPosition() {
+        return m_iCurrentPosition;
+    }
+
+    double getSampleRate() {
+        return m_fSampleRate;
+    }
+
+    unsigned int getBPM() {
+        return BPM;
+    }
+
+    int getMaxBufferLength() {
+        return m_ulMaxBufferLength;
+    }
+
+    void setCurrentPosition(int value);
+
     void resetCurrentPosition();
 
 private:
+    static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
+
+    void initSynth();
+
     void addMessageToBuffer(const MidiMessage& message);
     void addAllSequenceMessagesToBuffer();
 
+    int m_ulMaxBufferLength = 0;
+
+    unsigned int BPM = 120;
 
     const MidiMessageSequence* m_midiMessageSequence = nullptr;
-    MidiBuffer m_buffer;
+    MidiBuffer m_midiBuffer;
+    MidiBuffer m_currentMidiBuffer;
     std::unique_ptr<MidiBuffer::Iterator> m_pIterator;
     double m_fSampleRate = 0;
     int m_iSamplesPerBlockExpected = 0;
     PlayState m_playState = PlayState::Stopped;
     int m_iCurrentPosition = 0;
 
+    SfzLoader m_sfzLoader;
+    SfzSynth m_synth;
+
+    constexpr static int kiNumVoices = 5;
 
 
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlayerComponent)
 };

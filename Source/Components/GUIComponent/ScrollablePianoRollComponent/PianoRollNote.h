@@ -24,7 +24,7 @@ class SelectedNoteList;
 class PianoRollNote: public TextButton, public ComponentBoundsConstrainer
 {
 public:
-    PianoRollNote(int row_n, float offset_n, float length_n = 1, int velocity_n = Globals::midiNoteNum, NoteMessage *noteMessage_n = 0);
+    PianoRollNote(int row_n, float offset_n, float length_n = 1, int velocity_n = Globals::PianoRoll::midiNoteNum, NoteMessage *noteMessage_n = 0);
     
     ~PianoRollNote();
     

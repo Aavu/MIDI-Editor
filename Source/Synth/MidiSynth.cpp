@@ -21,7 +21,7 @@
   ==============================================================================
 */
 
-#include "MIDISynth.h"
+#include "MidiSynth.h"
 
 
 SineWaveVoice::SineWaveVoice() = default;
@@ -84,6 +84,7 @@ void SineWaveVoice::renderNextBlock(AudioBuffer<float> &outputBuffer, int startS
             while (--numSamples >=0)
             {
                 auto currentSample = static_cast<float> (std::sin(currentAngle) * level); // Generate sine sample
+//                DBG(currentSample);
                 for (auto c=outputBuffer.getNumChannels(); --c >= 0;)
                     outputBuffer.addSample(c, startSample, currentSample);
                 currentAngle += angleDelta;
@@ -105,19 +106,19 @@ bool SineWaveSound::appliesToChannel(int midiChannel) {
 }
 
 SynthAudioSource::SynthAudioSource(MidiKeyboardState &keyState) :
-    keyboardState(keyState)
+    m_keyboardState(keyState)
 {
     for (auto i=0; i<4; ++i)
-        synth.addVoice(new SineWaveVoice());  //TODO: Add options to use voices other than sine.
-    synth.addSound(new SineWaveSound());
+        m_synth.addVoice(new SineWaveVoice());  //TODO: Add options to use voices other than sine.
+    m_synth.addSound(new SineWaveSound());
 }
 
 void SynthAudioSource::setUsingSineWaveSound() {
-    synth.clearSounds();  //TODO: This seems incomplete. Shouldnt you do synth.addSound(new SineWaveSound()) here ??
+    m_synth.clearSounds();  //TODO: This seems incomplete. Shouldnt you do m_synth.addSound(new SineWaveSound()) here ??
 }
 
 void SynthAudioSource::prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate) {
-    synth.setCurrentPlaybackSampleRate(sampleRate);
+    m_synth.setCurrentPlaybackSampleRate(sampleRate);
 }
 
 void SynthAudioSource::releaseResources() {}
@@ -125,7 +126,7 @@ void SynthAudioSource::releaseResources() {}
 void SynthAudioSource::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) {
     bufferToFill.clearActiveBufferRegion();
     MidiBuffer incomingMidi;
-    keyboardState.processNextMidiBuffer(incomingMidi, bufferToFill.startSample, bufferToFill.numSamples, true);
-    synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, bufferToFill.startSample, bufferToFill.numSamples);
+    m_keyboardState.processNextMidiBuffer(incomingMidi, bufferToFill.startSample, bufferToFill.numSamples, true);
+    m_synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, bufferToFill.startSample, bufferToFill.numSamples);
 }
 

@@ -10,89 +10,116 @@
 
 #include "SfzMidiSynth.h"
 
-SfzSynthAudioSource::SfzSynthAudioSource(MidiKeyboardState &keyState) :
-        keyboardState(keyState),
-        loadProgress(0.0),
-        loadThread(this)
-
+SfzSynth::SfzSynth()
 {
     for (auto i=0; i<4; ++i)
-        synth.addVoice(new sfzero::Voice());
+        addVoice(new sfzero::Voice());
 }
 
-void SfzSynthAudioSource::setUsingSineWaveSound() {
-    synth.clearSounds();  //TODO: This seems incomplete. Shouldnt you do synth.addSound(new SineWaveSound()) here ??
+void SfzSynth::setUsingSineWaveSound() {
+    clearSounds();  //TODO: This seems incomplete. Shouldnt you do m_synth.addSound(new SineWaveSound()) here ??
 }
 
-void SfzSynthAudioSource::prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate) {
-    synth.setCurrentPlaybackSampleRate(sampleRate);
+int SfzSynth::getProgramNumber() const {
+    return getSound()->selectedSubsound();
 }
 
-void SfzSynthAudioSource::releaseResources() {}
-
-void SfzSynthAudioSource::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) {
-    bufferToFill.clearActiveBufferRegion();
-    MidiBuffer incomingMidi;
-    keyboardState.processNextMidiBuffer(incomingMidi, bufferToFill.startSample, bufferToFill.numSamples, true);
-    synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, bufferToFill.startSample, bufferToFill.numSamples);
+juce::String SfzSynth::getProgramName() const {
+    sfzero::Sound *sound = getSound();
+    return sound->subsoundName(sound->selectedSubsound());
 }
 
-void SfzSynthAudioSource::setSfzFile(File *newSfzFile)
+void SfzSynth::setProgramNumber(int iProgramNum) {
+    getSound()->useSubsound(iProgramNum);
+}
+
+sfzero::Sound * SfzSynth::getSound() const {
+    SynthesiserSound * s = sfzero::Synth::getSound(0).get();
+    return dynamic_cast<sfzero::Sound *>(s);
+}
+
+void SfzSynth::addSound(sfzero::Sound *sound) {
+    clearSounds();
+    sfzero::Synth::addSound(sound);
+}
+
+//============================================================================================================
+SfzLoader::SfzLoader() :
+        m_loadThread(this),
+        m_pSound(nullptr),
+        m_fLoadProgress(0.0),
+        m_callback(nullptr)
 {
-    sfzFile = *newSfzFile;
-    loadSound();
 }
 
-void SfzSynthAudioSource::setSfzFileThreaded(File *newSfzFile)
+void SfzLoader::setSfzFile(File *pNewSfzFile)
 {
-    loadThread.stopThread(2000);
-    sfzFile = *newSfzFile;
-    loadThread.startThread();
+    m_sfzFile = *pNewSfzFile;
 }
 
-
-void SfzSynthAudioSource::loadSound(Thread *thread)
+void SfzLoader::loadSound(bool bUseLoaderThread /*= false*/, std::function<void()> *callback /*= nullptr*/)
 {
-    loadProgress = 0.0;
-    synth.clearSounds();
+    m_callback = *callback; //TODO: is this a good practice??
+    if (bUseLoaderThread) {
+        m_loadThread.stopThread(2000);
+        m_loadThread.startThread();
+    }
+    else {
+        load();
+    }
+}
 
-    if (!sfzFile.existsAsFile())
+double SfzLoader::getLoadProgress() const {
+    return m_fLoadProgress;
+}
+
+void SfzLoader::load(Thread *thread)
+{
+    m_fLoadProgress = 0.0;
+
+    if (!m_sfzFile.existsAsFile())
     {
+        std::cout << "Invalid Soundfont File." << std::endl; //TODO: handle errors in a better way
         return;
     }
 
-    sfzero::Sound *sound;
-    auto extension = sfzFile.getFileExtension();
+    auto extension = m_sfzFile.getFileExtension();
     if ((extension == ".sf2") || (extension == ".SF2"))
     {
-        sound = new sfzero::SF2Sound(sfzFile);
+        m_pSound = new sfzero::SF2Sound(m_sfzFile);
     }
     else
     {
-        sound = new sfzero::Sound(sfzFile);
+        m_pSound = new sfzero::Sound(m_sfzFile);
     }
-    sound->loadRegions();
-    sound->loadSamples(formatManager, &loadProgress, thread);
+    m_pSound->loadRegions();
+    m_pSound->loadSamples(m_formatManager, &m_fLoadProgress, thread);
 
-    std::cout<< "Load Progress: " << loadProgress << std::endl;
+    std::cout<< "Load Progress: " << m_fLoadProgress << std::endl;
+
+    m_pSound->useSubsound(0); // TODO: Use global variable to set default subsound?
+
+    if (m_callback) {
+        m_callback();
+    }
 
     if (thread && thread->threadShouldExit())
     {
-        delete sound;
         return;
     }
-
-    synth.addSound(sound);
-    std::cout << sound->numSubsounds() << std::endl;
-    sound->useSubsound(71);
 }
 
-SfzSynthAudioSource::LoadThread::LoadThread(SfzSynthAudioSource *sfzSynthAudioSrc)
-        : Thread("SFZLoad"), sfzSynthAudioSource(sfzSynthAudioSrc)
+SfzLoader::LoadThread::LoadThread(SfzLoader *pSfzLoader) :
+        Thread("SFZLoad"),
+        m_pSfzLoader(pSfzLoader)
 {
 }
 
-void SfzSynthAudioSource::LoadThread::run()
+void SfzLoader::LoadThread::run()
 {
-    sfzSynthAudioSource->loadSound(this);
+    m_pSfzLoader->load(this);
+}
+
+sfzero::Sound * SfzLoader::getLoadedSound() const {
+    return m_pSound;
 }

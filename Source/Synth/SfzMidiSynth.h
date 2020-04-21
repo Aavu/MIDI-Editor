@@ -12,39 +12,46 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
-class SfzSynthAudioSource : public AudioSource
+class SfzSynth : public sfzero::Synth
 {
 public:
-    explicit SfzSynthAudioSource(MidiKeyboardState& keyState);
+    SfzSynth();
+
     void setUsingSineWaveSound();
-    void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
-    void releaseResources() override;
-    void getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) override;
-    //------------------------------SFZero----------------------------------------
-
-    void setSfzFile(File *newSfzFile);
-    void setSfzFileThreaded(File *newSfzFile);
-
-    void loadSound(Thread *thread = nullptr);
+    void addSound(sfzero::Sound *sound);
+    int getProgramNumber() const;
+    juce::String getProgramName() const;
+    void setProgramNumber(int iProgramNumber);
 
 private:
-    MidiKeyboardState& keyboardState;
-    sfzero::Synth synth;
-    //------------------------------SFZero----------------------------------------
+    sfzero::Sound * getSound() const;
+};
 
-    class LoadThread : public Thread
-    {
+
+class SfzLoader {
+public:
+    SfzLoader();
+    void setSfzFile(File *pNewSfzFile);
+    void loadSound(bool bUseLoaderThread = false, std::function<void()> *callback = nullptr);
+    double getLoadProgress() const;
+    sfzero::Sound * getLoadedSound() const;  // TODO: create factory for this and return new sound object every time.
+
+private:
+    void load(Thread *pThread = nullptr);
+
+    class LoadThread : public Thread {
     public:
-        LoadThread(SfzSynthAudioSource *sfzSynthAudioSrc);
+        explicit LoadThread(SfzLoader *pSfzLoader);
         void run() override;
-    protected:
-        SfzSynthAudioSource *sfzSynthAudioSource;
+    private:
+        SfzLoader *m_pSfzLoader;
     };
+    friend class LoadThread; //TODO: Is this required?? Why?
 
-    friend class LoadThread;
-
-    double loadProgress;
-    File sfzFile;
-    AudioFormatManager formatManager;
-    LoadThread loadThread;
+    File m_sfzFile;
+    AudioFormatManager m_formatManager;
+    LoadThread m_loadThread;
+    sfzero::Sound * m_pSound;
+    double m_fLoadProgress;
+    std::function<void()> m_callback;
 };

@@ -86,17 +86,17 @@ void sfzero::Synth::noteOn(int midiChannel, int midiNoteNumber, float velocity)
             sfzero::Region *region = sound->regionAt(i);
             if (region->matches(midiNoteNumber, midiVelocity, trigger))
             {
-                sfzero::Voice *voice =
-                dynamic_cast<sfzero::Voice *>(findFreeVoice(sound, midiNoteNumber, midiChannel, isNoteStealingEnabled()));
+                auto *voice = dynamic_cast<sfzero::Voice *>(findFreeVoice(sound, midiChannel, midiNoteNumber, isNoteStealingEnabled()));
                 if (voice)
                 {
                     voice->setRegion(region);
                     startVoice(voice, sound, midiChannel, midiNoteNumber, velocity);
+//                    DBG("noteON: " << midiNoteNumber << " " << midiChannel << " " << velocity);
                 }
             }
         }
     }
-    
+
     noteVelocities_[midiNoteNumber] = midiVelocity;
 }
 
@@ -113,7 +113,7 @@ void sfzero::Synth::noteOff(int midiChannel, int midiNoteNumber, float velocity,
         sfzero::Region *region = sound->getRegionFor(midiNoteNumber, noteVelocities_[midiNoteNumber], sfzero::Region::release);
         if (region)
         {
-            sfzero::Voice *voice = dynamic_cast<sfzero::Voice *>(findFreeVoice(sound, midiNoteNumber, midiChannel, false));
+            auto *voice = dynamic_cast<sfzero::Voice *>(findFreeVoice(sound, midiChannel, midiNoteNumber, false));
             if (voice)
             {
                 // Synthesiser is too locked-down (ivars are private rt protected), so

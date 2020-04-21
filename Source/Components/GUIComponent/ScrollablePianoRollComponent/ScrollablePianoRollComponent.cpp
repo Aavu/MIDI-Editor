@@ -80,7 +80,7 @@ ComponentType* PianoRollComponent::addToList (ComponentType* newComp)
 
 ScrollablePianoRollComponent::ScrollablePianoRollComponent()
 {
-    m_Cpn.setSize(1000,Globals::midiNoteNum*Globals::initNoteHeight);
+    m_Cpn.setSize(1000,Globals::PianoRoll::midiNoteNum*Globals::PianoRoll::initNoteHeight);
     m_ViewPort.setScrollBarsShown(false, false, true, false);
     m_ViewPort.setViewedComponent(&m_Cpn, false);
     
@@ -98,7 +98,7 @@ void ScrollablePianoRollComponent::resized()
     m_ViewPort.setBoundsRelative(0.0f, 0.0f, 1.0f, 1.0f);
     
     // change pianoroll visible area width
-    m_Cpn.setSize(area.getWidth(),Globals::midiNoteNum*Globals::initNoteHeight);
+    m_Cpn.setSize(area.getWidth(),Globals::PianoRoll::midiNoteNum*Globals::PianoRoll::initNoteHeight);
 
 }
 

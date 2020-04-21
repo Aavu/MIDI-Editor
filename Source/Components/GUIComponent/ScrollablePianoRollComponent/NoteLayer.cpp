@@ -32,7 +32,7 @@ void NoteLayer::resized()
 
 int NoteLayer::getNumRows()
 {
-	return Globals::midiNoteNum;
+    return Globals::PianoRoll::midiNoteNum;
 }
 
 void NoteLayer::paintRowBackground (Graphics& g, int rowNumber, int /*width*/, int /*height*/, bool rowIsSelected)

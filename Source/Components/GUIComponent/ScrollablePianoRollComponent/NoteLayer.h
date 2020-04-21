@@ -75,9 +75,9 @@ private:
     
     TableListBox oneColumnTable;
     
-    int m_iInitNoteWidth = Globals::initNoteWidth;
-    int m_iInitNoteHeight = Globals::initNoteHeight;
-    int m_iCurTimeStamps = Globals::initTimeStamps;
+    int m_iInitNoteWidth = Globals::PianoRoll::initNoteWidth;
+    int m_iInitNoteHeight = Globals::PianoRoll::initNoteHeight;
+    int m_iCurTimeStamps = Globals::PianoRoll::initTimeStamps;
     
     float m_fFacNoteWidth = 1.F;
     float m_fFacNoteHeight = 1.F;

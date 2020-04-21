@@ -82,4 +82,17 @@ void TransportComponent::stopBtnClicked()
 
 void TransportComponent::init(PlayerComponent* playerComponent) {
     m_pPlayer = playerComponent;
+    m_pPlayer->addActionListener(this);
+}
+
+void TransportComponent::actionListenerCallback (const String& message) {
+    using namespace Globals::ActionMessage;
+    if (message == Stop) {
+        stopBtnClicked(); // pause
+        stopBtnClicked(); // stop
+    } else if (message == PlayForExport) {
+        stopBtnClicked(); // pause
+        stopBtnClicked(); // stop
+        playBtnClicked();
+    }
 }

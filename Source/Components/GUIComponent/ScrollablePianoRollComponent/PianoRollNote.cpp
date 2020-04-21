@@ -17,8 +17,8 @@ PianoRollNote::PianoRollNote(int row_n, float offset_n, float length_n, int velo
     m_pBorder(0)
 {
     m_bInit = true;
-    m_iBoxWidth = Globals::initNoteWidth;
-    m_iBoxHeight = Globals::initNoteHeight;
+    m_iBoxWidth = Globals::PianoRoll::initNoteWidth;
+    m_iBoxHeight = Globals::PianoRoll::initNoteHeight;
     
     m_pBorder = new ResizableBorderComponent(this, NULL);
     addChildComponent(m_pBorder);
@@ -79,7 +79,7 @@ void PianoRollNote::mouseDrag (const MouseEvent& event)
         changePitch(this, -1);
         m_iRow--;
     }
-    else if (event.getPosition().getY() > m_iBoxHeight && m_iRow < Globals::midiNoteNum-1)
+    else if (event.getPosition().getY() > m_iBoxHeight && m_iRow < Globals::PianoRoll::midiNoteNum-1)
     {
         std::cout << "move down" << std::endl;
         changePitch(this, 1);
@@ -117,15 +117,15 @@ void PianoRollNote::paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted
 NoteList::NoteList(SelectedNoteList *selected_n)
 {
     m_pSelected = selected_n;
-    m_pNoteList = new Array<PianoRollNote*> [Globals::midiNoteNum];
-    for (int i = 0; i < Globals::midiNoteNum; i++) {
+    m_pNoteList = new Array<PianoRollNote*> [Globals::PianoRoll::midiNoteNum];
+    for (int i = 0; i < Globals::PianoRoll::midiNoteNum; i++) {
         m_pNoteList[i] = Array<PianoRollNote*>();
     }
 }
 
 NoteList::~NoteList()
 {
-    for (int i = 0; i < Globals::midiNoteNum; i++) {
+    for (int i = 0; i < Globals::PianoRoll::midiNoteNum; i++) {
         for (int j = m_pNoteList[i].size() - 1; j >= 0 ; j--)
             if (getNote(i, j))
                 deleteNote(i, j);
