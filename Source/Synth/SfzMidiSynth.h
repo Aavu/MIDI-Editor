@@ -17,14 +17,14 @@ class SfzSynth : public sfzero::Synth
 public:
     SfzSynth();
 
-    void setUsingSineWaveSound();
-    void addSound(sfzero::Sound *sound);
-    int getProgramNumber() const;
-    juce::String getProgramName() const;
-    void setProgramNumber(int iProgramNumber);
+    void handleProgramChange (int iMidiChannel, int iProgram) override ;
+
+    void addSound(sfzero::Sound *pSound);
+    int getProgramNumber(int iMidiChannel) const;
+    juce::String getProgramName(int iProgram) const;
 
 private:
-    sfzero::Sound * getSound() const;
+    sfzero::Sound * getSound(int iMidiChannel) const;
 };
 
 
