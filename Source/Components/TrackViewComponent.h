@@ -12,14 +12,18 @@
 #include <JuceHeader.h>
 #include "SidebarComponent.h"
 #include "TrackParameters.h"
+#include "PlayHeadComponent.h"
+#include "PlayHeadScrollComponent.h"
+#include "PlayerComponent.h"
+#include "Globals.h"
 
-class TrackViewComponent : public TrackParameters, public juce::Component {
+class TrackViewComponent : public TrackParameters, public Component {
 public:
     TrackViewComponent();
 
-    ~TrackViewComponent();
+    ~TrackViewComponent() override;
 
-    void init(int noOfTracks);
+    void init(PlayerComponent* player);
     void paint(Graphics& g) override;
     void resized() override;
 
@@ -28,9 +32,14 @@ public:
     void addTrack();
 
 private:
+    void handleClick();
+
     TextButton m_header;
     SidebarComponent m_sidebar;
     std::vector<TextButton*> m_tracks;
+
+    PlayHeadScrollComponent m_playHeadScroll;
+    std::shared_ptr<PlayHeadComponent> m_pPlayHead = nullptr;
 
 //    int m_iNumTracks = 0;
 //    std::vector<int> m_trackHeight;

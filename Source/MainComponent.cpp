@@ -9,7 +9,9 @@
 #include "MainComponent.h"
 
 //==============================================================================
-MainComponent::MainComponent()
+MainComponent::MainComponent() :
+m_pPlayer(std::make_shared<PlayerComponent>()),
+m_pTrackView(std::make_unique<TrackViewComponent>())
 {
     // Make sure you set the size of the component after
     // you add any child components.
@@ -17,47 +19,51 @@ MainComponent::MainComponent()
     addAndMakeVisible(m_menu);
     m_menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
 
-    setSize (1000, 500);
-
     // Create Player
-    // Create Player
-    m_pPlayer = new PlayerComponent();
-    m_transportBar.init(m_pPlayer);
+    m_transportBar.init(m_pPlayer.get());
 
     //TracksView
-    m_trackView.init(0);
-    addAndMakeVisible(m_trackView);
+    m_pTrackView->init(m_pPlayer.get());
+    addAndMakeVisible(*m_pTrackView);
 
     // Some platforms require permissions to open input channels so request that here
     if (RuntimePermissions::isRequired (RuntimePermissions::recordAudio)
         && ! RuntimePermissions::isGranted (RuntimePermissions::recordAudio))
     {
         RuntimePermissions::request (RuntimePermissions::recordAudio,
-                                     [&] (bool granted) { if (granted)  setAudioChannels (2, 2); });
+                                     [&] (bool granted) { if (granted)  setAudioChannels (m_iNumChannels, m_iNumChannels); });
     }
     else
     {
         // Specify the number of input and output channels that we want to open
-        setAudioChannels (2, 2);
+        setAudioChannels (m_iNumChannels, m_iNumChannels);
     }
 
     if (auto* device = deviceManager.getCurrentAudioDevice())
     {
+        m_fSampleRate = device->getCurrentSampleRate();
+        m_iBitDepth = device->getCurrentBitDepth();
         DBG ("Current audio device: "   + device->getName().quoted());
-        DBG ("Sample rate: "    + String (device->getCurrentSampleRate()) + " Hz");
+        DBG ("Sample rate: "    + String (m_fSampleRate) + " Hz");
         DBG ("Block size: "     + String (device->getCurrentBufferSizeSamples()) + " samples");
-        DBG ("Bit depth: "      + String (device->getCurrentBitDepth()));
+        DBG ("Bit depth: "      + String (m_iBitDepth));
     }
     else
     {
         DBG ("No audio device open");
     }
+
+    m_pPlayer->addActionListener(this);
+    addActionListener(&m_transportBar);
+
+
+    setSize (1000, 500);
 }
 
 MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
-    delete m_pPlayer;
+    removeAllActionListeners();
     shutdownAudio();
 }
 
@@ -72,6 +78,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 
     // For more details, see the help for AudioProcessor::prepareToPlay()
     m_pPlayer->prepareToPlay(samplesPerBlockExpected, sampleRate);
+    m_fSampleRate = sampleRate;
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -80,10 +87,17 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 
     // For more details, see the help for AudioProcessor::getNextAudioBlock()
 
-    // Right now we are not producing any data, in which case we need to clear the m_buffer
+    // Right now we are not producing any data, in which case we need to clear the buffer
     // (to prevent the output of random noise)
     m_pPlayer->getNextAudioBlock(bufferToFill);
-    bufferToFill.clearActiveBufferRegion();
+    if (m_bExporting)
+        m_pAudioExporter->write(bufferToFill);
+//    AudioBuffer<float>* buffer = bufferToFill.buffer;
+//    for (int i=0; i<bufferToFill.numSamples; i++) {
+//        std::cout << buffer->getSample(0, i) << " ";
+//    }
+//    std::cout << std::endl;
+
 }
 
 void MainComponent::releaseResources()
@@ -92,6 +106,7 @@ void MainComponent::releaseResources()
     // restarted due to a setting change.
 
     // For more details, see the help for AudioProcessor::releaseResources()
+    removeAllActionListeners();
 }
 
 //==============================================================================
@@ -117,7 +132,7 @@ void MainComponent::resized()
 
     bounds = getLocalBounds();
     bounds.removeFromBottom(m_transportBar.getBounds().getHeight());
-    m_trackView.setBounds(bounds);
+    m_pTrackView->setBounds(bounds);
 }
 
 bool MainComponent::fileCallback(CommandID commandID) {
@@ -128,6 +143,7 @@ bool MainComponent::fileCallback(CommandID commandID) {
             break;
 
         case MenuComponent::fileExportAudio:
+            handleExportAudio();
             break;
 
         case MenuComponent::fileExportMIDI:
@@ -152,10 +168,44 @@ void MainComponent::handleFileOpen() {
         }
         const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
         m_midiFile.convertTimestampTicksToSeconds();
-        m_trackView.addTrack();
-        // Add sequence to m_pPlayer
+        m_pTrackView->addTrack();
 
         m_pPlayer->setMidiMessageSequence(sequence);
         delete stream;
+    }
+}
+
+void MainComponent::handleExportAudio() {
+    FileChooser chooser("Select path to save WAV file...");
+
+    if (chooser.browseForFileToSave(true)) {
+        auto file = chooser.getResult();
+
+        if (!m_pAudioExporter)
+            m_pAudioExporter = std::make_unique<AudioExportComponent>(m_fSampleRate, m_iNumChannels, 16); // hard coded bitdepth for now
+
+        m_pAudioExporter->startThread();
+        m_pAudioExporter->init(file);
+        sendActionMessage(Globals::ActionMessage::PlayForExport);
+        m_bExporting = true;
+    }
+}
+
+void MainComponent::handleExportMidi() {
+    FileChooser chooser("Select path to save MIDI file...");
+
+    if (chooser.browseForFileToSave(true)) {
+        auto file = chooser.getResult();
+        if (auto* stream = file.createOutputStream()) {
+
+        }
+    }
+
+}
+
+void MainComponent::actionListenerCallback (const String& message) {
+    if ((message == Globals::ActionMessage::PlayForExport) && m_bExporting) {
+        m_pAudioExporter->finish();
+        m_bExporting = false;
     }
 }

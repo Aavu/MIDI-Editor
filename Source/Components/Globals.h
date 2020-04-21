@@ -12,7 +12,18 @@
 
 #ifndef GLOBALS
 #define GLOBALS
-//namespace Globals {
-//MidiFile m_midiFile;
-//};
+
+namespace Globals {
+    namespace ActionMessage {
+        static const String PlayForExport   = "AM_PlayForExport";
+        static const String Stop            = "AM_Stop";
+    }
+
+    namespace GUI {
+        static constexpr int iUpdateInterval_ms = 20;
+        static constexpr int iPlayHeadWidth     = 4;
+        static constexpr int iSideBarWidth      = 128;
+        static constexpr int iHeaderHeight      = 32;
+    }
+}
 #endif

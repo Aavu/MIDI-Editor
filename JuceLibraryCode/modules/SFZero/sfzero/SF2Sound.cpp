@@ -58,7 +58,7 @@ void sfzero::SF2Sound::loadRegions()
     useSubsound(0);
 }
 
-void sfzero::SF2Sound::loadSamples(juce::AudioFormatManager& /*formatManager*/, double *progressVar, juce::Thread *thread)
+void sfzero::SF2Sound::loadSamples(juce::AudioFormatManager& /*m_formatManager*/, double *progressVar, juce::Thread *thread)
 {
     /*
      each SF2Sound is given a File as the source of the actual sample data when they're created

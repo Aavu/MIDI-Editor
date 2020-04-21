@@ -9,20 +9,19 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "Components/Globals.h"
 #include "Components/TransportComponent.h"
 #include "Components/MenuComponent.h"
 #include "Components/PlayerComponent.h"
 #include "Components/TrackViewComponent.h"
-
-#include "Synth/MidiSynth.h"
-#include "Synth/SfzMidiSynth.h"
+#include "Components/AudioExportComponent.h"
 
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent   : public AudioAppComponent
+class MainComponent   : public AudioAppComponent, public ActionBroadcaster, public ActionListener
 {
 public:
     //==============================================================================
@@ -39,20 +38,34 @@ public:
     void resized() override;
 
     bool fileCallback(CommandID);
-    void handleFileOpen();
 
 private:
+    void handleFileOpen();
+    void handleExportAudio();
+    void handleExportMidi();
+
+    void actionListenerCallback (const String& message) override;
+
     //==============================================================================
     // Your private member variables go here...
+    double m_fSampleRate = 0;
+    int m_iBitDepth = 0;
+    int m_iNumChannels = 2;
+    int m_iNextSampleNum = 0;
+
+    std::atomic<bool> m_bExporting{false};
+
     TransportComponent m_transportBar;
     MenuComponent m_menu;
     MidiFile m_midiFile;
 
-    PlayerComponent* m_pPlayer;
+    std::shared_ptr<PlayerComponent> m_pPlayer;
 
     // TrackViewComponents
-    TrackViewComponent m_trackView;
+    std::unique_ptr<TrackViewComponent> m_pTrackView;
 
+    // Audio Export
+    std::unique_ptr<AudioExportComponent> m_pAudioExporter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
