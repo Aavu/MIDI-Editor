@@ -39,7 +39,6 @@ sfzero::Sound * SfzSynth::getSound() const {
 }
 
 void SfzSynth::addSound(sfzero::Sound *sound) {
-    clearSounds();
     sfzero::Synth::addSound(sound);
 }
 

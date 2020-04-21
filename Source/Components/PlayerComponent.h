@@ -89,9 +89,10 @@ private:
     int m_iCurrentPosition = 0;
 
     SfzLoader m_sfzLoader;
+    SfzLoader m_sfzLoader1;
     SfzSynth m_synth;
 
-    constexpr static int kiNumVoices = 5;
+    constexpr static int kiNumVoices = 24;
 
 
     //==============================================================================

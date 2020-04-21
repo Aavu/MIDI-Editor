@@ -46,10 +46,15 @@ namespace sfzero
         virtual juce::String subsoundName(int whichSubsound);
         virtual void useSubsound(int whichSubsound);
         virtual int selectedSubsound();
-        
+
+        virtual void setChannelNum(int channelNum);
+
         juce::String dump();
         juce::Array<Region *> &getRegions() { return regions_; }
         juce::File &getFile() { return file_; }
+
+    protected:
+        int channel_ = -1;
         
     private:
         juce::File file_;
