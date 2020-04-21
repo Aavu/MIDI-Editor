@@ -32,7 +32,19 @@ bool sfzero::Sound::appliesToNote(int /*midiNoteNumber*/)
     return true;
 }
 
-bool sfzero::Sound::appliesToChannel(int /*midiChannel*/) { return true; }
+bool sfzero::Sound::appliesToChannel(int midiChannel)
+{
+    //std::cout << "sfzero::Sound::appliesToChannel---> input-midi-channel:" << midiChannel << " sound-works-with-channel:" << channel_ <<std::endl;
+    if (channel_ == -1)
+        return true;
+    else
+        return midiChannel == channel_;
+}
+
+void sfzero::Sound::setChannelNum(int channelNum) {
+    channel_ = channelNum;
+}
+
 void sfzero::Sound::addRegion(sfzero::Region *region) { regions_.add(region); }
 sfzero::Sample *sfzero::Sound::addSample(juce::String path, juce::String defaultPath)
 {

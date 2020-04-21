@@ -39,9 +39,27 @@ void PlayerComponent::initSynth() {
 
     // Load sound from SoundFont file and add to synth.
     File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
-    m_sfzLoader.setSfzFile(soundFontFile);
-    std::function<void()> addLoadedSoundCallback = [this] () {m_synth.addSound(m_sfzLoader.getLoadedSound());};
-    m_sfzLoader.loadSound(true, &addLoadedSoundCallback);
+
+//    m_sfzLoader.setSfzFile(soundFontFile);
+//    std::function<void()> addLoadedSoundCallback = [this] () {
+//        std::cout << "Sound 0 Loaded: ch 0" << std::endl;
+//        auto * sound = m_sfzLoader.getLoadedSound();
+//        sound->useSubsound(0);
+//        sound->setChannelNum(3);
+//        m_synth.addSound(sound);
+//    };
+ //   m_sfzLoader.loadSound(true, &addLoadedSoundCallback);
+    //TODO: add ability to check through all available sounds in synth
+    m_sfzLoader1.setSfzFile(soundFontFile);
+    std::function<void()> addLoadedSoundCallback1 = [this] () {
+        std::cout << "Sound 40 Loaded: ch 3" << std::endl;
+        auto * sound = m_sfzLoader1.getLoadedSound();
+        sound->useSubsound(40);
+        sound->setChannelNum(3);
+        m_synth.addSound(sound);
+    };
+    m_sfzLoader1.loadSound(true, &addLoadedSoundCallback1);
+
 }
 
 void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
