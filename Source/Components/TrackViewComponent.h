@@ -33,6 +33,10 @@ public:
     int getNumTracks() const;
 
     void addTrack();
+    
+    void setTimeFormat(int timeFormat);
+    
+    void convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message);
 
 private:
     void handleClick();
@@ -40,6 +44,8 @@ private:
     TextButton m_header;
     SidebarComponent m_sidebar;
     std::vector<ScrollablePianoRollComponent*> m_tracks;
+    
+    int m_iTimeFormat;
 
     PlayHeadScrollComponent m_playHeadScroll;
     std::shared_ptr<PlayHeadComponent> m_pPlayHead = nullptr;

@@ -166,9 +166,17 @@ void MainComponent::handleFileOpen() {
             std::cerr << "Error readFrom MidiFile" << std::endl;
             return;
         }
+        
+        int timeFormat = m_midiFile.getTimeFormat();
+        m_pTrackView->setTimeFormat(timeFormat);
+        
         const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
-        m_midiFile.convertTimestampTicksToSeconds();
+        
         m_pTrackView->addTrack();
+        // pass the midiFile before timestampticks are converted to seconds
+        m_pTrackView->convertMidiMessageSequence(0, sequence);
+        
+        m_midiFile.convertTimestampTicksToSeconds();
 
         m_pPlayer->setMidiMessageSequence(sequence);
         delete stream;

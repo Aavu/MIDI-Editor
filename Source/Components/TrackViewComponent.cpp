@@ -86,3 +86,25 @@ void TrackViewComponent::handleClick() {
     float x = Desktop::getInstance().getMainMouseSource().getScreenPosition().getX();
     DBG(x);
 }
+
+void TrackViewComponent::setTimeFormat(int timeFormat)
+{
+    m_iTimeFormat = timeFormat;
+    
+    // only allow time stamp ticks - see the documentation of Class MidiFile
+    assert(m_iTimeFormat > 0);
+}
+
+void TrackViewComponent::convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message)
+{
+    // convert message to the format that the pianoroll component uses
+    auto numEvents = message->getNumEvents();
+    MidiMessageSequence::MidiEventHolder* const * eventHolder = message->begin();
+    MidiMessage msg;
+    for (int i = 0; i < numEvents; i++) {
+        msg = eventHolder[i]->message;
+        if (msg.isNoteOnOrOff()) {
+            // convert to Class PianoRollNote and send to NoteLayer
+        }
+    }
+}
