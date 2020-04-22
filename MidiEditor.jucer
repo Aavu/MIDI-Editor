@@ -8,11 +8,14 @@
       <FILE id="z7bqiJ" name="MainComponentK.h" compile="0" resource="0"
             file="Source/MainComponentK.h"/>
       <GROUP id="{B3A1646D-D871-7097-4903-DFA0B16447B6}" name="Synth">
-        <FILE id="J8O2hq" name="MidiSynth.cpp" compile="1" resource="0" file="Source/Synth/MidiSynth.cpp"/>
-        <FILE id="eAye7x" name="MidiSynth.h" compile="0" resource="0" file="Source/Synth/MidiSynth.h"/>
+        <FILE id="J8O2hq" name="MidiSynth.cpp" compile="1" resource="0" file="Source/Synth/MidiSynth.cpp"
+              xcodeResource="1"/>
+        <FILE id="eAye7x" name="MidiSynth.h" compile="0" resource="0" file="Source/Synth/MidiSynth.h"
+              xcodeResource="1"/>
         <FILE id="VI29rW" name="SfzMidiSynth.cpp" compile="1" resource="0"
-              file="Source/Synth/SfzMidiSynth.cpp"/>
-        <FILE id="bGmZVz" name="SfzMidiSynth.h" compile="0" resource="0" file="Source/Synth/SfzMidiSynth.h"/>
+              file="Source/Synth/SfzMidiSynth.cpp" xcodeResource="1"/>
+        <FILE id="bGmZVz" name="SfzMidiSynth.h" compile="0" resource="0" file="Source/Synth/SfzMidiSynth.h"
+              xcodeResource="1"/>
       </GROUP>
       <GROUP id="{B3A1646D-D871-7097-4903-DFA0B16447B6}" name="Components">
         <GROUP id="{77481154-EF93-2B7F-98A4-DF82B1178180}" name="GUIComponent">

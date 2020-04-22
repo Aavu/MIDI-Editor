@@ -150,6 +150,11 @@ void NoteLayer::RowComponent::mouseDown (const MouseEvent& event)
     }
 }
 
+void NoteLayer::RowComponent::addNote(PianoRollNote* noteToAdd)
+{
+    return;
+}
+
 void NoteLayer::RowComponent::detachNote(PianoRollNote* noteToDetach)
 {
     removeChildComponent(noteToDetach);

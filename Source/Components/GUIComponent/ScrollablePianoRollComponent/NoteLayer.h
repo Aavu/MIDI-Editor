@@ -47,6 +47,8 @@ public:
         
         void mouseDown (const MouseEvent& event) override;
         
+        void addNote(PianoRollNote* noteToAdd);
+        
         void detachNote(PianoRollNote* noteToDetach);
         
         void attachNote(PianoRollNote* noteToAttach);

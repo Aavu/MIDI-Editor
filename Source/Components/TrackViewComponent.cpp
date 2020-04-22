@@ -91,6 +91,8 @@ void TrackViewComponent::setTimeFormat(int timeFormat)
 {
     m_iTimeFormat = timeFormat;
     
+    DBG(m_iTimeFormat);
+    
     // only allow time stamp ticks - see the documentation of Class MidiFile
     assert(m_iTimeFormat > 0);
 }
@@ -101,10 +103,17 @@ void TrackViewComponent::convertMidiMessageSequence(int trackIdx, const MidiMess
     auto numEvents = message->getNumEvents();
     MidiMessageSequence::MidiEventHolder* const * eventHolder = message->begin();
     MidiMessage msg;
+
     for (int i = 0; i < numEvents; i++) {
         msg = eventHolder[i]->message;
-        if (msg.isNoteOnOrOff()) {
-            // convert to Class PianoRollNote and send to NoteLayer
+        // convert to Class PianoRollNote and send to NoteLayer
+        if (msg.isNoteOn()) {
+            double timeStamp = msg.getTimeStamp();
+            double timeStampNoteOff = message->getTimeOfMatchingKeyUp(i);
+            int noteNumber = msg.getNoteNumber();
+            uint8 noteVelocity = msg.getVelocity();
+            //DBG(String(timeStamp/m_iTimeFormat) + "\t" + String((timeStampNoteOff-timeStamp+1)/m_iTimeFormat) + "\t" + String(noteNumber));
+            //PianoRollNote *newNote = new PianoRollNote(noteNumber, timeStamp/m_iTimeFormat, (timeStampNoteOff-timeStamp+1)/m_iTimeFormat, noteVelocity);
         }
     }
 }

@@ -18,6 +18,7 @@
 #include "Globals.h"
 
 #include "GUIComponent/ScrollablePianoRollComponent/ScrollablePianoRollComponent.h"
+#include "GUIComponent/ScrollablePianoRollComponent/PianoRollNote.h"
 
 class TrackViewComponent : public TrackParameters, public Component {
 

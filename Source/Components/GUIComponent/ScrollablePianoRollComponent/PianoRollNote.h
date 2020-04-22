@@ -55,7 +55,7 @@ private:
     int                 m_iRow;                          // midi number (0~127)
     float               m_fOffset;
     float               m_fLength;                      // relative length (1 means 1 quarter note)
-    int                 m_iVelocity;
+    uint8                 m_iVelocity;
     int                 m_iBoxWidth;
     int                 m_iBoxHeight;
     
