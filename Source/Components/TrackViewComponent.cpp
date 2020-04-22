@@ -10,10 +10,10 @@
 #include "TrackViewComponent.h"
 
 int TrackParameters::m_iNumTracks = 0;
-int TrackParameters::k_iDefaultTrackHeight = 128;
+int TrackParameters::k_iDefaultTrackHeight = 300;
 std::vector<int> TrackParameters::m_aiTrackHeight {};
 
-TrackViewComponent::TrackViewComponent() //: m_pPlayHead(std::make_shared<PlayHeadComponent>())
+TrackViewComponent::TrackViewComponent() : m_pPlayHead(std::make_shared<PlayHeadComponent>())
 {
 }
 
@@ -32,11 +32,13 @@ void TrackViewComponent::init(PlayerComponent* player) {
         }
     }
 
-//    m_pPlayHead->init(player);
-//    addAndMakeVisible(*m_pPlayHead);
-//
-//    m_playHeadScroll.init(m_pPlayHead.get());
-//    addAndMakeVisible(m_playHeadScroll);
+    m_pPlayHead->init(player);
+    addAndMakeVisible(*m_pPlayHead);
+    
+    // m_pPlayHead->setVisible(false);
+
+    m_playHeadScroll.init(m_pPlayHead.get());
+    addAndMakeVisible(m_playHeadScroll);
 
 }
 
@@ -58,9 +60,9 @@ void TrackViewComponent::resized() {
     auto sidebarWidth = Globals::GUI::iSideBarWidth;
     m_sidebar.setBounds (area.removeFromLeft(sidebarWidth));
 
-//    m_pPlayHead->setBounds(sidebarWidth, headerHeight, area.getWidth(), area.getHeight());
-//
-//    m_playHeadScroll.setBounds(sidebarWidth, headerHeight, area.getWidth(), headerHeight);
+    m_pPlayHead->setBounds(sidebarWidth, headerHeight, area.getWidth(), area.getHeight());
+
+    m_playHeadScroll.setBounds(area.removeFromTop(headerHeight));
 
     for(int i=0; i< m_iNumTracks; i++) {
         m_tracks.at(i)->setBounds(area.removeFromTop(m_aiTrackHeight.at(i)));
