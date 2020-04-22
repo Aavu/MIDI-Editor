@@ -50,7 +50,7 @@ void PianoRollNote::resized()
     {
         m_pBorder->setBounds(0,0,getWidth(),getHeight());
         m_fLength = 1.F*getWidth() / m_iBoxWidth;
-        std::cout << m_fLength << std::endl;
+        //std::cout << m_fLength << std::endl;
         repaint();
     }
 }

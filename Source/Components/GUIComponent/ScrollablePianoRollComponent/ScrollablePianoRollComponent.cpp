@@ -29,11 +29,15 @@ void OtherLookAndFeel::drawButtonBackground (Graphics& g, Button& button, const 
 
 PianoRollComponent::PianoRollComponent()
 {
+}
+
+void PianoRollComponent::init(int numTimeStampsForPianoRoll)
+{
     setLookAndFeel (&otherLookAndFeel);
 
     m_pKeyboardComponent = addToList(new CustomKeyboardComponent());
     
-    m_pNoteLayer = addToList(new NoteLayer());
+    m_pNoteLayer = addToList(new NoteLayer(numTimeStampsForPianoRoll));
     m_pNoteLayer->setColour (TextButton::buttonColourId, Colours::grey);
     
 }
@@ -61,6 +65,11 @@ void PianoRollComponent::resized()
 
 }
 
+void PianoRollComponent::addNote(PianoRollNote *newNote)
+{
+    m_pNoteLayer->addNoteToRow(newNote);
+}
+
 void PianoRollComponent::setPreview(bool ifPreview)
 {
     m_Preview = ifPreview;
@@ -78,8 +87,9 @@ ComponentType* PianoRollComponent::addToList (ComponentType* newComp)
 
 //------------------------ScrollablePianoRollComponent--------------------------
 
-ScrollablePianoRollComponent::ScrollablePianoRollComponent()
+ScrollablePianoRollComponent::ScrollablePianoRollComponent(int numTimeStampsForPianoRoll)
 {
+    m_Cpn.init(numTimeStampsForPianoRoll);
     m_Cpn.setSize(1000,Globals::PianoRoll::midiNoteNum*Globals::PianoRoll::initNoteHeight);
     m_ViewPort.setScrollBarsShown(false, false, true, false);
     m_ViewPort.setViewedComponent(&m_Cpn, false);
@@ -100,6 +110,11 @@ void ScrollablePianoRollComponent::resized()
     // change pianoroll visible area width
     m_Cpn.setSize(area.getWidth(),Globals::PianoRoll::midiNoteNum*Globals::PianoRoll::initNoteHeight);
 
+}
+
+void ScrollablePianoRollComponent::addNote(PianoRollNote *newNote)
+{
+    m_Cpn.addNote(newNote);
 }
 
 void ScrollablePianoRollComponent::setPreview(bool ifPreview)

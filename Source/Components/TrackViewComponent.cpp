@@ -13,7 +13,7 @@ int TrackParameters::m_iNumTracks = 0;
 int TrackParameters::k_iDefaultTrackHeight = 128;
 std::vector<int> TrackParameters::m_aiTrackHeight {};
 
-TrackViewComponent::TrackViewComponent() : m_pPlayHead(std::make_shared<PlayHeadComponent>())
+TrackViewComponent::TrackViewComponent() //: m_pPlayHead(std::make_shared<PlayHeadComponent>())
 {
 }
 
@@ -27,17 +27,16 @@ void TrackViewComponent::init(PlayerComponent* player) {
     if (m_iNumTracks > 0) {
         for(int i=0; i<m_iNumTracks; i++) {
             m_tracks.push_back(new ScrollablePianoRollComponent());
-            //m_tracks.at(i)->setColour (TextButton::buttonColourId, Colours::lime);
             addAndMakeVisible (m_tracks[i]);
             m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
         }
     }
 
-    m_pPlayHead->init(player);
-    addAndMakeVisible(*m_pPlayHead);
-
-    m_playHeadScroll.init(m_pPlayHead.get());
-    addAndMakeVisible(m_playHeadScroll);
+//    m_pPlayHead->init(player);
+//    addAndMakeVisible(*m_pPlayHead);
+//
+//    m_playHeadScroll.init(m_pPlayHead.get());
+//    addAndMakeVisible(m_playHeadScroll);
 
 }
 
@@ -59,9 +58,9 @@ void TrackViewComponent::resized() {
     auto sidebarWidth = Globals::GUI::iSideBarWidth;
     m_sidebar.setBounds (area.removeFromLeft(sidebarWidth));
 
-    m_pPlayHead->setBounds(sidebarWidth, headerHeight, area.getWidth(), area.getHeight());
-
-    m_playHeadScroll.setBounds(sidebarWidth, headerHeight, area.getWidth(), headerHeight);
+//    m_pPlayHead->setBounds(sidebarWidth, headerHeight, area.getWidth(), area.getHeight());
+//
+//    m_playHeadScroll.setBounds(sidebarWidth, headerHeight, area.getWidth(), headerHeight);
 
     for(int i=0; i< m_iNumTracks; i++) {
         m_tracks.at(i)->setBounds(area.removeFromTop(m_aiTrackHeight.at(i)));
@@ -72,9 +71,8 @@ int TrackViewComponent::getNumTracks() const {
     return m_iNumTracks;
 }
 
-void TrackViewComponent::addTrack() {
-    m_tracks.push_back(new ScrollablePianoRollComponent());
-    m_tracks.at(m_iNumTracks)->setColour (TextButton::buttonColourId, Colours::lime);
+void TrackViewComponent::addTrack(int numTimeStampsForPianoRoll) {
+    m_tracks.push_back(new ScrollablePianoRollComponent(numTimeStampsForPianoRoll));
     addAndMakeVisible (m_tracks[m_iNumTracks], 0);
     m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
     m_iNumTracks++;
@@ -93,7 +91,7 @@ void TrackViewComponent::setTimeFormat(int timeFormat)
     
     DBG(m_iTimeFormat);
     
-    // only allow time stamp ticks - see the documentation of Class MidiFile
+    // currently only allow time stamp ticks - see the documentation of Class MidiFile
     assert(m_iTimeFormat > 0);
 }
 
@@ -112,8 +110,10 @@ void TrackViewComponent::convertMidiMessageSequence(int trackIdx, const MidiMess
             double timeStampNoteOff = message->getTimeOfMatchingKeyUp(i);
             int noteNumber = msg.getNoteNumber();
             uint8 noteVelocity = msg.getVelocity();
+            
             //DBG(String(timeStamp/m_iTimeFormat) + "\t" + String((timeStampNoteOff-timeStamp+1)/m_iTimeFormat) + "\t" + String(noteNumber));
-            //PianoRollNote *newNote = new PianoRollNote(noteNumber, timeStamp/m_iTimeFormat, (timeStampNoteOff-timeStamp+1)/m_iTimeFormat, noteVelocity);
+            PianoRollNote *newNote = new PianoRollNote(Globals::PianoRoll::midiNoteNum-1-noteNumber, timeStamp/m_iTimeFormat, (timeStampNoteOff-timeStamp+1)/m_iTimeFormat, noteVelocity);
+            m_tracks.at(trackIdx)->addNote(newNote);
         }
     }
 }

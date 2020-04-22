@@ -41,10 +41,16 @@ public:
     PianoRollComponent();
     
     ~PianoRollComponent();
+    
+    void init(int numTimeStampsForPianoRoll);
 
     void paint (Graphics& g) override;
     
     void resized() override;
+    
+    //==============================================================================
+    
+    void addNote(PianoRollNote *newNote);
     
     //==============================================================================
     void setPreview(bool ifPreview);
@@ -73,9 +79,11 @@ class ScrollablePianoRollComponent: public Component
 {
 public:
 
-    ScrollablePianoRollComponent();
+    ScrollablePianoRollComponent(int numTimeStampsForPianoRoll = 30);
 
     void resized() override;
+    
+    void addNote(PianoRollNote *newNote);
     
     void setPreview(bool ifPreview);
 

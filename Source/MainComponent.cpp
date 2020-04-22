@@ -172,7 +172,9 @@ void MainComponent::handleFileOpen() {
         
         const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
         
-        m_pTrackView->addTrack();
+        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(sequence->getEndTime()/timeFormat) + 10);
+        
+        m_pTrackView->addTrack(numTimeStampsForPianoRoll);
         // pass the midiFile before timestampticks are converted to seconds
         m_pTrackView->convertMidiMessageSequence(0, sequence);
         

@@ -10,8 +10,10 @@
 
 #include "NoteLayer.h"
 
-NoteLayer::NoteLayer(): NoteList(this), SelectedNoteList(this)
+NoteLayer::NoteLayer(int numTimeStamps): NoteList(this), SelectedNoteList(this)
 {
+    m_iCurTimeStamps = numTimeStamps;
+    
     oneColumnTable.getHeader().addColumn("notelayer", 1, m_iInitNoteWidth * m_iCurTimeStamps, 30, -1,  TableHeaderComponent::ColumnPropertyFlags::notSortable);
     oneColumnTable.setModel(this);
     
@@ -74,6 +76,21 @@ bool NoteLayer::keyPressed(const KeyPress & key)
     }
 }
 
+void NoteLayer::addNoteToRow(PianoRollNote *newNote)
+{
+    int row = newNote->getRow();
+    
+    auto* pianoRollRow = static_cast<RowComponent*>(oneColumnTable.getCellComponent(1, row));
+    
+    pianoRollRow->addNote(newNote);
+}
+
+void NoteLayer::addEmptyColumns(int numColumnsToAdd)
+{
+    m_iCurTimeStamps += numColumnsToAdd;
+    oneColumnTable.getHeader().setColumnWidth(1, m_iInitNoteWidth * m_iCurTimeStamps);
+}
+
 void NoteLayer::setPreview(bool ifPreview)
 {
     m_bPreview = ifPreview;
@@ -132,17 +149,9 @@ void NoteLayer::RowComponent::mouseDown (const MouseEvent& event)
         float offset = 1.F*event.getMouseDownX() / m_iBoxWidth;
         offset = (static_cast<int> (offset*2))/2.F; // quantize
         PianoRollNote* newNote = new PianoRollNote(m_iRow,offset);
-        newNote->changePitch = [this] (PianoRollNote* note, int direction) { changePitch(note, direction); };
         
-        m_Owner.addNote(m_iRow, newNote);
+        addNote(newNote);
         m_Owner.selectOneNote(newNote);
-        
-        addAndMakeVisible(newNote);
-        float absOffset = offset * m_iBoxWidth;
-        float absLength = newNote->getLength() * m_iBoxWidth;
-        newNote->setBounds(absOffset, 0, absLength, m_iBoxHeight);
-        
-        repaint();
     }
     else    // add the existing note to selected list
     {
@@ -150,9 +159,18 @@ void NoteLayer::RowComponent::mouseDown (const MouseEvent& event)
     }
 }
 
-void NoteLayer::RowComponent::addNote(PianoRollNote* noteToAdd)
+void NoteLayer::RowComponent::addNote(PianoRollNote* newNote)
 {
-    return;
+    newNote->changePitch = [this] (PianoRollNote* note, int direction) { changePitch(note, direction); };
+    
+    m_Owner.addNote(m_iRow, newNote);
+    
+    addAndMakeVisible(newNote);
+    float absOffset = newNote->getOffset() * m_iBoxWidth;
+    float absLength = newNote->getLength() * m_iBoxWidth;
+    newNote->setBounds(absOffset, 0, absLength, m_iBoxHeight);
+    
+    repaint();
 }
 
 void NoteLayer::RowComponent::detachNote(PianoRollNote* noteToDetach)

@@ -17,7 +17,7 @@ class NoteLayer: public TableListBoxModel, public NoteList, public SelectedNoteL
 {
 public:
     
-    NoteLayer();
+    NoteLayer(int numTimeStamps = 30);
     
     void resized() override;
     
@@ -34,6 +34,10 @@ public:
     
     bool keyPressed(const KeyPress & key) override;
     
+    void addNoteToRow(PianoRollNote *newNote);
+    
+    void addEmptyColumns(int numColumnsToAdd);
+    
     void setPreview(bool ifPreview);
     
     class RowComponent  : public Component
@@ -47,7 +51,7 @@ public:
         
         void mouseDown (const MouseEvent& event) override;
         
-        void addNote(PianoRollNote* noteToAdd);
+        void addNote(PianoRollNote* newNote);
         
         void detachNote(PianoRollNote* noteToDetach);
         
