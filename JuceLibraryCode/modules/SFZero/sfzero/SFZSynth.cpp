@@ -19,85 +19,74 @@ void sfzero::Synth::noteOn(int midiChannel, int midiNoteNumber, float velocity)
     int midiVelocity = static_cast<int>(velocity * 127);
     
     // First, stop any currently-playing sounds in the group.
-    //*** Currently, this only pays attention to the first matching region.
-    int group = 0;
-    sfzero::Sound *sound = dynamic_cast<sfzero::Sound *>( getSound(0).get() );
-    
-    if (sound)
-    {
-        sfzero::Region *region = sound->getRegionFor(midiNoteNumber, midiVelocity);
-        if (region)
-        {
-            group = region->group;
-        }
-    }
-    if (group != 0)
-    {
-        for (i = voices.size(); --i >= 0;)
-        {
-            sfzero::Voice *voice = dynamic_cast<sfzero::Voice *>(voices.getUnchecked(i));
-            if (voice == nullptr)
-            {
-                continue;
+
+    for (int s=0; s<getNumSounds(); s++) {
+
+        int group = 0;
+        auto *sound = dynamic_cast<sfzero::Sound *>(getSound(s).get());
+        // std::cout << "sfzero::Synth::noteOn--> Sound: " << sound->selectedSubsound() << " -- ";
+        if (sound->appliesToNote(midiNoteNumber) && sound->appliesToChannel(midiChannel)) {
+            if (sound) {
+                sfzero::Region *region = sound->getRegionFor(midiNoteNumber, midiVelocity);
+                if (region) {
+                    group = region->group;
+                }
             }
-            if (voice->getOffBy() == group)
-            {
-                voice->stopNoteForGroup();
-            }
-        }
-    }
-    
-    // Are any notes playing?  (Needed for first/legato trigger handling.)
-    // Also stop any voices still playing this note.
-    bool anyNotesPlaying = false;
-    for (i = voices.size(); --i >= 0;)
-    {
-        sfzero::Voice *voice = dynamic_cast<sfzero::Voice *>(voices.getUnchecked(i));
-        if (voice == nullptr)
-        {
-            continue;
-        }
-        if (voice->isPlayingChannel(midiChannel))
-        {
-            if (voice->isPlayingNoteDown())
-            {
-                if (voice->getCurrentlyPlayingNote() == midiNoteNumber)
-                {
-                    if (!voice->isPlayingOneShot())
-                    {
-                        voice->stopNoteQuick();
+            if (group != 0) {
+                for (i = voices.size(); --i >= 0;) {
+                    sfzero::Voice *voice = dynamic_cast<sfzero::Voice *>(voices.getUnchecked(i));
+                    if (voice == nullptr) {
+                        continue;
+                    }
+                    if (voice->getOffBy() == group) {
+                        voice->stopNoteForGroup();
                     }
                 }
-                else
-                {
-                    anyNotesPlaying = true;
-                }
             }
-        }
-    }
-    
-    // Play *all* matching regions.
-    sfzero::Region::Trigger trigger = (anyNotesPlaying ? sfzero::Region::legato : sfzero::Region::first);
-    if (sound)
-    {
-        int numRegions = sound->getNumRegions();
-        for (i = 0; i < numRegions; ++i)
-        {
-            sfzero::Region *region = sound->regionAt(i);
-            if (region->matches(midiNoteNumber, midiVelocity, trigger))
-            {
-                auto *voice = dynamic_cast<sfzero::Voice *>(findFreeVoice(sound, midiChannel, midiNoteNumber, isNoteStealingEnabled()));
-                if (voice)
-                {
-                    voice->setRegion(region);
-                    startVoice(voice, sound, midiChannel, midiNoteNumber, velocity);
-//                    DBG("noteON: " << midiNoteNumber << " " << midiChannel << " " << velocity);
-                }
-            }
-        }
-    }
 
-    noteVelocities_[midiNoteNumber] = midiVelocity;
+            // Are any notes playing?  (Needed for first/legato trigger handling.)
+            // Also stop any voices still playing this note.
+            bool anyNotesPlaying = false;
+            for (i = voices.size(); --i >= 0;) {
+                sfzero::Voice *voice = dynamic_cast<sfzero::Voice *>(voices.getUnchecked(i));
+                if (voice == nullptr) {
+                    continue;
+                }
+                if (voice->isPlayingChannel(midiChannel)) {
+                    if (voice->isPlayingNoteDown()) {
+                        if (voice->getCurrentlyPlayingNote() == midiNoteNumber) {
+                            if (!voice->isPlayingOneShot()) {
+                                voice->stopNoteQuick();
+                            }
+                        } else {
+                            anyNotesPlaying = true;
+                        }
+                    }
+                }
+            }
+
+            // Play *all* matching regions.
+            sfzero::Region::Trigger trigger = (anyNotesPlaying ? sfzero::Region::legato : sfzero::Region::first);
+            if (sound) {
+                int numRegions = sound->getNumRegions();
+                for (i = 0; i < numRegions; ++i) {
+                    sfzero::Region *region = sound->regionAt(i);
+                    if (region->matches(midiNoteNumber, midiVelocity, trigger)) {
+                        auto *voice = dynamic_cast<sfzero::Voice *>(findFreeVoice(sound, midiChannel, midiNoteNumber,
+                                                                                  isNoteStealingEnabled()));
+                        if (voice) {
+                            voice->setRegion(region);
+                            startVoice(voice, sound, midiChannel, midiNoteNumber, velocity);
+//                    DBG("noteON: " << midiNoteNumber << " " << midiChannel << " " << velocity);
+                        }
+                    }
+                }
+            }
+
+            noteVelocities_[midiNoteNumber] = midiVelocity;
+
+        }
+    }
 }
 
 void sfzero::Synth::noteOff(int midiChannel, int midiNoteNumber, float velocity, bool allowTailOff)
