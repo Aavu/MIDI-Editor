@@ -16,30 +16,31 @@ SfzSynth::SfzSynth()
         addVoice(new sfzero::Voice());
 }
 
-void SfzSynth::setUsingSineWaveSound() {
-    clearSounds();  //TODO: This seems incomplete. Shouldnt you do m_synth.addSound(new SineWaveSound()) here ??
+void SfzSynth::handleProgramChange(int iMidiChannel, int iProgram) {
+    std::cout<< "SfzSynth::handleProgramChange--> midiChannel: " << iMidiChannel << " programNumber: " << iProgram << std::endl;
+    for (int s=0; s<getNumSounds(); s++) {
+        auto *sound = getSound(iMidiChannel);
+        if (sound->appliesToChannel(iMidiChannel)) {
+            sound->useSubsound(iProgram);
+            return;
+        }
+    }
 }
 
-int SfzSynth::getProgramNumber() const {
-    return getSound()->selectedSubsound();
+int SfzSynth::getProgramNumber(int iMidiChannel) const {
+    return getSound(iMidiChannel)->selectedSubsound();
 }
 
-juce::String SfzSynth::getProgramName() const {
-    sfzero::Sound *sound = getSound();
-    return sound->subsoundName(sound->selectedSubsound());
+juce::String SfzSynth::getProgramName(int iProgram) const {
+    return getSound(0)->subsoundName(iProgram);
 }
 
-void SfzSynth::setProgramNumber(int iProgramNum) {
-    getSound()->useSubsound(iProgramNum);
+sfzero::Sound * SfzSynth::getSound(int iMidiChannel) const {
+    return dynamic_cast<sfzero::Sound *>(sfzero::Synth::getSound(iMidiChannel).get());
 }
 
-sfzero::Sound * SfzSynth::getSound() const {
-    SynthesiserSound * s = sfzero::Synth::getSound(0).get();
-    return dynamic_cast<sfzero::Sound *>(s);
-}
-
-void SfzSynth::addSound(sfzero::Sound *sound) {
-    sfzero::Synth::addSound(sound);
+void SfzSynth::addSound(sfzero::Sound *pSound) {
+    sfzero::Synth::addSound(pSound);
 }
 
 //============================================================================================================
