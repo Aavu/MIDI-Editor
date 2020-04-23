@@ -19,7 +19,7 @@ SfzSynth::SfzSynth()
 void SfzSynth::handleProgramChange(int iMidiChannel, int iProgram) {
     std::cout<< "SfzSynth::handleProgramChange--> midiChannel: " << iMidiChannel << " programNumber: " << iProgram << std::endl;
     for (int s=0; s<getNumSounds(); s++) {
-        auto *sound = getSound(iMidiChannel);
+        auto *sound = getSound(s);
         if (sound->appliesToChannel(iMidiChannel)) {
             sound->useSubsound(iProgram);
             return;
