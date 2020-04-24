@@ -37,6 +37,8 @@ public:
     void pause();
     void stop();
 
+    void allNotesOff();
+
     enum class PlayState {
         Playing,
         Paused,
@@ -47,7 +49,7 @@ public:
         return m_playState;
     }
 
-    int getCurrentPosition() {
+    long getCurrentPosition() {
         return m_iCurrentPosition;
     }
 
@@ -59,11 +61,11 @@ public:
         return BPM;
     }
 
-    int getMaxBufferLength() {
-        return m_ulMaxBufferLength;
+    long getMaxBufferLength() {
+        return m_iMaxBufferLength;
     }
 
-    void setCurrentPosition(int value);
+    void setCurrentPosition(long value);
 
     void resetCurrentPosition();
 
@@ -75,7 +77,7 @@ private:
     void addMessageToBuffer(const MidiMessage& message);
     void addAllSequenceMessagesToBuffer();
 
-    int m_ulMaxBufferLength = 0;
+    long m_iMaxBufferLength = 0;
 
     unsigned int BPM = 120;
 
@@ -86,7 +88,7 @@ private:
     double m_fSampleRate = 0;
     int m_iSamplesPerBlockExpected = 0;
     PlayState m_playState = PlayState::Stopped;
-    int m_iCurrentPosition = 0;
+    long m_iCurrentPosition = 0;
 
     SfzLoader m_sfzLoader;
     SfzLoader m_sfzLoader1;
