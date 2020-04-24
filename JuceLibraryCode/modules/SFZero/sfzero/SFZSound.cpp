@@ -34,7 +34,7 @@ bool sfzero::Sound::appliesToNote(int /*midiNoteNumber*/)
 
 bool sfzero::Sound::appliesToChannel(int midiChannel)
 {
-    //std::cout << "sfzero::Sound::appliesToChannel---> input-midi-channel:" << midiChannel << " sound-works-with-channel:" << channel_ <<std::endl;
+    //DBG("sfzero::Sound::appliesToChannel---> input-midi-channel:" << midiChannel << " sound-works-with-channel:" << channel_ );
     if (channel_ == -1)
         return true;
     else
