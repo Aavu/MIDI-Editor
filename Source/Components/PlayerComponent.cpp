@@ -45,7 +45,6 @@ void PlayerComponent::initSynth() {
         auto sounds = m_sfzLoader.getLoadedSounds();
         for (auto i=0; i<sounds.size(); i++) {
             auto * sound = sounds.getUnchecked(i).get();
-            sound->useSubsound(i);
             sound->setChannelNum(i);
             m_synth.addSound(sound);
         }
