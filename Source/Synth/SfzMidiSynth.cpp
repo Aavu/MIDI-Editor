@@ -59,8 +59,9 @@ void SfzLoader::setSfzFile(File *pNewSfzFile)
 
 void SfzLoader::loadSounds(int iNumInstances /*= 1*/, bool bUseLoaderThread /*= false*/, std::function<void()> *callback /*= nullptr*/)
 {
-    m_callback = *callback;
     m_iNumInstances = iNumInstances;
+    if (callback)
+        m_callback = *callback;
     if (bUseLoaderThread) {
         m_loadThread.stopThread(2000);
         m_loadThread.startThread();
