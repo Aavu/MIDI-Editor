@@ -17,6 +17,9 @@
 #include "PlayerComponent.h"
 #include "Globals.h"
 
+#include "GUIComponent/ScrollablePianoRollComponent/ScrollablePianoRollComponent.h"
+#include "GUIComponent/ScrollablePianoRollComponent/PianoRollNote.h"
+
 class TrackViewComponent : public TrackParameters, public Component, public Timer {
 public:
     TrackViewComponent();
@@ -29,7 +32,11 @@ public:
 
     int getNumTracks() const;
 
-    void addTrack();
+    void addTrack(int numTimeStampsForPianoRoll);
+    
+    void setTimeFormat(int timeFormat);
+    
+    void convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message);
 
 private:
     void timerCallback() override;
@@ -38,7 +45,9 @@ private:
 
     TextButton m_header;
     SidebarComponent m_sidebar;
-    std::vector<TextButton*> m_tracks;
+    std::vector<ScrollablePianoRollComponent*> m_tracks;
+    
+    int m_iTimeFormat;
 
     PlayerComponent* m_pPlayer = nullptr;
     PlayHeadScrollComponent m_playHeadScroll;
