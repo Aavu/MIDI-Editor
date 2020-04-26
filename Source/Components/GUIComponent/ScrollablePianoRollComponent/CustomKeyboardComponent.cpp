@@ -13,9 +13,9 @@
 
 CustomKeyboardComponent::CustomKeyboardComponent(): MidiKeyboardComponent(*this, MidiKeyboardComponent::verticalKeyboardFacingRight)
 {
-    setSize(80, Globals::PianoRoll::initTimeStamps*Globals::PianoRoll::initNoteWidth);
+    setSize(Globals::PianoRoll::keyboardWidth, Globals::PianoRoll::initTimeStamps*Globals::PianoRoll::initNoteWidth);
     setBlackNoteWidthProportion(m_fRatio);
-    setBlackNoteLengthProportion(0.8f);
+    setBlackNoteLengthProportion(0.7f);
     setKeyWidth(Globals::PianoRoll::initNoteHeight*12.0/7);
     setScrollButtonsVisible(false);
 }

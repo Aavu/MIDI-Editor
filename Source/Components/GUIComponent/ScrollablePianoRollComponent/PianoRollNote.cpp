@@ -22,7 +22,7 @@ PianoRollNote::PianoRollNote(int row_n, float offset_n, float length_n, int velo
     
     m_pBorder = new ResizableBorderComponent(this, NULL);
     addChildComponent(m_pBorder);
-    m_pBorder->setBorderThickness (BorderSize<int> (0,0,0,1));
+    m_pBorder->setBorderThickness (BorderSize<int> (0,1,0,1)); // allow draging from both sides
     m_pBorder->setBounds(this->getBounds());
     m_pBorder->setAlpha(0.1);
     m_pBorder->setVisible(true);

@@ -58,7 +58,7 @@ void PianoRollComponent::resized()
     
     auto area_parent = getBoundsInParent();
     
-    auto sidebarWidth = 80;
+    auto sidebarWidth = Globals::PianoRoll::keyboardWidth;
     m_pKeyboardComponent->setBounds (area.removeFromLeft (sidebarWidth));
     
     m_pNoteLayer->setBounds(sidebarWidth, 0, area.getWidth(), area.getHeight());

@@ -43,7 +43,7 @@ void TrackViewComponent::init(PlayerComponent* player) {
 
     addAndMakeVisible(*m_pPlayHead);
     
-    // m_pPlayHead->setVisible(false);
+    m_pPlayHead->setVisible(false);
 
     startTimer (Globals::GUI::iUpdateInterval_ms);
 
@@ -89,6 +89,8 @@ void TrackViewComponent::addTrack(int numTimeStampsForPianoRoll) {
     addAndMakeVisible (m_tracks[m_iNumTracks], 0);
     m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
     m_iNumTracks++;
+    
+    m_pPlayHead->setVisible(true);
 
     resized();
 }
@@ -106,7 +108,7 @@ void TrackViewComponent::timerCallback() {
 
 void TrackViewComponent::updatePlayHeadPosition() {
     auto area = getLocalBounds();
-    auto playHeadPosition = Globals::GUI::iSideBarWidth + m_iCurrentPlayHeadPosition;
+    auto playHeadPosition = Globals::GUI::iSideBarWidth + Globals::PianoRoll::keyboardWidth + m_iCurrentPlayHeadPosition;
     m_pPlayHead->setBounds((int)playHeadPosition, Globals::GUI::iHeaderHeight, Globals::GUI::iPlayHeadWidth, area.getHeight());
 }
 

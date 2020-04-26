@@ -21,7 +21,7 @@ namespace Globals {
 
     namespace GUI {
         static constexpr int iUpdateInterval_ms = 20;
-        static constexpr int iPlayHeadWidth     = 4;
+        static constexpr int iPlayHeadWidth     = 2;
         static constexpr int iSideBarWidth      = 128;
         static constexpr int iHeaderHeight      = 32;
     }
@@ -33,6 +33,7 @@ namespace Globals {
         const int initNoteHeight = 8;
         const int initNoteWidth = 40;
         const int longestNote = 20;
+        const int keyboardWidth = 40;
     }
 
 }
