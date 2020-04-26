@@ -17,7 +17,7 @@
 #include "PlayerComponent.h"
 #include "Globals.h"
 
-class TrackViewComponent : public TrackParameters, public Component {
+class TrackViewComponent : public TrackParameters, public Component, public Timer {
 public:
     TrackViewComponent();
 
@@ -32,14 +32,21 @@ public:
     void addTrack();
 
 private:
-    void handleClick();
+    void timerCallback() override;
+    void updatePlayHeadPosition();
+    void handleScrollCallback(int newPositionX);
 
     TextButton m_header;
     SidebarComponent m_sidebar;
     std::vector<TextButton*> m_tracks;
 
+    PlayerComponent* m_pPlayer = nullptr;
     PlayHeadScrollComponent m_playHeadScroll;
     std::shared_ptr<PlayHeadComponent> m_pPlayHead = nullptr;
+
+    long m_iMaxBufferLength = 0;
+    long m_iCurrentPlayHeadPosition = 0;
+    int m_iTrackViewComponentWidth = 0;
 
 //    int m_iNumTracks = 0;
 //    std::vector<int> m_trackHeight;

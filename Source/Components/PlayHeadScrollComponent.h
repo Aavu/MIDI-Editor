@@ -11,17 +11,10 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "PlayHeadComponent.h"
 
 class PlayHeadScrollComponent : public Component {
 public:
-    PlayHeadScrollComponent() {
-
-    }
-
-    void init(PlayHeadComponent* playHead) {
-        m_playHead = playHead;
-    }
+    PlayHeadScrollComponent() = default;
 
     void paint (Graphics& g) override {
         g.fillAll (Colours::darkgrey);
@@ -31,14 +24,20 @@ public:
 
     }
 
+    std::function<void(int posX)> childClicked = nullptr;
+
 private:
     void mouseUp (const MouseEvent& event) override {
-        if (!m_playHead)
+        if (!childClicked)
             return;
 
-//        DBG("mouse up: " << event.getPosition().getX());
-        m_playHead->handleScrollCallback(event.getPosition().getX());
+        childClicked(event.getPosition().getX());
     }
 
-    PlayHeadComponent* m_playHead = nullptr;
+    void mouseDrag (const MouseEvent& event) override {
+        if (!childClicked)
+            return;
+
+        childClicked(event.getPosition().getX());
+    }
 };
