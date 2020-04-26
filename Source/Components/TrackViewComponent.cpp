@@ -18,6 +18,7 @@ TrackViewComponent::TrackViewComponent() : m_pPlayHead(std::make_shared<PlayHead
 }
 
 void TrackViewComponent::init(PlayerComponent* player) {
+    m_pPlayer = player;
     m_header.setColour (TextButton::buttonColourId, Colours::cornflowerblue);
     addAndMakeVisible (m_header);
 
@@ -32,17 +33,24 @@ void TrackViewComponent::init(PlayerComponent* player) {
         }
     }
 
-    m_pPlayHead->init(player);
+    addAndMakeVisible(m_playHeadScroll);
+
+    m_playHeadScroll.childClicked = [&](int data) {
+        handleScrollCallback(data);
+    };
+
+    m_pPlayHead->init();
+
     addAndMakeVisible(*m_pPlayHead);
     
     // m_pPlayHead->setVisible(false);
 
-    m_playHeadScroll.init(m_pPlayHead.get());
-    addAndMakeVisible(m_playHeadScroll);
+    startTimer (Globals::GUI::iUpdateInterval_ms);
 
 }
 
 TrackViewComponent::~TrackViewComponent() {
+    stopTimer();
     for (int i=0; i<m_iNumTracks; i++) {
         delete m_tracks[i];
     }
@@ -59,10 +67,13 @@ void TrackViewComponent::resized() {
 
     auto sidebarWidth = Globals::GUI::iSideBarWidth;
     m_sidebar.setBounds (area.removeFromLeft(sidebarWidth));
-
+    
     m_pPlayHead->setBounds(sidebarWidth, headerHeight, area.getWidth(), area.getHeight());
 
     m_playHeadScroll.setBounds(area.removeFromTop(headerHeight));
+
+    m_iTrackViewComponentWidth = area.getWidth() - sidebarWidth;
+    updatePlayHeadPosition();
 
     for(int i=0; i< m_iNumTracks; i++) {
         m_tracks.at(i)->setBounds(area.removeFromTop(m_aiTrackHeight.at(i)));
@@ -82,9 +93,29 @@ void TrackViewComponent::addTrack(int numTimeStampsForPianoRoll) {
     resized();
 }
 
-void TrackViewComponent::handleClick() {
-    float x = Desktop::getInstance().getMainMouseSource().getScreenPosition().getX();
-    DBG(x);
+void TrackViewComponent::timerCallback() {
+    if (!m_pPlayer)
+        return;
+    m_iMaxBufferLength = m_pPlayer->getMaxBufferLength();
+    if (m_iMaxBufferLength > 0) {
+        m_iCurrentPlayHeadPosition = m_pPlayer->getCurrentPosition() * m_iTrackViewComponentWidth / m_iMaxBufferLength;
+//        DBG(m_iCurrentPlayHeadPosition << "\t" << m_pPlayer->getCurrentPosition() << "\t" << m_iTrackViewComponentWidth << "\t" << m_iMaxBufferLength);
+        updatePlayHeadPosition();
+    }
+}
+
+void TrackViewComponent::updatePlayHeadPosition() {
+    auto area = getLocalBounds();
+    auto playHeadPosition = Globals::GUI::iSideBarWidth + m_iCurrentPlayHeadPosition;
+    m_pPlayHead->setBounds((int)playHeadPosition, Globals::GUI::iHeaderHeight, Globals::GUI::iPlayHeadWidth, area.getHeight());
+}
+
+void TrackViewComponent::handleScrollCallback(int newPositionX) {
+    if (newPositionX < 0)
+        return;
+    auto value = (newPositionX * m_iMaxBufferLength) / m_iTrackViewComponentWidth;
+    m_pPlayer->allNotesOff();
+    m_pPlayer->setCurrentPosition(value);
 }
 
 void TrackViewComponent::setTimeFormat(int timeFormat)

@@ -81,8 +81,8 @@ void PlayerComponent::addAllSequenceMessagesToBuffer() {
     }
 
     m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);
-    m_ulMaxBufferLength = m_midiBuffer.getLastEventTime();
-    DBG("max length : " << m_ulMaxBufferLength);
+    m_iMaxBufferLength = m_midiBuffer.getLastEventTime();
+    DBG("max length : " << m_iMaxBufferLength);
 }
 
 void PlayerComponent::setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq) {
@@ -129,13 +129,18 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
 
         m_iCurrentPosition += numSamples;
 
-        if (m_iCurrentPosition > m_ulMaxBufferLength) {
+        if (m_iCurrentPosition > m_iMaxBufferLength) {
             sendActionMessage(Globals::ActionMessage::Stop);
         }
     }
 }
 
-void PlayerComponent::setCurrentPosition(int value) {
+void PlayerComponent::allNotesOff() {
+    for (int i=0; i<16; i++)
+        m_synth.allNotesOff(0, true);
+}
+
+void PlayerComponent::setCurrentPosition(long value) {
     m_iCurrentPosition = value;
     if (m_pIterator)
         m_pIterator->setNextSamplePosition(m_iCurrentPosition);
