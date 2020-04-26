@@ -31,10 +31,11 @@ private:
 class SfzLoader {
 public:
     SfzLoader();
+
     void setSfzFile(File *pNewSfzFile);
-    void loadSound(bool bUseLoaderThread = false, std::function<void()> *callback = nullptr);
+    void loadSounds(int iNumInstances = 1, bool bUseLoaderThread = false, std::function<void()> *callback = nullptr);
     double getLoadProgress() const;
-    sfzero::Sound * getLoadedSound() const;  // TODO: create factory for this and return new sound object every time.
+    ReferenceCountedArray<sfzero::Sound> getLoadedSounds() const;
 
 private:
     void load(Thread *pThread = nullptr);
@@ -46,12 +47,12 @@ private:
     private:
         SfzLoader *m_pSfzLoader;
     };
-    friend class LoadThread; //TODO: Is this required?? Why?
 
     File m_sfzFile;
     AudioFormatManager m_formatManager;
     LoadThread m_loadThread;
-    sfzero::Sound * m_pSound;
+    ReferenceCountedArray<sfzero::Sound> m_sounds;
     double m_fLoadProgress;
+    int m_iNumInstances;
     std::function<void()> m_callback;
 };
