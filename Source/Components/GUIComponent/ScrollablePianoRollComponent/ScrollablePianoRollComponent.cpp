@@ -106,6 +106,7 @@ void ScrollablePianoRollComponent::resized()
     auto area = getLocalBounds();
     
     m_ViewPort.setBoundsRelative(0.0f, 0.0f, 1.0f, 1.0f);
+    m_ViewPort.setViewPositionProportionately(0, 0.4);
     
     // change pianoroll visible area width
     m_Cpn.setSize(area.getWidth(),Globals::PianoRoll::midiNoteNum*Globals::PianoRoll::initNoteHeight);
