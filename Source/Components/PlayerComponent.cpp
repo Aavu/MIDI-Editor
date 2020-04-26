@@ -42,24 +42,15 @@ void PlayerComponent::initSynth() {
 
     m_sfzLoader.setSfzFile(soundFontFile);
     std::function<void()> addLoadedSoundCallback = [this] () {
-        auto * sound = m_sfzLoader.getLoadedSound();
-        sound->useSubsound(0);
-        sound->setChannelNum(8);
-        m_synth.addSound(sound);
-        std::cout << "Sound 0 Loaded: ch 8" << std::endl;
+        auto sounds = m_sfzLoader.getLoadedSounds();
+        for (auto i=0; i<sounds.size(); i++) {
+            auto * sound = sounds.getUnchecked(i).get();
+            sound->setChannelNum(i);
+            m_synth.addSound(sound);
+        }
+        std::cout << sounds.size() << " sounds added." << std::endl;
     };
-    m_sfzLoader.loadSound(true, &addLoadedSoundCallback);
-
-    //TODO: add ability to check through all available sounds in synth
-    m_sfzLoader1.setSfzFile(soundFontFile);
-    std::function<void()> addLoadedSoundCallback1 = [this] () {
-        auto * sound = m_sfzLoader1.getLoadedSound();
-        sound->useSubsound(40);
-        sound->setChannelNum(3);
-        m_synth.addSound(sound);
-        std::cout << "Sound 40 Loaded: ch 3" << std::endl;
-    };
-    m_sfzLoader1.loadSound(true, &addLoadedSoundCallback1);
+    m_sfzLoader.loadSounds(kiNumChannels, true, &addLoadedSoundCallback);
 
 }
 
@@ -75,9 +66,7 @@ void PlayerComponent::addAllSequenceMessagesToBuffer() {
     MidiMessage msg;
     for (int i=0; i<numEvents; i++) {
         msg = eventHolder[i]->message;
-        if (msg.isNoteOnOrOff()) {
-            addMessageToBuffer(msg);
-        }
+        addMessageToBuffer(msg);
     }
 
     m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);

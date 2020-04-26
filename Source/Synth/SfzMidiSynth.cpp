@@ -16,37 +16,38 @@ SfzSynth::SfzSynth()
         addVoice(new sfzero::Voice());
 }
 
-void SfzSynth::setUsingSineWaveSound() {
-    clearSounds();  //TODO: This seems incomplete. Shouldnt you do m_synth.addSound(new SineWaveSound()) here ??
+void SfzSynth::handleProgramChange(int iMidiChannel, int iProgram) {
+    DBG("SfzSynth::handleProgramChange--> midiChannel: " << iMidiChannel << " programNumber: " << iProgram);
+    for (int s=0; s<getNumSounds(); s++) {
+        auto *sound = getSound(s);
+        if (sound->appliesToChannel(iMidiChannel)) {
+            sound->useSubsound(iProgram);
+            return;
+        }
+    }
 }
 
-int SfzSynth::getProgramNumber() const {
-    return getSound()->selectedSubsound();
+int SfzSynth::getProgramNumber(int iMidiChannel) const {
+    return getSound(iMidiChannel)->selectedSubsound();
 }
 
-juce::String SfzSynth::getProgramName() const {
-    sfzero::Sound *sound = getSound();
-    return sound->subsoundName(sound->selectedSubsound());
+juce::String SfzSynth::getProgramName(int iProgram) const {
+    return getSound(0)->subsoundName(iProgram);
 }
 
-void SfzSynth::setProgramNumber(int iProgramNum) {
-    getSound()->useSubsound(iProgramNum);
+sfzero::Sound * SfzSynth::getSound(int iMidiChannel) const {
+    return dynamic_cast<sfzero::Sound *>(sfzero::Synth::getSound(iMidiChannel).get());
 }
 
-sfzero::Sound * SfzSynth::getSound() const {
-    SynthesiserSound * s = sfzero::Synth::getSound(0).get();
-    return dynamic_cast<sfzero::Sound *>(s);
-}
-
-void SfzSynth::addSound(sfzero::Sound *sound) {
-    sfzero::Synth::addSound(sound);
+void SfzSynth::addSound(sfzero::Sound *pSound) {
+    sfzero::Synth::addSound(pSound);
 }
 
 //============================================================================================================
 SfzLoader::SfzLoader() :
         m_loadThread(this),
-        m_pSound(nullptr),
         m_fLoadProgress(0.0),
+        m_iNumInstances(0),
         m_callback(nullptr)
 {
 }
@@ -56,9 +57,11 @@ void SfzLoader::setSfzFile(File *pNewSfzFile)
     m_sfzFile = *pNewSfzFile;
 }
 
-void SfzLoader::loadSound(bool bUseLoaderThread /*= false*/, std::function<void()> *callback /*= nullptr*/)
+void SfzLoader::loadSounds(int iNumInstances /*= 1*/, bool bUseLoaderThread /*= false*/, std::function<void()> *callback /*= nullptr*/)
 {
-    m_callback = *callback; //TODO: is this a good practice??
+    m_iNumInstances = iNumInstances;
+    if (callback)
+        m_callback = *callback;
     if (bUseLoaderThread) {
         m_loadThread.stopThread(2000);
         m_loadThread.startThread();
@@ -74,37 +77,32 @@ double SfzLoader::getLoadProgress() const {
 
 void SfzLoader::load(Thread *thread)
 {
-    m_fLoadProgress = 0.0;
-
-    if (!m_sfzFile.existsAsFile())
-    {
+    if (!m_sfzFile.existsAsFile()) {
         std::cout << "Invalid Soundfont File." << std::endl; //TODO: handle errors in a better way
         return;
     }
 
+    m_fLoadProgress = 0.0;
     auto extension = m_sfzFile.getFileExtension();
-    if ((extension == ".sf2") || (extension == ".SF2"))
-    {
-        m_pSound = new sfzero::SF2Sound(m_sfzFile);
-    }
-    else
-    {
-        m_pSound = new sfzero::Sound(m_sfzFile);
-    }
-    m_pSound->loadRegions();
-    m_pSound->loadSamples(m_formatManager, &m_fLoadProgress, thread);
+    sfzero::Sound * pSoundInstance;
 
-    std::cout<< "Load Progress: " << m_fLoadProgress << std::endl;
+    for (auto i=0; i<m_iNumInstances; i++) {
+        if ((extension == ".sf2") || (extension == ".SF2")) {
+            pSoundInstance = new sfzero::SF2Sound(m_sfzFile);
+        } else {
+            pSoundInstance = new sfzero::Sound(m_sfzFile);
+        }
+        pSoundInstance->loadRegions();
+        pSoundInstance->loadSamples(m_formatManager, &m_fLoadProgress, thread);
+        m_sounds.add(pSoundInstance);
 
-    m_pSound->useSubsound(0); // TODO: Use global variable to set default subsound?
+        if (thread && thread->threadShouldExit()) {
+            return;
+        }
+    }
 
     if (m_callback) {
         m_callback();
-    }
-
-    if (thread && thread->threadShouldExit())
-    {
-        return;
     }
 }
 
@@ -119,6 +117,6 @@ void SfzLoader::LoadThread::run()
     m_pSfzLoader->load(this);
 }
 
-sfzero::Sound * SfzLoader::getLoadedSound() const {
-    return m_pSound;
+ReferenceCountedArray<sfzero::Sound> SfzLoader::getLoadedSounds() const {
+    return m_sounds;
 }
