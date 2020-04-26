@@ -75,9 +75,7 @@ void PlayerComponent::addAllSequenceMessagesToBuffer() {
     MidiMessage msg;
     for (int i=0; i<numEvents; i++) {
         msg = eventHolder[i]->message;
-        if (msg.isNoteOnOrOff()) {
-            addMessageToBuffer(msg);
-        }
+        addMessageToBuffer(msg);
     }
 
     m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);
