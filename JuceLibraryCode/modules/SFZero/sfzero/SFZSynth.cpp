@@ -24,7 +24,6 @@ void sfzero::Synth::noteOn(int midiChannel, int midiNoteNumber, float velocity)
 
         int group = 0;
         auto *sound = dynamic_cast<sfzero::Sound *>(getSound(s).get());
-        // std::cout << "sfzero::Synth::noteOn--> Sound: " << sound->selectedSubsound() << " -- ";
         if (sound->appliesToNote(midiNoteNumber) && sound->appliesToChannel(midiChannel)) {
             if (sound) {
                 sfzero::Region *region = sound->getRegionFor(midiNoteNumber, midiVelocity);
