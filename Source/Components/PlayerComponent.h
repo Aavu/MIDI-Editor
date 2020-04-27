@@ -90,7 +90,7 @@ private:
     PlayState m_playState = PlayState::Stopped;
     long m_iCurrentPosition = 0;
 
-    SfzSynth m_synth;
+    SoundFontGeneralMidiSynth m_synth;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlayerComponent)

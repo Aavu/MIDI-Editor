@@ -14,10 +14,10 @@
 
 class SfzLoader;
 
-class SfzSynth : public sfzero::Synth
+class SoundFontGeneralMidiSynth : public sfzero::Synth
 {
 public:
-    SfzSynth();
+    SoundFontGeneralMidiSynth();
 
     void handleProgramChange (int iMidiChannel, int iProgram) override ;
 

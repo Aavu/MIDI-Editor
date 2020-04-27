@@ -10,20 +10,20 @@
 
 #include "SfzMidiSynth.h"
 
-SfzSynth::SfzSynth() :
+SoundFontGeneralMidiSynth::SoundFontGeneralMidiSynth() :
     m_sfzLoader(new SfzLoader())
 {
 }
 
-void SfzSynth::handleProgramChange(int iMidiChannel, int iProgram) {
+void SoundFontGeneralMidiSynth::handleProgramChange(int iMidiChannel, int iProgram) {
     auto *sound = getSoundForChannel(iMidiChannel);
     if (sound) {
         sound->useSubsound(iProgram);
-        DBG("SfzSynth::handleProgramChange-->  midiChannel: " << iMidiChannel << " set to programNumber: " << iProgram);
+        DBG("SoundFontGeneralMidiSynth::handleProgramChange-->  midiChannel: " << iMidiChannel << " set to programNumber: " << iProgram);
     }
 }
 
-void SfzSynth::initSynth(File * pSoundFontFile) {
+void SoundFontGeneralMidiSynth::initSynth(File * pSoundFontFile) {
     clearVoices();
     for (int i=0; i < kiNumVoices; i++) {
         addVoice(new sfzero::Voice());
@@ -46,27 +46,27 @@ void SfzSynth::initSynth(File * pSoundFontFile) {
     m_sfzLoader->loadSounds(kiNumChannels, true, &addLoadedSoundCallback);
 }
 
-int SfzSynth::getProgramNumber(int iMidiChannel) const {
+int SoundFontGeneralMidiSynth::getProgramNumber(int iMidiChannel) const {
     sfzero::Sound * sound = getSoundForChannel(iMidiChannel);
     if (sound)
         return sound->selectedSubsound();
     return -1;
 }
 
-juce::String SfzSynth::getProgramName(int iProgram) const {
+juce::String SoundFontGeneralMidiSynth::getProgramName(int iProgram) const {
     sfzero::Sound * sound = getSoundForChannel(0);
     if (sound)
         return sound->subsoundName(iProgram);
     return juce::String();
 }
 
-void SfzSynth::setProgramNumber(int iProgramNum, int iMidiChannel) {
+void SoundFontGeneralMidiSynth::setProgramNumber(int iProgramNum, int iMidiChannel) {
     sfzero::Sound * sound = getSoundForChannel(iMidiChannel);
     if (sound)
         sound->useSubsound(iProgramNum);
 }
 
-void SfzSynth::resetProgramSelection() {
+void SoundFontGeneralMidiSynth::resetProgramSelection() {
     for (auto i=0; i<getNumSounds(); i++) {
         if (i == kiPercussionChannelNum)
             getSoundForChannel(i)->useSubsound(kiPercussionSubSoundNum);
@@ -75,7 +75,7 @@ void SfzSynth::resetProgramSelection() {
     }
 }
 
-sfzero::Sound * SfzSynth::getSoundForChannel(int iMidiChannel) const {
+sfzero::Sound * SoundFontGeneralMidiSynth::getSoundForChannel(int iMidiChannel) const {
     for (int i=0; i<getNumSounds(); i++) {
         auto *sound = dynamic_cast<sfzero::Sound *>(getSound(i).get());
         if (sound->appliesToChannel(iMidiChannel)) {
@@ -85,7 +85,7 @@ sfzero::Sound * SfzSynth::getSoundForChannel(int iMidiChannel) const {
     return nullptr;
 }
 
-void SfzSynth::addSound(sfzero::Sound *pSound) {
+void SoundFontGeneralMidiSynth::addSound(sfzero::Sound *pSound) {
     sfzero::Synth::addSound(pSound);
 }
 
