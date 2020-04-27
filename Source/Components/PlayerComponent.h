@@ -90,13 +90,7 @@ private:
     PlayState m_playState = PlayState::Stopped;
     long m_iCurrentPosition = 0;
 
-    SfzLoader m_sfzLoader;
-    SfzLoader m_sfzLoader1;
     SfzSynth m_synth;
-
-    constexpr static int kiNumVoices = 24;
-    constexpr static int kiNumChannels = 16;
-
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlayerComponent)

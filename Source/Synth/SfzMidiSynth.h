@@ -12,6 +12,8 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
+class SfzLoader;
+
 class SfzSynth : public sfzero::Synth
 {
 public:
@@ -19,18 +21,21 @@ public:
 
     void handleProgramChange (int iMidiChannel, int iProgram) override ;
 
-    void addSound(sfzero::Sound *pSound);
+    void initSynth(File * pSoundFontFile);
     int getProgramNumber(int iMidiChannel) const;
     juce::String getProgramName(int iProgram) const;
     void setProgramNumber(int iProgramNum, int iMidiChannel);
     void resetProgramSelection();
 
-    sfzero::Sound * getSoundForChannel(int iMidiChannel) const;
 private:
+    void addSound(sfzero::Sound *pSound);
+    sfzero::Sound * getSoundForChannel(int iMidiChannel) const;
 
-
+    SfzLoader * m_sfzLoader;
+    constexpr static int kiNumVoices = 24;
+    constexpr static int kiNumChannels = 16;
     constexpr static int kiPercussionChannelNum = 10;
-    constexpr static int kiPercussionSubsoundNum = 24;
+    constexpr static int kiPercussionSubSoundNum = 24;
 };
 
 

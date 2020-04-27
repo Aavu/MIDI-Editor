@@ -31,27 +31,8 @@ void PlayerComponent::resized()
 }
 
 void PlayerComponent::initSynth() {
-    m_synth.clearVoices();
-
-    for (int i=0; i < kiNumVoices; i++) {
-        m_synth.addVoice(new sfzero::Voice());
-    }
-
-    // Load sound from SoundFont file and add to synth.
     File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
-
-    m_sfzLoader.setSfzFile(soundFontFile);
-    std::function<void()> addLoadedSoundCallback = [this] () {
-        auto sounds = m_sfzLoader.getLoadedSounds();
-        for (auto i=0; i<sounds.size(); i++) {
-            auto * sound = sounds.getUnchecked(i).get();
-            sound->setChannelNum(i);
-            m_synth.addSound(sound);
-        }
-        std::cout << sounds.size() << " sounds added." << std::endl;
-    };
-    m_sfzLoader.loadSounds(kiNumChannels, true, &addLoadedSoundCallback);
-
+    m_synth.initSynth(soundFontFile);
 }
 
 void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
