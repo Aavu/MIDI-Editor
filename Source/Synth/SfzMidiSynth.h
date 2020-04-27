@@ -35,7 +35,7 @@ private:
     constexpr static int kiNumVoices = 24;
     constexpr static int kiNumChannels = 16;
     constexpr static int kiPercussionChannelNum = 10;
-    constexpr static int kiPercussionSubSoundNum = 24;
+    constexpr static int kiPercussionSubSoundNum = 247;
 };
 
 
