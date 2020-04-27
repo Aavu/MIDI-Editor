@@ -22,9 +22,15 @@ public:
     void addSound(sfzero::Sound *pSound);
     int getProgramNumber(int iMidiChannel) const;
     juce::String getProgramName(int iProgram) const;
+    void setProgramNumber(int iProgramNum, int iMidiChannel);
+    void resetProgramSelection();
 
+    sfzero::Sound * getSoundForChannel(int iMidiChannel) const;
 private:
-    sfzero::Sound * getSound(int iMidiChannel) const;
+
+
+    constexpr static int kiPercussionChannelNum = 10;
+    constexpr static int kiPercussionSubsoundNum = 24;
 };
 
 
@@ -52,7 +58,7 @@ private:
     AudioFormatManager m_formatManager;
     LoadThread m_loadThread;
     ReferenceCountedArray<sfzero::Sound> m_sounds;
-    double m_fLoadProgress;
-    int m_iNumInstances;
+    double m_fLoadProgress = 0.0;
+    int m_iNumInstances = 0;
     std::function<void()> m_callback;
 };
