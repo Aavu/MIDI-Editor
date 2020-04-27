@@ -48,6 +48,7 @@ public:
     void paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
     
     std::function<void(PianoRollNote*, int)> changePitch;
+    std::function<void()> hightlightRow;
     
 private:
     

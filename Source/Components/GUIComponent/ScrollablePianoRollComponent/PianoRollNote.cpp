@@ -94,6 +94,7 @@ void PianoRollNote::mouseDrag (const MouseEvent& event)
 void PianoRollNote::mouseEnter(const MouseEvent& event)
 {
     std::cout << "mouse enter: " << m_iRow << std::endl;
+    hightlightRow();
 }
 
 int PianoRollNote::getRow() { return m_iRow; }

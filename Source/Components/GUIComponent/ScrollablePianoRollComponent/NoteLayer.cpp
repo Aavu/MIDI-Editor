@@ -91,6 +91,11 @@ void NoteLayer::addEmptyColumns(int numColumnsToAdd)
     oneColumnTable.getHeader().setColumnWidth(1, m_iInitNoteWidth * m_iCurTimeStamps);
 }
 
+void NoteLayer::highlightRow(int row)
+{
+    // call
+}
+
 void NoteLayer::setPreview(bool ifPreview)
 {
     m_bPreview = ifPreview;
@@ -146,6 +151,22 @@ void NoteLayer::RowComponent::mouseDown (const MouseEvent& event)
     
     if (existingNote->ifInit() == false)   // create a new note
     {
+        // do nothing
+    }
+    else    // add the existing note to selected list
+    {
+        m_Owner.selectOneNote(existingNote);
+    }
+}
+
+void NoteLayer::RowComponent::mouseDoubleClick (const MouseEvent& event)
+{
+    auto* existingNote = static_cast<PianoRollNote*> (event.originalComponent);
+    
+    std::cout << "mouseDown called: " << m_iRow << std::endl;
+    
+    if (existingNote->ifInit() == false)   // create a new note
+    {
         float offset = 1.F*event.getMouseDownX() / m_iBoxWidth;
         offset = (static_cast<int> (offset*2))/2.F; // quantize
         PianoRollNote* newNote = new PianoRollNote(m_iRow,offset);
@@ -162,6 +183,7 @@ void NoteLayer::RowComponent::mouseDown (const MouseEvent& event)
 void NoteLayer::RowComponent::addNote(PianoRollNote* newNote)
 {
     newNote->changePitch = [this] (PianoRollNote* note, int direction) { changePitch(note, direction); };
+    newNote->hightlightRow = [this] () { m_Owner.highlightRow(m_iRow); };
     
     m_Owner.addNote(m_iRow, newNote);
     
@@ -214,6 +236,11 @@ void NoteLayer::RowComponent::mouseWheelMove (const MouseEvent& e, const MouseWh
     
     m_Owner.mouseWheelMove (e.getEventRelativeTo (&m_Owner), wheel_v);
     getParentComponent()->mouseWheelMove(e, wheel_h);
+}
+
+void NoteLayer::RowComponent::mouseEnter(const MouseEvent& event)
+{
+    m_Owner.highlightRow(m_iRow);
 }
 
 void NoteLayer::RowComponent::setPreview(bool ifPreview)

@@ -38,6 +38,8 @@ public:
     
     void addEmptyColumns(int numColumnsToAdd);
     
+    void highlightRow(int row);
+    
     void setPreview(bool ifPreview);
     
     class RowComponent  : public Component
@@ -51,6 +53,8 @@ public:
         
         void mouseDown (const MouseEvent& event) override;
         
+        void mouseDoubleClick (const MouseEvent& event) override;
+        
         void addNote(PianoRollNote* newNote);
         
         void detachNote(PianoRollNote* noteToDetach);
@@ -62,6 +66,8 @@ public:
         void addToSelected(PianoRollNote* noteToAdd);
 
         void mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel) override;
+        
+        void mouseEnter(const MouseEvent& event);
         
         void setPreview(bool ifPreview);
     
