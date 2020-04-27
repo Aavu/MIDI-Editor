@@ -12,19 +12,30 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
-class SfzSynth : public sfzero::Synth
+class SfzLoader;
+
+class SoundFontGeneralMidiSynth : public sfzero::Synth
 {
 public:
-    SfzSynth();
+    SoundFontGeneralMidiSynth();
 
     void handleProgramChange (int iMidiChannel, int iProgram) override ;
 
-    void addSound(sfzero::Sound *pSound);
+    void initSynth(File * pSoundFontFile);
     int getProgramNumber(int iMidiChannel) const;
     juce::String getProgramName(int iProgram) const;
+    void setProgramNumber(int iProgramNum, int iMidiChannel);
+    void resetProgramSelection();
 
 private:
-    sfzero::Sound * getSound(int iMidiChannel) const;
+    void addSound(sfzero::Sound *pSound);
+    sfzero::Sound * getSoundForChannel(int iMidiChannel) const;
+
+    SfzLoader * m_sfzLoader;
+    constexpr static int kiNumVoices = 24;
+    constexpr static int kiNumChannels = 16;
+    constexpr static int kiPercussionChannelNum = 10;
+    constexpr static int kiPercussionSubSoundNum = 247;
 };
 
 
@@ -52,7 +63,7 @@ private:
     AudioFormatManager m_formatManager;
     LoadThread m_loadThread;
     ReferenceCountedArray<sfzero::Sound> m_sounds;
-    double m_fLoadProgress;
-    int m_iNumInstances;
+    double m_fLoadProgress = 0.0;
+    int m_iNumInstances = 0;
     std::function<void()> m_callback;
 };
