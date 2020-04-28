@@ -27,15 +27,16 @@ public:
     void setProgramNumber(int iProgramNum, int iMidiChannel);
     void resetProgramSelection();
 
+    constexpr static int kiNumVoices = 24;
+    constexpr static int kiNumChannels = 16;
+    constexpr static int kiPercussionChannelNum = 10;
+    constexpr static int kiPercussionSubSoundNum = 247;
+
 private:
     void addSound(sfzero::Sound *pSound);
     sfzero::Sound * getSoundForChannel(int iMidiChannel) const;
 
     std::unique_ptr<SfzLoader> m_sfzLoader;
-    constexpr static int kiNumVoices = 24;
-    constexpr static int kiNumChannels = 16;
-    constexpr static int kiPercussionChannelNum = 10;
-    constexpr static int kiPercussionSubSoundNum = 247;
 };
 
 

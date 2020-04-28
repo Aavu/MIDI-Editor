@@ -106,7 +106,7 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
 }
 
 void PlayerComponent::allNotesOff() {
-    for (int i=0; i<16; i++)
+    for (int i=0; i<SoundFontGeneralMidiSynth::kiNumChannels; i++)
         m_synth.allNotesOff(0, true);
 }
 
