@@ -13,47 +13,28 @@ int TrackParameters::m_iNumTracks = 0;
 int TrackParameters::k_iDefaultTrackHeight = 300;
 std::vector<int> TrackParameters::m_aiTrackHeight {};
 
-TrackViewComponent::TrackViewComponent() : m_pPlayHead(std::make_shared<PlayHeadComponent>())
+TrackViewComponent::TrackViewComponent()
 {
 }
 
 void TrackViewComponent::init(PlayerComponent* player) {
-    m_pPlayer = player;
+    // header (tool bar)
     m_header.setColour (TextButton::buttonColourId, Colours::cornflowerblue);
     addAndMakeVisible (m_header);
-
-    m_sidebar.setColour (TextButton::buttonColourId, Colours::grey);
-    addAndMakeVisible (m_sidebar);
-
-    if (m_iNumTracks > 0) {
-        for(int i=0; i<m_iNumTracks; i++) {
-            m_tracks.push_back(new ScrollablePianoRollComponent());
-            addAndMakeVisible (m_tracks[i]);
-            m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
-        }
-    }
-
-    addAndMakeVisible(m_playHeadScroll);
-
-    m_playHeadScroll.childClicked = [&](int data) {
-        handleScrollCallback(data);
-    };
-
-    m_pPlayHead->init();
-
-    addAndMakeVisible(*m_pPlayHead);
     
-    m_pPlayHead->setVisible(false);
+    // sidebar (mute/solo buttons for each track) (not implemented)
+    m_sidebar.setColour (TextButton::buttonColourId, Colours::grey);
+    //addAndMakeVisible (m_sidebar);
+    
+    // pianoroll list
+    m_pianoRollListComp = new PianoRollListComponent();
+    m_pianoRollListComp->init(player);
 
-    startTimer (Globals::GUI::iUpdateInterval_ms);
-
+    addAndMakeVisible(*m_pianoRollListComp);
 }
 
 TrackViewComponent::~TrackViewComponent() {
-    stopTimer();
-    for (int i=0; i<m_iNumTracks; i++) {
-        delete m_tracks[i];
-    }
+    delete m_pianoRollListComp;
 }
 
 void TrackViewComponent::paint(Graphics &g) {
@@ -67,88 +48,31 @@ void TrackViewComponent::resized() {
 
     auto sidebarWidth = Globals::GUI::iSideBarWidth;
     m_sidebar.setBounds (area.removeFromLeft(sidebarWidth));
-    
-    m_pPlayHead->setBounds(sidebarWidth, headerHeight, area.getWidth(), area.getHeight());
 
-    m_playHeadScroll.setBounds(area.removeFromTop(headerHeight));
-
-    m_iTrackViewComponentWidth = area.getWidth() - sidebarWidth;
-    updatePlayHeadPosition();
-
-    for(int i=0; i< m_iNumTracks; i++) {
-        m_tracks.at(i)->setBounds(area.removeFromTop(m_aiTrackHeight.at(i)));
-    }
+    m_iTrackViewComponentWidth = area.getWidth();
+    m_pianoRollListComp->setBounds(area);
 }
 
 int TrackViewComponent::getNumTracks() const {
-    return m_iNumTracks;
+    return m_pianoRollListComp->getNumTracks();
 }
 
 void TrackViewComponent::addTrack(int numTimeStampsForPianoRoll) {
-    m_tracks.push_back(new ScrollablePianoRollComponent(numTimeStampsForPianoRoll));
-    addAndMakeVisible (m_tracks[m_iNumTracks], 0);
-    m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
-    m_iNumTracks++;
+    m_pianoRollListComp->addTrack(numTimeStampsForPianoRoll);
     
-    m_pPlayHead->setVisible(true);
-
     resized();
-}
-
-void TrackViewComponent::timerCallback() {
-    if (!m_pPlayer)
-        return;
-    m_iMaxBufferLength = m_pPlayer->getMaxBufferLength();
-    if (m_iMaxBufferLength > 0) {
-        m_iCurrentPlayHeadPosition = m_pPlayer->getCurrentPosition() * m_iTrackViewComponentWidth / m_iMaxBufferLength;
-//        DBG(m_iCurrentPlayHeadPosition << "\t" << m_pPlayer->getCurrentPosition() << "\t" << m_iTrackViewComponentWidth << "\t" << m_iMaxBufferLength);
-        updatePlayHeadPosition();
-    }
-}
-
-void TrackViewComponent::updatePlayHeadPosition() {
-    auto area = getLocalBounds();
-    auto playHeadPosition = Globals::GUI::iSideBarWidth + Globals::PianoRoll::keyboardWidth + m_iCurrentPlayHeadPosition;
-    m_pPlayHead->setBounds((int)playHeadPosition, Globals::GUI::iHeaderHeight, Globals::GUI::iPlayHeadWidth, area.getHeight());
-}
-
-void TrackViewComponent::handleScrollCallback(int newPositionX) {
-    if (newPositionX < 0)
-        return;
-    auto value = (newPositionX * m_iMaxBufferLength) / m_iTrackViewComponentWidth;
-    m_pPlayer->allNotesOff();
-    m_pPlayer->setCurrentPosition(value);
 }
 
 void TrackViewComponent::setTimeFormat(int timeFormat)
 {
-    m_iTimeFormat = timeFormat;
-    
-    DBG(m_iTimeFormat);
-    
     // currently only allow time stamp ticks - see the documentation of Class MidiFile
-    assert(m_iTimeFormat > 0);
+    assert(timeFormat > 0);
+    
+    m_pianoRollListComp->setTimeFormat(timeFormat);
 }
 
 void TrackViewComponent::convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message)
 {
-    // convert message to the format that the pianoroll component uses
-    auto numEvents = message->getNumEvents();
-    MidiMessageSequence::MidiEventHolder* const * eventHolder = message->begin();
-    MidiMessage msg;
-
-    for (int i = 0; i < numEvents; i++) {
-        msg = eventHolder[i]->message;
-        // convert to Class PianoRollNote and send to NoteLayer
-        if (msg.isNoteOn()) {
-            double timeStamp = msg.getTimeStamp();
-            double timeStampNoteOff = message->getTimeOfMatchingKeyUp(i);
-            int noteNumber = msg.getNoteNumber();
-            uint8 noteVelocity = msg.getVelocity();
-            
-            //DBG(String(timeStamp/m_iTimeFormat) + "\t" + String((timeStampNoteOff-timeStamp+1)/m_iTimeFormat) + "\t" + String(noteNumber));
-            PianoRollNote *newNote = new PianoRollNote(Globals::PianoRoll::midiNoteNum-1-noteNumber, timeStamp/m_iTimeFormat, (timeStampNoteOff-timeStamp+1)/m_iTimeFormat, noteVelocity);
-            m_tracks.at(trackIdx)->addNote(newNote);
-        }
-    }
+    // pass to m_pianoRollListComp
+    m_pianoRollListComp->convertMidiMessageSequence(trackIdx, message);
 }

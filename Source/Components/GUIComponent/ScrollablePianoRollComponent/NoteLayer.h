@@ -67,7 +67,7 @@ public:
 
         void mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel) override;
         
-        void mouseEnter(const MouseEvent& event);
+        void mouseEnter(const MouseEvent& event) override;
         
         void setPreview(bool ifPreview);
     

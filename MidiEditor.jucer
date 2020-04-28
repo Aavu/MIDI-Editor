@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.4">
+<JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.5">
   <MAINGROUP id="bseg78" name="MidiEditor">
     <GROUP id="{4D02D25C-6694-ABA1-B776-755A0F43BA73}" name="Source">
       <FILE id="jSDrYV" name="MainComponentK.cpp" compile="1" resource="0"
@@ -39,6 +39,10 @@
           <FILE id="BGdPh3" name="GUIComponent.cpp" compile="1" resource="0"
                 file="Source/Components/GUIComponent/GUIComponent.cpp"/>
           <FILE id="JltN6Q" name="GUIComponent.h" compile="0" resource="0" file="Source/Components/GUIComponent/GUIComponent.h"/>
+          <FILE id="GYbUDk" name="PianoRollListComponent.cpp" compile="1" resource="0"
+                file="Source/Components/GUIComponent/PianoRollListComponent.cpp"/>
+          <FILE id="JzErAp" name="PianoRollListComponent.h" compile="0" resource="0"
+                file="Source/Components/GUIComponent/PianoRollListComponent.h"/>
         </GROUP>
         <FILE id="Y7XVwc" name="PlayHeadScrollComponent.h" compile="0" resource="0"
               file="Source/Components/PlayHeadScrollComponent.h"/>
