@@ -170,25 +170,25 @@ void MainComponent::handleFileOpen() {
         int timeFormat = m_midiFile.getTimeFormat();
         m_pTrackView->setTimeFormat(timeFormat);
         m_pPlayer->setTimeFormat(timeFormat);
-        
+
+
+        m_midiFile.convertTimestampTicksToSeconds();
         const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
+        MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*sequence);
 
-
-        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(sequence->getEndTime()/timeFormat) + 10);
-        
+        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(sequenceCopy->getEndTime()/timeFormat) + 10);
         m_pTrackView->addTrack(numTimeStampsForPianoRoll);
         // pass the midiFile before timestampticks are converted to seconds
-        m_pTrackView->convertMidiMessageSequence(0, sequence);
+        m_pTrackView->convertMidiMessageSequence(0, sequenceCopy);
         
         // init m_TempoEvents in PlayerComponent
         m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEvents());
-        
+
+
         m_pPlayer->getCurrentPositionInQuarterNotes();
-        
-        // The functions before use ticks as timestamp, not seconds
-        m_midiFile.convertTimestampTicksToSeconds();
+
         m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
-        MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*sequence);
+
         m_pPlayer->setMidiMessageSequence(sequenceCopy);
 
         delete stream;

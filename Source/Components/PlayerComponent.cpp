@@ -110,7 +110,7 @@ void PlayerComponent::fillMidiBuffer(int iNumSamples) {
         if (m_iMidiEventReadIdx < m_iMaxMidiEvents) {
             DBG("--------------------------------");
             msg = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx)->message;
-            DBG("Msg timestamp" << msg.getTimeStamp());
+            DBG("Msg timestamp: " << msg.getTimeStamp());
             auto msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
             DBG("Msg sample num: " << msgSampleNum);
             DBG("ReadIdx: " << m_iMidiEventReadIdx);
@@ -289,7 +289,7 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
             DBG(m_iCurrentPosition << "---" << m_iLastRetrievedPosition << "---" << m_iLastRetrievedPosition - (m_iCurrentPosition+blockSize));
             fillMidiBuffer(blockSize);
         } else {
-            DBG("-----" << (m_iCurrentPosition + blockSize) << "-- " << m_iLastRetrievedPosition);
+//            DBG("-----" << (m_iCurrentPosition + blockSize) << "-- " << m_iLastRetrievedPosition);
         }
 
         m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, blockSize, 0);
