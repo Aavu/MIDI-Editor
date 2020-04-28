@@ -36,6 +36,7 @@ void PianoRollListComponent::init(PlayerComponent* player) {
     addAndMakeVisible(*m_pPlayHead);
     
     m_pPlayHead->setVisible(false);
+    m_playHeadScroll.setVisible(false);
     
 }
 
@@ -56,7 +57,9 @@ void PianoRollListComponent::resized() {
     
     m_pPlayHead->setBounds(0, 0, area.getWidth(), area.getHeight());
     
-    m_playHeadScroll.setBounds(area.removeFromTop(playHeadScrollHeight));
+    m_playHeadScroll.setBounds(Globals::PianoRoll::keyboardWidth, 0, area.getWidth()-Globals::PianoRoll::keyboardWidth, playHeadScrollHeight);
+    
+    area.removeFromTop(playHeadScrollHeight);
     
     m_iPianoRollListComponentWidth = area.getWidth();
     updatePlayHeadPosition();
@@ -77,6 +80,7 @@ void PianoRollListComponent::addTrack(int numTimeStampsForPianoRoll) {
     m_iNumTracks++;
     
     m_pPlayHead->setVisible(true);
+    m_playHeadScroll.setVisible(true);
     
     resized();
     
@@ -104,7 +108,7 @@ void PianoRollListComponent::handleScrollCallback(int newPositionX) {
     m_pPlayer->allNotesOff();
     if (getNumTracks() > 0)
     {
-        double positionByQuarterNote = (newPositionX - m_tracks[0]->getViewPositionX() - Globals::PianoRoll::keyboardWidth)*1.F / m_tracks[0]->getBoxWidth();
+        double positionByQuarterNote = (newPositionX - m_tracks[0]->getViewPositionX())*1.F / m_tracks[0]->getBoxWidth();
         m_pPlayer->setCurrentPositionByQuarterNotes(positionByQuarterNote);
     }
 }

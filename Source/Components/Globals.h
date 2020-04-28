@@ -33,7 +33,7 @@ namespace Globals {
     namespace PianoRoll {
         // piano roll parameters
         const int midiNoteNum = 128;
-        const int initTimeStamps = 30;
+        const int initTimeStamps = 40;
         const int initNoteHeight = 8;
         const int initNoteWidth = 40;
         const int longestNote = 20;
