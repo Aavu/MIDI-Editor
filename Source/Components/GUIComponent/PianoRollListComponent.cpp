@@ -131,13 +131,14 @@ void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const Midi
         // convert to Class PianoRollNote and send to NoteLayer
         if (msg.isNoteOn()) {
             double timeStamp = msg.getTimeStamp();
-            double timeStampNoteOff = message->getTimeOfMatchingKeyUp(i);
+            int idxNoteOff = message->getIndexOfMatchingKeyUp(i);
+            double timeStampNoteOff = message->getEventTime(idxNoteOff);
             int noteNumber = msg.getNoteNumber();
             uint8 noteVelocity = msg.getVelocity();
             
             //DBG(String(timeStamp/m_iTimeFormat) + "\t" + String((timeStampNoteOff-timeStamp+1)/m_iTimeFormat) + "\t" + String(noteNumber));
             
-            PianoRollNote *newNote = new PianoRollNote(Globals::PianoRoll::midiNoteNum-1-noteNumber, timeStamp/m_iTimeFormat, (timeStampNoteOff-timeStamp+1)/m_iTimeFormat, noteVelocity);
+            PianoRollNote *newNote = new PianoRollNote(m_pPlayer, Globals::PianoRoll::midiNoteNum-1-noteNumber, timeStamp/m_iTimeFormat, (timeStampNoteOff-timeStamp+1)/m_iTimeFormat, noteVelocity, i, idxNoteOff);
             
             m_tracks.at(trackIdx)->addNote(newNote);
         }

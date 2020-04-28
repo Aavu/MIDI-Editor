@@ -63,6 +63,8 @@ public:
     
     double getCurrentPositionInQuarterNotes();
     
+    double convertQuarterNoteToSec(double positionInQuarterNotes);
+    
     void setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes);
     
     void setTimeFormat(int timeFormat);
@@ -74,7 +76,7 @@ public:
     void setCurrentPosition(long value);
     void resetCurrentPosition();
 
-    void updateNoteTimestamp(int iEventIndex, double fNewTimestamp);
+    void updateNoteTimestamp(int iEventIndex, double fNewTimestampInQuarterNote);
 
 private:
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");

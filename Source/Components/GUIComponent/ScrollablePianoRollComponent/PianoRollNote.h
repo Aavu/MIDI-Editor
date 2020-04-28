@@ -12,11 +12,13 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "../../Globals.h"
+#include "../../PlayerComponent.h"
 
 // midi message associated with that note
 // TODO: add members and functions later
 class NoteMessage {
-  // empty now
+    // empty for now
+    //  maybe put noteOn and noteOff MidiMessage here
 };
 class SelectedNoteList;
 
@@ -24,7 +26,7 @@ class SelectedNoteList;
 class PianoRollNote: public TextButton, public ComponentBoundsConstrainer
 {
 public:
-    PianoRollNote(int row_n, float offset_n, float length_n = 1, int velocity_n = Globals::PianoRoll::midiNoteNum, NoteMessage *noteMessage_n = 0);
+    PianoRollNote(PlayerComponent* player, int row_n, float offset_n, float length_n = 1, int velocity_n = Globals::PianoRoll::midiNoteNum, int orig_idx_on = -1, int orig_idx_off = -1, NoteMessage *noteMessage_n = 0);
     
     ~PianoRollNote();
     
@@ -53,6 +55,8 @@ public:
 private:
     
     bool                m_bInit = false;
+    int                 m_iOrigIdxOn;                    // index of noteOn in the MidiMessageSequence
+    int                 m_iOrigIdxOff;                   // index of noteOff in the MidiMessageSequence
     int                 m_iRow;                          // midi number (0~127)
     float               m_fOffset;
     float               m_fLength;                      // relative length (1 means 1 quarter note)
@@ -61,6 +65,9 @@ private:
     int                 m_iBoxHeight;
     
     NoteMessage         *m_pNoteMessage;
+    
+    // player
+    PlayerComponent     *m_pPlayer;
     
     // dragger
     ComponentDragger                m_pMyDragger;

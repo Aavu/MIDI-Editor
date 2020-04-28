@@ -151,6 +151,41 @@ MidiMessageSequence& PlayerComponent::getTempoEventsInSecs()
     return m_TempoEventsInSec;
 }
 
+double PlayerComponent::convertQuarterNoteToSec(double positionInQuarterNotes)
+{
+    double positionInSec = 0;
+    if (m_TempoEvents.getNumEvents() > 0)
+    {
+        double target_tick = positionInQuarterNotes * m_iTimeFormat;
+        double cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
+        int st_tick = 0;
+        double st_sec = 0;
+        
+        // m_TempoEvents is sorted by time
+        // m_tempoEventsInSec has the same order as m_TempoEvents
+        for (int i = 1; i < m_TempoEvents.getNumEvents(); i++)
+        {
+            MidiMessage c_message =m_TempoEventsInSec.getEventPointer(i)->message;
+            double c_timeInTick = m_TempoEvents.getEventTime(i);
+            
+            // DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
+            
+            if (target_tick >= c_timeInTick)
+            {
+                cur_tempo = c_message.getTempoSecondsPerQuarterNote();
+                st_tick = c_timeInTick;
+                st_sec = c_message.getTimeStamp();
+            }
+            else
+            {
+                break;
+            }
+        }
+        positionInSec = st_sec + (target_tick-st_tick) * cur_tempo / m_iTimeFormat;
+    }
+    return positionInSec;
+}
+
 double PlayerComponent::getCurrentPositionInQuarterNotes()
 {
     double curPositionInQuarterNotes = 0;
@@ -188,36 +223,7 @@ double PlayerComponent::getCurrentPositionInQuarterNotes()
 
 void PlayerComponent::setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes)
 {
-    double newPositionInSamples = 0;
-    if (m_TempoEvents.getNumEvents() > 0)
-    {
-        double target_tick = newPositionInQuarterNotes * m_iTimeFormat;
-        double cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
-        int st_tick = 0;
-        double st_sec = 0;
-        
-        // m_TempoEvents is sorted by time
-        // m_tempoEventsInSec has the same order as m_TempoEvents
-        for (int i = 1; i < m_TempoEvents.getNumEvents(); i++)
-        {
-            MidiMessage c_message =m_TempoEventsInSec.getEventPointer(i)->message;
-            double c_timeInTick = m_TempoEvents.getEventTime(i);
-            
-            // DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
-            
-            if (target_tick >= c_timeInTick)
-            {
-                cur_tempo = c_message.getTempoSecondsPerQuarterNote();
-                st_tick = c_timeInTick;
-                st_sec = c_message.getTimeStamp();
-            }
-            else
-            {
-                break;
-            }
-        }
-        newPositionInSamples = st_sec * m_fSampleRate + (target_tick-st_tick) * m_fSampleRate * cur_tempo / m_iTimeFormat;
-    }
+    double newPositionInSamples = convertQuarterNoteToSec(newPositionInQuarterNotes) * m_fSampleRate;
     m_iCurrentPosition = static_cast<long>(newPositionInSamples);
     return;
 }
@@ -309,14 +315,18 @@ void PlayerComponent::resetCurrentPosition() {
     setCurrentPosition(0);
 }
 
-void PlayerComponent::updateNoteTimestamp(int iEventIndex, double fNewTimestamp) {
-    auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx);
+void PlayerComponent::updateNoteTimestamp(int iEventIndex, double fNewTimestampInQuarterNote) {
+    double fNewTimestamp = convertQuarterNoteToSec(fNewTimestampInQuarterNote);
+    
+    auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(iEventIndex);
     DBG("-------------updateNoteTimestamp--------------------");
-    DBG(pEventAtReadIdx->message.getDescription());
+    DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
     m_midiMessageSequence->getEventPointer(iEventIndex)->message.setTimeStamp(fNewTimestamp);
     m_midiMessageSequence->sort();
-    DBG(pEventAtReadIdx->message.getDescription());
-    m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx);
+    DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
+    
+    //m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx); // why do you change that?
+    
     DBG("----------------------------------------------------");
 }
 
