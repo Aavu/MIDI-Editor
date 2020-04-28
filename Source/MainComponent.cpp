@@ -171,8 +171,13 @@ void MainComponent::handleFileOpen() {
         m_pTrackView->setTimeFormat(timeFormat);
         m_pPlayer->setTimeFormat(timeFormat);
 
+        // init m_TempoEvents in PlayerComponent
+        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEvents());
 
         m_midiFile.convertTimestampTicksToSeconds();
+        
+        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
+        
         const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
         MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*sequence);
 
@@ -180,14 +185,8 @@ void MainComponent::handleFileOpen() {
         m_pTrackView->addTrack(numTimeStampsForPianoRoll);
         // pass the midiFile before timestampticks are converted to seconds
         m_pTrackView->convertMidiMessageSequence(0, sequenceCopy);
-        
-        // init m_TempoEvents in PlayerComponent
-        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEvents());
-
 
         m_pPlayer->getCurrentPositionInQuarterNotes();
-
-        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
 
         m_pPlayer->setMidiMessageSequence(sequenceCopy);
 
