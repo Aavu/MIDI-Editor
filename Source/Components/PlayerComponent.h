@@ -32,7 +32,7 @@ public:
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill);
 
-    void setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq);
+    void setMidiMessageSequence(MidiMessageSequence* midiMsgSeq);
     void play();
     void pause();
     void stop();
@@ -66,23 +66,24 @@ public:
     }
 
     void setCurrentPosition(long value);
-
     void resetCurrentPosition();
+
+    void updateNoteTimestamp(int iEventIndex, double fNewTimestamp);
 
 private:
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
 
     void initSynth();
 
-    void addMessageToBuffer(const MidiMessage& message);
-    void addAllSequenceMessagesToBuffer();
+    //void addMessageToBuffer(const MidiMessage& message);
+    //void addAllSequenceMessagesToBuffer();
     void fillMidiBuffer(int iNumSamples);
 
     long m_iMaxBufferLength = 0;
 
     unsigned int BPM = 120;
 
-    const MidiMessageSequence* m_midiMessageSequence = nullptr;
+    MidiMessageSequence* m_midiMessageSequence = nullptr;
     MidiMessageSequence::MidiEventHolder * const * m_midiEventHolder = nullptr;
     int m_iMidiEventReadIdx = 0;
     int m_iMaxMidiEvents = 0;

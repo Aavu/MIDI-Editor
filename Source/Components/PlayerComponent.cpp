@@ -76,14 +76,16 @@ void PlayerComponent::initSynth() {
 //}
 
 void PlayerComponent::fillMidiBuffer(int iNumSamples) {
-    //DBG("----PlayerComponent::fillMidiBuffer--------------------------------");
+    DBG("----PlayerComponent::fillMidiBuffer--------------------------------");
     MidiMessage msg;
-
+    DBG("Max midi events: " << m_iMaxMidiEvents);
     // Retrieve samples to fill at least one next block
     while(m_iLastRetrievedPosition < (m_iCurrentPosition + iNumSamples)) {
         if (m_iMidiEventReadIdx < m_iMaxMidiEvents) {
             msg = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx)->message;
+            DBG(msg.getTimeStamp());
             auto msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
+            DBG(msgSampleNum << "==" << m_iMidiEventReadIdx);
             m_midiBuffer.addEvent(msg, msgSampleNum);
             m_iLastRetrievedPosition = msgSampleNum;
             m_iMidiEventReadIdx++;
@@ -96,15 +98,15 @@ void PlayerComponent::fillMidiBuffer(int iNumSamples) {
 }
 
 
-void PlayerComponent::setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq) {
+void PlayerComponent::setMidiMessageSequence(MidiMessageSequence* midiMsgSeq) {
     m_midiMessageSequence = midiMsgSeq;
-    // m_midiMessageSequence->sort(); //TODO: Need to remove const to be able to sort
+    m_midiMessageSequence->sort();
 
     m_iMidiEventReadIdx = 0;
     m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
 
     m_midiBuffer.clear();
-    m_iMaxBufferLength = m_midiMessageSequence->getEndTime() * m_fSampleRate;
+    m_iMaxBufferLength = static_cast<long>(m_midiMessageSequence->getEndTime() * m_fSampleRate);
 
 }
 
@@ -149,7 +151,7 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
             DBG(m_iCurrentPosition << "---" << m_iLastRetrievedPosition << "---" << m_iLastRetrievedPosition - (m_iCurrentPosition+blockSize));
             fillMidiBuffer(blockSize);
         } else
-            DBG("-----");
+            DBG("-----" << (m_iCurrentPosition + blockSize) << "-- "<< m_iLastRetrievedPosition);
 
         m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, blockSize, 0);
         m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, blockSize);
@@ -175,6 +177,17 @@ void PlayerComponent::setCurrentPosition(long value) {
 
 void PlayerComponent::resetCurrentPosition() {
     setCurrentPosition(0);
+}
+
+void PlayerComponent::updateNoteTimestamp(int iEventIndex, double fNewTimestamp) {
+    auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx);
+    DBG("-------------updateNoteTimestamp--------------------");
+    DBG(pEventAtReadIdx->message.getDescription());
+    m_midiMessageSequence->getEventPointer(iEventIndex)->message.setTimeStamp(fNewTimestamp);
+    m_midiMessageSequence->sort();
+    DBG(pEventAtReadIdx->message.getDescription());
+    m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx);
+    DBG("----------------------------------------------------");
 }
 
 String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {

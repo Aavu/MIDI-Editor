@@ -171,7 +171,8 @@ void MainComponent::handleFileOpen() {
         m_pTrackView->setTimeFormat(timeFormat);
         
         const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
-        
+
+
         int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(sequence->getEndTime()/timeFormat) + 10);
         
         m_pTrackView->addTrack(numTimeStampsForPianoRoll);
@@ -179,8 +180,9 @@ void MainComponent::handleFileOpen() {
         m_pTrackView->convertMidiMessageSequence(0, sequence);
         
         m_midiFile.convertTimestampTicksToSeconds();
+        MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*sequence);
 
-        m_pPlayer->setMidiMessageSequence(sequence);
+        m_pPlayer->setMidiMessageSequence(sequenceCopy);
         delete stream;
     }
 }
