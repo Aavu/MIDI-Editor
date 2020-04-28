@@ -139,7 +139,7 @@ void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const Midi
             //DBG(String(timeStamp/m_iTimeFormat) + "\t" + String((timeStampNoteOff-timeStamp+1)/m_iTimeFormat) + "\t" + String(noteNumber));
             
             PianoRollNote *newNote = new PianoRollNote(m_pPlayer, Globals::PianoRoll::midiNoteNum-1-noteNumber,
-                                                       static_cast<float>(timeStamp), static_cast<float>(timeStampNoteOff-timeStamp+1), noteVelocity, i, idxNoteOff);
+                                                       static_cast<float>(timeStamp), static_cast<float>(timeStampNoteOff-timeStamp), noteVelocity, i, idxNoteOff);
             
             m_tracks.at(trackIdx)->addNote(newNote);
         }
