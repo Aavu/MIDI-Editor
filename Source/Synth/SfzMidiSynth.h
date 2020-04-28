@@ -27,15 +27,16 @@ public:
     void setProgramNumber(int iProgramNum, int iMidiChannel);
     void resetProgramSelection();
 
-private:
-    void addSound(sfzero::Sound *pSound);
-    sfzero::Sound * getSoundForChannel(int iMidiChannel) const;
-
-    SfzLoader * m_sfzLoader;
     constexpr static int kiNumVoices = 24;
     constexpr static int kiNumChannels = 16;
     constexpr static int kiPercussionChannelNum = 10;
     constexpr static int kiPercussionSubSoundNum = 247;
+
+private:
+    void addSound(sfzero::Sound *pSound);
+    sfzero::Sound * getSoundForChannel(int iMidiChannel) const;
+
+    std::unique_ptr<SfzLoader> m_sfzLoader;
 };
 
 
@@ -56,7 +57,7 @@ private:
         explicit LoadThread(SfzLoader *pSfzLoader);
         void run() override;
     private:
-        SfzLoader *m_pSfzLoader;
+        SfzLoader * m_pSfzLoader;
     };
 
     File m_sfzFile;
@@ -65,5 +66,5 @@ private:
     ReferenceCountedArray<sfzero::Sound> m_sounds;
     double m_fLoadProgress = 0.0;
     int m_iNumInstances = 0;
-    std::function<void()> m_callback;
+    std::function<void()> m_callback = nullptr;
 };
