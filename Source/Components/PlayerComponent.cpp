@@ -320,7 +320,7 @@ void PlayerComponent::resetCurrentPosition() {
 void PlayerComponent::moveNote(int iNoteOnEventIndex, double fNewTimestampInQuarterNote) {
     DBG("-------------updateNoteTimestamp--------------------");
 
-    auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(iNoteOnEventIndex); // To maintain read index after sort
+    auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx); // To maintain read index after sort
     DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
 
     // Get noteOn and noteOff events
