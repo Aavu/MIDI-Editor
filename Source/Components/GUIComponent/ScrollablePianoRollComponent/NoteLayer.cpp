@@ -102,6 +102,13 @@ void NoteLayer::setPreview(bool ifPreview)
     oneColumnTable.repaint();
 }
 
+int NoteLayer::getViewPositionX()
+{
+    return oneColumnTable.getViewport()->getViewPositionX();
+}
+
+
+
 NoteLayer::RowComponent::RowComponent (NoteLayer& lb, int row_n, int col_n, int tickNum, int curNoteWidth, int curNoteHeight, bool preview_n) : m_Owner (lb), m_iRow(row_n)
 {
     m_iBoxWidth = curNoteWidth;
@@ -247,9 +254,3 @@ void NoteLayer::RowComponent::setPreview(bool ifPreview)
 {
     m_bPreview = ifPreview;
 }
-
-
-
-
-
-

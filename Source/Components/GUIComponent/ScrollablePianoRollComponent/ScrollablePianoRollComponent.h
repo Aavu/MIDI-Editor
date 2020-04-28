@@ -54,6 +54,8 @@ public:
     
     //==============================================================================
     void setPreview(bool ifPreview);
+
+    int getViewPositionX();
     
     // This little function avoids a bit of code-duplication by adding a component to
     // our list as well as calling addAndMakeVisible on it..
@@ -86,6 +88,8 @@ public:
     void addNote(PianoRollNote *newNote);
     
     void setPreview(bool ifPreview);
+    
+    int getViewPositionX();
 
 private:
 

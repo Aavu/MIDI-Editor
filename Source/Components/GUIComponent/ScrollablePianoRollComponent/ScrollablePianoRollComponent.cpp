@@ -77,6 +77,11 @@ void PianoRollComponent::setPreview(bool ifPreview)
     m_pKeyboardComponent->setPreview(ifPreview);
 }
 
+int PianoRollComponent::getViewPositionX()
+{
+    return -m_pNoteLayer->getViewPositionX();
+}
+
 template <typename ComponentType>
 ComponentType* PianoRollComponent::addToList (ComponentType* newComp)
 {
@@ -122,4 +127,9 @@ void ScrollablePianoRollComponent::setPreview(bool ifPreview)
 {
     m_bPreview = ifPreview;
     m_Cpn.setPreview(ifPreview);
+}
+
+int ScrollablePianoRollComponent::getViewPositionX()
+{
+    return m_Cpn.getViewPositionX();
 }

@@ -139,7 +139,7 @@ double PlayerComponent::getCurrentPositionInQuarterNotes()
             MidiMessage c_message =m_TempoEvents.getEventPointer(i)->message;
             double c_tempo = c_message.getTempoSecondsPerQuarterNote();
             double c_timeInSec = convertTicksToSeconds (c_message.getTimeStamp(), m_TempoEvents, m_iTimeFormat);
-            DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
+            // DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
             if (cur_time >= c_timeInSec)
             {
                 cur_tempo = c_tempo;

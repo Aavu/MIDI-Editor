@@ -42,6 +42,8 @@ public:
     
     void setPreview(bool ifPreview);
     
+    int getViewPositionX();
+    
     class RowComponent  : public Component
     {
     public:

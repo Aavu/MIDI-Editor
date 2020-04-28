@@ -37,8 +37,6 @@ void PianoRollListComponent::init(PlayerComponent* player) {
     
     m_pPlayHead->setVisible(false);
     
-    startTimer (Globals::GUI::iUpdateInterval_ms);
-    
 }
 
 PianoRollListComponent::~PianoRollListComponent() {
@@ -81,6 +79,8 @@ void PianoRollListComponent::addTrack(int numTimeStampsForPianoRoll) {
     m_pPlayHead->setVisible(true);
     
     resized();
+    
+    startTimer (Globals::GUI::iUpdateInterval_ms);
 }
 
 void PianoRollListComponent::timerCallback() {
@@ -92,7 +92,7 @@ void PianoRollListComponent::timerCallback() {
 //        //        DBG(m_iCurrentPlayHeadPosition << "\t" << m_pPlayer->getCurrentPosition() << "\t" << m_iTrackViewComponentWidth << "\t" << m_iMaxBufferLength);
 //        updatePlayHeadPosition();
 //    }
-    m_iCurrentPlayHeadPosition = m_pPlayer->getCurrentPositionInQuarterNotes()*40;
+    m_iCurrentPlayHeadPosition = m_pPlayer->getCurrentPositionInQuarterNotes()*40 + m_tracks.at(0)->getViewPositionX();
     updatePlayHeadPosition();
 }
 
@@ -137,7 +137,9 @@ void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const Midi
             uint8 noteVelocity = msg.getVelocity();
             
             //DBG(String(timeStamp/m_iTimeFormat) + "\t" + String((timeStampNoteOff-timeStamp+1)/m_iTimeFormat) + "\t" + String(noteNumber));
+            
             PianoRollNote *newNote = new PianoRollNote(Globals::PianoRoll::midiNoteNum-1-noteNumber, timeStamp/m_iTimeFormat, (timeStampNoteOff-timeStamp+1)/m_iTimeFormat, noteVelocity);
+            
             m_tracks.at(trackIdx)->addNote(newNote);
         }
     }
