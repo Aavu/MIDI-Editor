@@ -76,15 +76,17 @@ public:
     void setCurrentPosition(long value);
     void resetCurrentPosition();
 
-    void moveNote(int iNoteOnEventIndex, double fNewTimestampInQuarterNote);
+    /*
+     * Changes noteOn and noteOff timestamps.
+     * Duration is set to fNoteDurationInQuarterNote if provided, else it is kept the same.
+     */
+    void updateNoteTimestamps(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNote, double fNoteDurationInQuarterNote = -1);
+    void updateNotePitch(int iNoteOnEventIndex, int iNewNoteNumber);
 
 private:
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
 
     void initSynth();
-
-    //void addMessageToBuffer(const MidiMessage& message);
-    //void addAllSequenceMessagesToBuffer();
     void fillMidiBuffer(int iNumSamples);
 
     long m_iMaxBufferLength = 0;

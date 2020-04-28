@@ -317,7 +317,7 @@ void PlayerComponent::resetCurrentPosition() {
     setCurrentPosition(0);
 }
 
-void PlayerComponent::moveNote(int iNoteOnEventIndex, double fNewTimestampInQuarterNote) {
+void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNote, double fNoteDurationInQuarterNote /*= -1*/) {
     DBG("-------------updateNoteTimestamp--------------------");
 
     auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx); // To maintain read index after sort
@@ -328,12 +328,16 @@ void PlayerComponent::moveNote(int iNoteOnEventIndex, double fNewTimestampInQuar
     auto * pNoteOffEvent = m_midiMessageSequence->getEventPointer(m_midiMessageSequence->getIndexOfMatchingKeyUp(iNoteOnEventIndex));
 
     // Update timestamps for both noteOn and noteOff
-    auto fNoteDuration = pNoteOffEvent->message.getTimeStamp() - pNoteOnEvent->message.getTimeStamp();
-    auto fNewTimestamp = convertQuarterNoteToSec(fNewTimestampInQuarterNote);
-    pNoteOnEvent->message.setTimeStamp(fNewTimestamp);
-    pNoteOffEvent->message.setTimeStamp(fNewTimestamp + fNoteDuration);
+    auto fNewNoteOnTimestamp = convertQuarterNoteToSec(fNewNoteOnTimestampInQuarterNote);
+    double fNoteDuration;
+    if (fNoteDurationInQuarterNote == -1) // keep duration same as before
+        fNoteDuration = pNoteOffEvent->message.getTimeStamp() - pNoteOnEvent->message.getTimeStamp();
+    else
+        fNoteDuration = convertQuarterNoteToSec(fNewNoteOnTimestamp);
+    pNoteOnEvent->message.setTimeStamp(fNewNoteOnTimestamp);
+    pNoteOffEvent->message.setTimeStamp(fNewNoteOnTimestamp + fNoteDuration);
 
-
+    // Re-order MidiMessageSeuence
     m_midiMessageSequence->updateMatchedPairs(); //TODO: Are both updateMatchedPairs and sort required ???
     m_midiMessageSequence->sort();
 
@@ -342,6 +346,10 @@ void PlayerComponent::moveNote(int iNoteOnEventIndex, double fNewTimestampInQuar
     m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx); // why do you change that?
     
     DBG("----------------------------------------------------");
+}
+
+void PlayerComponent::updateNotePitch(int iNoteOnEventIndex, int iNewNoteNumber) {
+
 }
 
 String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {
