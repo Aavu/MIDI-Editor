@@ -187,12 +187,8 @@ void MainComponent::handleFileOpen() {
         
         // The functions before use ticks as timestamp, not seconds
         m_midiFile.convertTimestampTicksToSeconds();
-
-        //m_pPlayer->setMidiMessageSequence(sequence); // comment the original midisequence
         m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
-
         MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*sequence);
-
         m_pPlayer->setMidiMessageSequence(sequenceCopy);
 
         delete stream;

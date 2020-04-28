@@ -69,6 +69,12 @@ void PianoRollNote::mouseDown (const MouseEvent& event)
     m_pMyDragger.startDraggingComponent (this, event);
 }
 
+void PianoRollNote::mouseUp (const MouseEvent& event)
+{
+    // getParentComponent()->mouseUp(event);
+    m_pPlayer->updateNoteTimestamps(m_iOrigIdxOn, m_fOffset, m_fLength);
+}
+
 void PianoRollNote::mouseDrag (const MouseEvent& event)
 {
     m_pMyDragger.dragComponent (this, event, m_pConstrainer);
@@ -81,8 +87,8 @@ void PianoRollNote::mouseDrag (const MouseEvent& event)
         m_pConstrainer->setMinimumOnscreenAmounts (getHeight(), getWidth(), getHeight(), getWidth());
         
         // update player
-        m_pPlayer->updateNoteTimestamp(m_iOrigIdxOn, m_fOffset);
-        m_pPlayer->updateNoteTimestamp(m_iOrigIdxOff, m_fOffset + m_fLength);
+        //m_pPlayer->moveNote(m_iOrigIdxOn, m_fOffset);
+        //m_pPlayer->updateNoteTimestamp(m_iOrigIdxOff, m_fOffset + m_fLength);
     }
     if (event.getPosition().getY() < 0 && m_iRow > 0)
     {

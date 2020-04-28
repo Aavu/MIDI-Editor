@@ -45,48 +45,36 @@ public:
         Stopped
     };
 
-    PlayState getPlayState() {
-        return m_playState;
-    }
-
-    long getCurrentPosition() {
-        return m_iCurrentPosition;
-    }
-
-    double getSampleRate() {
-        return m_fSampleRate;
-    }
+    PlayState getPlayState() {return m_playState;}
+    long getCurrentPosition() {return m_iCurrentPosition;}
+    double getSampleRate() {return m_fSampleRate;}
+    long getMaxBufferLength() {return m_iMaxBufferLength;}
     
     MidiMessageSequence& getTempoEvents();
-    
     MidiMessageSequence& getTempoEventsInSecs();
-    
     double getCurrentPositionInQuarterNotes();
-    
     double convertQuarterNoteToSec(double positionInQuarterNotes);
-    
     double convertSecToQuarterNote(double positionInSec);
     
     void setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes);
-    
     void setTimeFormat(int timeFormat);
-
-    long getMaxBufferLength() {
-        return m_iMaxBufferLength;
-    }
 
     void setCurrentPosition(long value);
     void resetCurrentPosition();
 
-    void updateNoteTimestamp(int iEventIndex, double fNewTimestampInQuarterNote);
+    /*
+     * Changes noteOn and noteOff timestamps.
+     * Duration is set to fNoteDurationInQuarterNote if provided, else it is kept the same.
+     */
+    void updateNoteTimestamps(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes = -1);
+    void updateNotePitch(int iNoteOnEventIndex, int iNewNoteNumber);
+    // void addNote() // TODO: Define
+    // void deleteNote(int iNoteOnEventIndex) // TODO: Define
 
 private:
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
 
     void initSynth();
-
-    //void addMessageToBuffer(const MidiMessage& message);
-    //void addAllSequenceMessagesToBuffer();
     void fillMidiBuffer(int iNumSamples);
 
     long m_iMaxBufferLength = 0;
