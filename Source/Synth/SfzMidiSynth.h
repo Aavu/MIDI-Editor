@@ -56,7 +56,7 @@ private:
         explicit LoadThread(SfzLoader *pSfzLoader);
         void run() override;
     private:
-        std::unique_ptr<SfzLoader> m_pSfzLoader;
+        SfzLoader * m_pSfzLoader;
     };
 
     File m_sfzFile;
