@@ -131,12 +131,15 @@ MidiMessageSequence& PlayerComponent::getTempoEventsInSecs()
 double PlayerComponent::getCurrentPositionInQuarterNotes()
 {
     double curPositionInQuarterNotes = 0;
+    
+    double target_sec = m_iCurrentPosition/m_fSampleRate;
+    double cur_tempo = 60.F / 120; // use the default tempo 120
+    int st_tick = 0;
+    double st_sec = 0;
+    
     if (m_TempoEvents.getNumEvents() > 0)
     {
-        double target_sec = m_iCurrentPosition/m_fSampleRate;
-        double cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
-        int st_tick = 0;
-        double st_sec = 0;
+        cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
         
         // m_TempoEvents is sorted by time
         // m_tempoEventsInSec has the same order as m_TempoEvents
@@ -158,20 +161,24 @@ double PlayerComponent::getCurrentPositionInQuarterNotes()
                 break;
             }
         }
-        curPositionInQuarterNotes = st_tick / m_iTimeFormat + (target_sec-st_sec) / cur_tempo;
     }
+    curPositionInQuarterNotes = st_tick*1.F / m_iTimeFormat + (target_sec-st_sec) / cur_tempo;
+    // DBG(String(st_tick) + " " + String(m_iTimeFormat) + " " + String(target_sec-st_sec) + " " + String(cur_tempo));
     return curPositionInQuarterNotes;
 }
 
 void PlayerComponent::setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes)
 {
     double newPositionInSamples = 0;
+    double target_tick = newPositionInQuarterNotes * m_iTimeFormat;
+    double cur_tempo = 60.F / 120; // use the default tempo 120
+    int st_tick = 0;
+    double st_sec = 0;
+    
     if (m_TempoEvents.getNumEvents() > 0)
     {
-        double target_tick = newPositionInQuarterNotes * m_iTimeFormat;
-        double cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
-        int st_tick = 0;
-        double st_sec = 0;
+        // update initial tempo
+        cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
         
         // m_TempoEvents is sorted by time
         // m_tempoEventsInSec has the same order as m_TempoEvents
@@ -193,8 +200,8 @@ void PlayerComponent::setCurrentPositionByQuarterNotes(double newPositionInQuart
                 break;
             }
         }
-        newPositionInSamples = st_sec * m_fSampleRate + (target_tick-st_tick) * m_fSampleRate * cur_tempo / m_iTimeFormat;
     }
+    newPositionInSamples = st_sec * m_fSampleRate + (target_tick-st_tick) * m_fSampleRate * cur_tempo / m_iTimeFormat;
     m_iCurrentPosition = static_cast<long>(newPositionInSamples);
     return;
 }
