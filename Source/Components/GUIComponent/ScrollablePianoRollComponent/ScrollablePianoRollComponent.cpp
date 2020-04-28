@@ -82,6 +82,16 @@ int PianoRollComponent::getViewPositionX()
     return -m_pNoteLayer->getViewPositionX();
 }
 
+int PianoRollComponent::getBoxWidth()
+{
+    return m_pNoteLayer->getBoxWidth();
+}
+
+int PianoRollComponent::getBoxHeight()
+{
+    return m_pNoteLayer->getBoxHeight();
+}
+
 template <typename ComponentType>
 ComponentType* PianoRollComponent::addToList (ComponentType* newComp)
 {
@@ -132,4 +142,14 @@ void ScrollablePianoRollComponent::setPreview(bool ifPreview)
 int ScrollablePianoRollComponent::getViewPositionX()
 {
     return m_Cpn.getViewPositionX();
+}
+
+int ScrollablePianoRollComponent::getBoxWidth()
+{
+    return m_Cpn.getBoxWidth();
+}
+
+int ScrollablePianoRollComponent::getBoxHeight()
+{
+    return m_Cpn.getBoxHeight();
 }

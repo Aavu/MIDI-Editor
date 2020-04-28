@@ -86,13 +86,9 @@ void PianoRollListComponent::addTrack(int numTimeStampsForPianoRoll) {
 void PianoRollListComponent::timerCallback() {
     if (!m_pPlayer)
         return;
-    //m_iMaxBufferLength = m_pPlayer->getMaxBufferLength();
-//    if (m_iMaxBufferLength > 0) {
-//        m_iCurrentPlayHeadPosition = m_pPlayer->getCurrentPosition() * m_iPianoRollListComponentWidth / m_iMaxBufferLength;
-//        //        DBG(m_iCurrentPlayHeadPosition << "\t" << m_pPlayer->getCurrentPosition() << "\t" << m_iTrackViewComponentWidth << "\t" << m_iMaxBufferLength);
-//        updatePlayHeadPosition();
-//    }
-    m_iCurrentPlayHeadPosition = m_pPlayer->getCurrentPositionInQuarterNotes()*40 + m_tracks.at(0)->getViewPositionX();
+    m_iCurrentPlayHeadPosition = m_pPlayer->getCurrentPositionInQuarterNotes()*m_tracks.at(0)->getBoxWidth() + m_tracks.at(0)->getViewPositionX();
+    if (m_iCurrentPlayHeadPosition < 0)
+        m_iCurrentPlayHeadPosition = -1;
     updatePlayHeadPosition();
 }
 
@@ -105,9 +101,12 @@ void PianoRollListComponent::updatePlayHeadPosition() {
 void PianoRollListComponent::handleScrollCallback(int newPositionX) {
     if (newPositionX < 0)
         return;
-    auto value = (newPositionX * m_iMaxBufferLength) / m_iPianoRollListComponentWidth;
     m_pPlayer->allNotesOff();
-    m_pPlayer->setCurrentPosition(value);
+    if (getNumTracks() > 0)
+    {
+    double positionByQuarterNote = (newPositionX - m_tracks[0]->getViewPositionX() - Globals::PianoRoll::keyboardWidth)*1.F / m_tracks[0]->getBoxWidth();
+    m_pPlayer->setCurrentPositionByQuarterNotes(positionByQuarterNote);
+    }
 }
 
 void PianoRollListComponent::setTimeFormat(int timeFormat)

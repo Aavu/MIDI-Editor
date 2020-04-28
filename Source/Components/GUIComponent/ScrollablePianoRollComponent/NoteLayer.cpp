@@ -107,6 +107,16 @@ int NoteLayer::getViewPositionX()
     return oneColumnTable.getViewport()->getViewPositionX();
 }
 
+int NoteLayer::getBoxWidth()
+{
+    return static_cast<int>(m_fFacNoteWidth*m_iInitNoteWidth);
+}
+
+int NoteLayer::getBoxHeight()
+{
+    return static_cast<int>(m_fFacNoteHeight*m_iInitNoteHeight);
+}
+
 
 
 NoteLayer::RowComponent::RowComponent (NoteLayer& lb, int row_n, int col_n, int tickNum, int curNoteWidth, int curNoteHeight, bool preview_n) : m_Owner (lb), m_iRow(row_n)

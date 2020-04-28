@@ -22,7 +22,7 @@ namespace Globals {
     namespace GUI {
         static constexpr int iUpdateInterval_ms = 20;
         
-        static constexpr int iPlayHeadWidth     = 2;
+        static constexpr int iPlayHeadWidth     = 3;
         
         // remove side bar for now (since there is only one track)
         static constexpr int iSideBarWidth      = 0;

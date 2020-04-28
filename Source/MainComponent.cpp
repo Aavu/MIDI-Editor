@@ -187,6 +187,7 @@ void MainComponent::handleFileOpen() {
         // The functions before use ticks as timestamp, not seconds
         m_midiFile.convertTimestampTicksToSeconds();
         m_pPlayer->setMidiMessageSequence(sequence);
+        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
         delete stream;
     }
 }

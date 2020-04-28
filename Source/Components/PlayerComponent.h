@@ -59,7 +59,11 @@ public:
     
     MidiMessageSequence& getTempoEvents();
     
+    MidiMessageSequence& getTempoEventsInSecs();
+    
     double getCurrentPositionInQuarterNotes();
+    
+    void setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes);
     
     void setTimeFormat(int timeFormat);
 
@@ -83,7 +87,8 @@ private:
 
     double m_fTempo = 120;
     int m_iTimeFormat;
-    MidiMessageSequence m_TempoEvents;
+    MidiMessageSequence m_TempoEvents;          // timestamp in ticks
+    MidiMessageSequence m_TempoEventsInSec;     // timestamp in seconds
 
     const MidiMessageSequence* m_midiMessageSequence = nullptr;
     MidiBuffer m_midiBuffer;

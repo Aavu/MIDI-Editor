@@ -44,6 +44,10 @@ public:
     
     int getViewPositionX();
     
+    int getBoxWidth();
+    
+    int getBoxHeight();
+    
     class RowComponent  : public Component
     {
     public:

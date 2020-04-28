@@ -123,26 +123,33 @@ MidiMessageSequence& PlayerComponent::getTempoEvents()
     return m_TempoEvents;
 }
 
+MidiMessageSequence& PlayerComponent::getTempoEventsInSecs()
+{
+    return m_TempoEventsInSec;
+}
+
 double PlayerComponent::getCurrentPositionInQuarterNotes()
 {
-    double curPositionInQuarterNotes = 10;
+    double curPositionInQuarterNotes = 0;
     if (m_TempoEvents.getNumEvents() > 0)
     {
-        double cur_time = m_iCurrentPosition/m_fSampleRate;
+        double target_sec = m_iCurrentPosition/m_fSampleRate;
         double cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
         int st_tick = 0;
-        int st_sec = 0;
+        double st_sec = 0;
         
-        // assume it is sorted
+        // m_TempoEvents is sorted by time
+        // m_tempoEventsInSec has the same order as m_TempoEvents
         for (int i = 1; i < m_TempoEvents.getNumEvents(); i++)
         {
             MidiMessage c_message =m_TempoEvents.getEventPointer(i)->message;
-            double c_tempo = c_message.getTempoSecondsPerQuarterNote();
-            double c_timeInSec = convertTicksToSeconds (c_message.getTimeStamp(), m_TempoEvents, m_iTimeFormat);
+            double c_timeInSec = m_TempoEventsInSec.getEventTime(i);
+            
             // DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
-            if (cur_time >= c_timeInSec)
+            
+            if (target_sec >= c_timeInSec)
             {
-                cur_tempo = c_tempo;
+                cur_tempo = c_message.getTempoSecondsPerQuarterNote();
                 st_tick = c_message.getTimeStamp();
                 st_sec = c_timeInSec;
             }
@@ -151,9 +158,45 @@ double PlayerComponent::getCurrentPositionInQuarterNotes()
                 break;
             }
         }
-        curPositionInQuarterNotes = st_tick / m_iTimeFormat + (cur_time-st_sec) / cur_tempo;
+        curPositionInQuarterNotes = st_tick / m_iTimeFormat + (target_sec-st_sec) / cur_tempo;
     }
     return curPositionInQuarterNotes;
+}
+
+void PlayerComponent::setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes)
+{
+    double newPositionInSamples = 0;
+    if (m_TempoEvents.getNumEvents() > 0)
+    {
+        double target_tick = newPositionInQuarterNotes * m_iTimeFormat;
+        double cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
+        int st_tick = 0;
+        double st_sec = 0;
+        
+        // m_TempoEvents is sorted by time
+        // m_tempoEventsInSec has the same order as m_TempoEvents
+        for (int i = 1; i < m_TempoEvents.getNumEvents(); i++)
+        {
+            MidiMessage c_message =m_TempoEventsInSec.getEventPointer(i)->message;
+            double c_timeInTick = m_TempoEvents.getEventTime(i);
+            
+            // DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
+            
+            if (target_tick >= c_timeInTick)
+            {
+                cur_tempo = c_message.getTempoSecondsPerQuarterNote();
+                st_tick = c_timeInTick;
+                st_sec = c_message.getTimeStamp();
+            }
+            else
+            {
+                break;
+            }
+        }
+        newPositionInSamples = st_sec * m_fSampleRate + (target_tick-st_tick) * m_fSampleRate * cur_tempo / m_iTimeFormat;
+    }
+    m_iCurrentPosition = static_cast<long>(newPositionInSamples);
+    return;
 }
 
 void PlayerComponent::setTimeFormat(int timeFormat)
