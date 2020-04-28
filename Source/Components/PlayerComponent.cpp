@@ -318,7 +318,7 @@ void PlayerComponent::resetCurrentPosition() {
 }
 
 void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNote, double fNoteDurationInQuarterNote /*= -1*/) {
-    DBG("-------------updateNoteTimestamp--------------------");
+    DBG("-------------updateNoteTimestamps--------------------");
 
     auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx); // To maintain read index after sort
     DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
@@ -344,11 +344,18 @@ void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNot
     // Set read index back to correct position after re-ordering.
     DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
     m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx); // why do you change that?
-    
+
     DBG("----------------------------------------------------");
 }
 
 void PlayerComponent::updateNotePitch(int iNoteOnEventIndex, int iNewNoteNumber) {
+    DBG("-------------updateNotePitch--------------------");
+    auto * pNoteOnEvent = m_midiMessageSequence->getEventPointer(iNoteOnEventIndex);
+    auto * pNoteOffEvent = m_midiMessageSequence->getEventPointer(m_midiMessageSequence->getIndexOfMatchingKeyUp(iNoteOnEventIndex));
+    pNoteOnEvent->message.setNoteNumber(iNewNoteNumber);
+    pNoteOffEvent->message.setNoteNumber(iNewNoteNumber);
+    //TODO: is updateMatchedPairs required here?
+    DBG("----------------------------------------------------");
 
 }
 
