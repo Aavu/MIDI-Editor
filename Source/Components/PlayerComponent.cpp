@@ -100,24 +100,6 @@ void PlayerComponent::initSynth() {
 
 }
 
-//void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
-//    auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
-//    //std::cout << message.getTimeStamp() << "\t" << msgSampleNumber << "\t" << message.getDescription() << std::endl;
-//    m_midiBuffer.addEvent(message, msgSampleNumber);
-//}
-//
-//void PlayerComponent::addAllSequenceMessagesToBuffer() {
-//    auto numEvents = m_midiMessageSequence->getNumEvents();
-//    MidiMessageSequence::MidiEventHolder* const * eventHolder = m_midiMessageSequence->begin();
-//    MidiMessage msg;
-//    for (int i=0; i<numEvents; i++) {
-//        msg = eventHolder[i]->message;
-//        addMessageToBuffer(msg);
-//    }
-//    m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);
-//    m_iMaxBufferLength = m_midiBuffer.getLastEventTime();
-//    DBG("max length : " << m_iMaxBufferLength);
-//}
 
 void PlayerComponent::fillMidiBuffer(int iNumSamples) {
     DBG("----PlayerComponent::fillMidiBuffer--------------------------------");
@@ -262,7 +244,12 @@ void PlayerComponent::stop() {
     m_playState = PlayState::Stopped;
     // TODO: Make sure to flush note ons.
     //resetCurrentPosition();
+    DBG("Stop");
     setCurrentPositionByQuarterNotes(0);
+    m_iMidiEventReadIdx = 0;
+    m_iCurrentPosition = 0;
+    m_iLastRetrievedPosition = 0;
+    m_midiBuffer.clear();
 }
 
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
@@ -288,7 +275,7 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
             DBG(m_iCurrentPosition << "---" << m_iLastRetrievedPosition << "---" << m_iLastRetrievedPosition - (m_iCurrentPosition+blockSize));
             fillMidiBuffer(blockSize);
         } else {
-         //   DBG("-----" << (m_iCurrentPosition + blockSize) << "-- " << m_iLastRetrievedPosition);
+            DBG("-----" << (m_iCurrentPosition + blockSize) << "-- " << m_iLastRetrievedPosition);
         }
 
         m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, blockSize, 0);
@@ -321,7 +308,7 @@ void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNot
     DBG("-------------updateNoteTimestamps--------------------");
 
     auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx); // To maintain read index after sort
-    DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
+    DBG("EventAtReadIndex: " << pEventAtReadIdx->message.getDescription() << " " <<pEventAtReadIdx->message.getTimeStamp());
 
     // Get noteOn and noteOff events
     auto * pNoteOnEvent = m_midiMessageSequence->getEventPointer(iNoteOnEventIndex);
