@@ -88,7 +88,7 @@ void PianoRollListComponent::timerCallback() {
         return;
     m_iCurrentPlayHeadPosition = m_pPlayer->getCurrentPositionInQuarterNotes()*m_tracks.at(0)->getBoxWidth() + m_tracks.at(0)->getViewPositionX();
     if (m_iCurrentPlayHeadPosition < 0)
-        m_iCurrentPlayHeadPosition = -1;
+        m_iCurrentPlayHeadPosition = -Globals::PianoRoll::keyboardWidth-10;
     updatePlayHeadPosition();
 }
 

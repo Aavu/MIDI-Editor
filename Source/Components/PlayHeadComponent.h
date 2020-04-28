@@ -19,8 +19,8 @@ public:
     }
 
     void resized() override {
-        auto screenArea = getLocalBounds();
-        m_playHead.setBounds(0, screenArea.getY(), screenArea.getWidth(), screenArea.getHeight());
+        auto area = getLocalBounds();
+        m_playHead.setBounds(area.removeFromLeft(Globals::PianoRoll::keyboardWidth));
     }
 
 private:

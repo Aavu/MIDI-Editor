@@ -36,9 +36,6 @@
             <FILE id="SNcED0" name="ScrollablePianoRollComponent.h" compile="0"
                   resource="0" file="Source/Components/GUIComponent/ScrollablePianoRollComponent/ScrollablePianoRollComponent.h"/>
           </GROUP>
-          <FILE id="BGdPh3" name="GUIComponent.cpp" compile="1" resource="0"
-                file="Source/Components/GUIComponent/GUIComponent.cpp"/>
-          <FILE id="JltN6Q" name="GUIComponent.h" compile="0" resource="0" file="Source/Components/GUIComponent/GUIComponent.h"/>
           <FILE id="GYbUDk" name="PianoRollListComponent.cpp" compile="1" resource="0"
                 file="Source/Components/GUIComponent/PianoRollListComponent.cpp"/>
           <FILE id="JzErAp" name="PianoRollListComponent.h" compile="0" resource="0"

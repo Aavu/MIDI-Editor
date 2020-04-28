@@ -222,7 +222,8 @@ void PlayerComponent::pause() {
 void PlayerComponent::stop() {
     m_playState = PlayState::Stopped;
     // TODO: Make sure to flush note ons.
-    resetCurrentPosition();
+    //resetCurrentPosition();
+    setCurrentPositionByQuarterNotes(0);
 }
 
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
