@@ -181,6 +181,12 @@ void MainComponent::handleFileOpen() {
         m_midiFile.convertTimestampTicksToSeconds();
 
         m_pPlayer->setMidiMessageSequence(sequence);
+
+        MidiMessageSequence tempos;
+        m_midiFile.findAllTempoEvents(tempos);
+        MidiMessageSequence::MidiEventHolder* const * eh = tempos.begin();
+        auto bpm = 60 / eh[0]->message.getTempoSecondsPerQuarterNote();
+        m_transportBar.updateTempoDisplay(bpm);
         delete stream;
     }
 }

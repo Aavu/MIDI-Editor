@@ -20,7 +20,7 @@
 //==============================================================================
 /*
 */
-class PlayerComponent : public Component, public ActionBroadcaster
+class PlayerComponent : public Component, public ActionBroadcaster, public Timer
 {
 public:
     PlayerComponent();
@@ -69,6 +69,8 @@ public:
 
     void resetCurrentPosition();
 
+    std::function<void()> updateTimeDisplay = nullptr;
+
 private:
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
 
@@ -76,6 +78,8 @@ private:
 
     void addMessageToBuffer(const MidiMessage& message);
     void addAllSequenceMessagesToBuffer();
+
+    void timerCallback() override;
 
     long m_iMaxBufferLength = 0;
 
