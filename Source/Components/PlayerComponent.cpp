@@ -317,7 +317,7 @@ void PlayerComponent::resetCurrentPosition() {
     setCurrentPosition(0);
 }
 
-void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNote, double fNoteDurationInQuarterNote /*= -1*/) {
+void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes /*= -1*/) {
     DBG("-------------updateNoteTimestamps--------------------");
 
     auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx); // To maintain read index after sort
@@ -328,9 +328,9 @@ void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNot
     auto * pNoteOffEvent = m_midiMessageSequence->getEventPointer(m_midiMessageSequence->getIndexOfMatchingKeyUp(iNoteOnEventIndex));
 
     // Update timestamps for both noteOn and noteOff
-    auto fNewNoteOnTimestamp = convertQuarterNoteToSec(fNewNoteOnTimestampInQuarterNote);
+    auto fNewNoteOnTimestamp = convertQuarterNoteToSec(fNewNoteOnTimestampInQuarterNotes);
     double fNoteDuration;
-    if (fNoteDurationInQuarterNote == -1) // keep duration same as before
+    if (fNoteDurationInQuarterNotes == -1) // keep duration same as before
         fNoteDuration = pNoteOffEvent->message.getTimeStamp() - pNoteOnEvent->message.getTimeStamp();
     else
         fNoteDuration = convertQuarterNoteToSec(fNewNoteOnTimestamp);
