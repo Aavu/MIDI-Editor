@@ -169,6 +169,7 @@ void MainComponent::handleFileOpen() {
         
         int timeFormat = m_midiFile.getTimeFormat();
         m_pTrackView->setTimeFormat(timeFormat);
+        m_pPlayer->setTimeFormat(timeFormat);
         
         const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
         
@@ -178,8 +179,13 @@ void MainComponent::handleFileOpen() {
         // pass the midiFile before timestampticks are converted to seconds
         m_pTrackView->convertMidiMessageSequence(0, sequence);
         
+        // init m_TempoEvents in PlayerComponent
+        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEvents());
+        
+        m_pPlayer->getCurrentPositionInQuarterNotes();
+        
+        // The functions before use ticks as timestamp, not seconds
         m_midiFile.convertTimestampTicksToSeconds();
-
         m_pPlayer->setMidiMessageSequence(sequence);
         delete stream;
     }

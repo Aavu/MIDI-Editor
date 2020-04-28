@@ -56,10 +56,12 @@ public:
     double getSampleRate() {
         return m_fSampleRate;
     }
-
-    unsigned int getBPM() {
-        return BPM;
-    }
+    
+    MidiMessageSequence& getTempoEvents();
+    
+    double getCurrentPositionInQuarterNotes();
+    
+    void setTimeFormat(int timeFormat);
 
     long getMaxBufferLength() {
         return m_iMaxBufferLength;
@@ -79,7 +81,9 @@ private:
 
     long m_iMaxBufferLength = 0;
 
-    unsigned int BPM = 120;
+    double m_fTempo = 120;
+    int m_iTimeFormat;
+    MidiMessageSequence m_TempoEvents;
 
     const MidiMessageSequence* m_midiMessageSequence = nullptr;
     MidiBuffer m_midiBuffer;
