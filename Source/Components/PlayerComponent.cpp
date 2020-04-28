@@ -126,19 +126,23 @@ void PlayerComponent::fillMidiBuffer(int iNumSamples) {
     // Retrieve samples to fill at least one next block
     while(m_iLastRetrievedPosition < (m_iCurrentPosition + iNumSamples)) {
         if (m_iMidiEventReadIdx < m_iMaxMidiEvents) {
+            DBG("--------------------------------");
             msg = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx)->message;
-            DBG(msg.getTimeStamp());
+            DBG("Msg timestamp" << msg.getTimeStamp());
             auto msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
-            DBG(msgSampleNum << "==" << m_iMidiEventReadIdx);
+            DBG("Msg sample num: " << msgSampleNum);
+            DBG("ReadIdx: " << m_iMidiEventReadIdx);
             m_midiBuffer.addEvent(msg, msgSampleNum);
             m_iLastRetrievedPosition = msgSampleNum;
             m_iMidiEventReadIdx++;
+            DBG("--------------------------------");
         }
         else
             break;
-    }
 
+    }
     DBG("iRetrievedSamples = " << m_iLastRetrievedPosition - m_iCurrentPosition);
+    DBG("----------------------------------------------------");
 }
 
 MidiMessageSequence& PlayerComponent::getTempoEvents()
@@ -272,22 +276,20 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
     m_currentMidiBuffer.clear();
     auto blockSize = bufferToFill.numSamples;
 
-
-
     if (m_playState == PlayState::Playing) {
 //        if (m_midiBuffer.isEmpty()) {
 //            m_iCurrentPosition += blockSize;
 //            return;
 //        }
 
-
         // If not enough samples in m_midiBuffer for new block
         if ((m_iCurrentPosition + blockSize) > m_iLastRetrievedPosition) {
             DBG("----Need-more-samples-------------------------");
             DBG(m_iCurrentPosition << "---" << m_iLastRetrievedPosition << "---" << m_iLastRetrievedPosition - (m_iCurrentPosition+blockSize));
             fillMidiBuffer(blockSize);
-        } else
-            DBG("-----" << (m_iCurrentPosition + blockSize) << "-- "<< m_iLastRetrievedPosition);
+        } else {
+         //   DBG("-----" << (m_iCurrentPosition + blockSize) << "-- " << m_iLastRetrievedPosition);
+        }
 
         m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, blockSize, 0);
         m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, blockSize);
@@ -315,17 +317,29 @@ void PlayerComponent::resetCurrentPosition() {
     setCurrentPosition(0);
 }
 
-void PlayerComponent::updateNoteTimestamp(int iEventIndex, double fNewTimestampInQuarterNote) {
-    double fNewTimestamp = convertQuarterNoteToSec(fNewTimestampInQuarterNote);
-    
-    auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(iEventIndex);
+void PlayerComponent::moveNote(int iNoteOnEventIndex, double fNewTimestampInQuarterNote) {
     DBG("-------------updateNoteTimestamp--------------------");
+
+    auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(iNoteOnEventIndex); // To maintain read index after sort
     DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
-    m_midiMessageSequence->getEventPointer(iEventIndex)->message.setTimeStamp(fNewTimestamp);
+
+    // Get noteOn and noteOff events
+    auto * pNoteOnEvent = m_midiMessageSequence->getEventPointer(iNoteOnEventIndex);
+    auto * pNoteOffEvent = m_midiMessageSequence->getEventPointer(m_midiMessageSequence->getIndexOfMatchingKeyUp(iNoteOnEventIndex));
+
+    // Update timestamps for both noteOn and noteOff
+    auto fNoteDuration = pNoteOffEvent->message.getTimeStamp() - pNoteOnEvent->message.getTimeStamp();
+    auto fNewTimestamp = convertQuarterNoteToSec(fNewTimestampInQuarterNote);
+    pNoteOnEvent->message.setTimeStamp(fNewTimestamp);
+    pNoteOffEvent->message.setTimeStamp(fNewTimestamp + fNoteDuration);
+
+
+    m_midiMessageSequence->updateMatchedPairs(); //TODO: Are both updateMatchedPairs and sort required ???
     m_midiMessageSequence->sort();
+
+    // Set read index back to correct position after re-ordering.
     DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
-    
-    //m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx); // why do you change that?
+    m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx); // why do you change that?
     
     DBG("----------------------------------------------------");
 }

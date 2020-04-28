@@ -76,7 +76,7 @@ public:
     void setCurrentPosition(long value);
     void resetCurrentPosition();
 
-    void updateNoteTimestamp(int iEventIndex, double fNewTimestampInQuarterNote);
+    void moveNote(int iNoteOnEventIndex, double fNewTimestampInQuarterNote);
 
 private:
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
