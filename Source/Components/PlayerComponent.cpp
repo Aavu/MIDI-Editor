@@ -45,6 +45,8 @@ void PlayerComponent::initSynth() {
         auto sounds = m_sfzLoader.getLoadedSounds();
         for (auto i=0; i<sounds.size(); i++) {
             auto * sound = sounds.getUnchecked(i).get();
+            if (i == 10)
+                sound->useSubsound(247);
             sound->setChannelNum(i);
             m_synth.addSound(sound);
         }
@@ -54,30 +56,56 @@ void PlayerComponent::initSynth() {
 
 }
 
-void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
-    auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
-    //std::cout << message.getTimeStamp() << "\t" << msgSampleNumber << "\t" << message.getDescription() << std::endl;
-    m_midiBuffer.addEvent(message, msgSampleNumber);
-}
+//void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
+//    auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
+//    //std::cout << message.getTimeStamp() << "\t" << msgSampleNumber << "\t" << message.getDescription() << std::endl;
+//    m_midiBuffer.addEvent(message, msgSampleNumber);
+//}
+//
+//void PlayerComponent::addAllSequenceMessagesToBuffer() {
+//    auto numEvents = m_midiMessageSequence->getNumEvents();
+//    MidiMessageSequence::MidiEventHolder* const * eventHolder = m_midiMessageSequence->begin();
+//    MidiMessage msg;
+//    for (int i=0; i<numEvents; i++) {
+//        msg = eventHolder[i]->message;
+//        addMessageToBuffer(msg);
+//    }
+//    m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);
+//    m_iMaxBufferLength = m_midiBuffer.getLastEventTime();
+//    DBG("max length : " << m_iMaxBufferLength);
+//}
 
-void PlayerComponent::addAllSequenceMessagesToBuffer() {
-    auto numEvents = m_midiMessageSequence->getNumEvents();
-    MidiMessageSequence::MidiEventHolder* const * eventHolder = m_midiMessageSequence->begin();
+void PlayerComponent::fillMidiBuffer(int iNumSamples) {
+    //DBG("----PlayerComponent::fillMidiBuffer--------------------------------");
     MidiMessage msg;
-    for (int i=0; i<numEvents; i++) {
-        msg = eventHolder[i]->message;
-        addMessageToBuffer(msg);
+
+    // Retrieve samples to fill at least one next block
+    while(m_iLastRetrievedPosition < (m_iCurrentPosition + iNumSamples)) {
+        if (m_iMidiEventReadIdx < m_iMaxMidiEvents) {
+            msg = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx)->message;
+            auto msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
+            m_midiBuffer.addEvent(msg, msgSampleNum);
+            m_iLastRetrievedPosition = msgSampleNum;
+            m_iMidiEventReadIdx++;
+        }
+        else
+            break;
     }
 
-    m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);
-    m_iMaxBufferLength = m_midiBuffer.getLastEventTime();
-    DBG("max length : " << m_iMaxBufferLength);
+    DBG("iRetrievedSamples = " << m_iLastRetrievedPosition - m_iCurrentPosition);
 }
+
 
 void PlayerComponent::setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq) {
     m_midiMessageSequence = midiMsgSeq;
+    // m_midiMessageSequence->sort(); //TODO: Need to remove const to be able to sort
+
+    m_iMidiEventReadIdx = 0;
+    m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
+
     m_midiBuffer.clear();
-    addAllSequenceMessagesToBuffer();
+    m_iMaxBufferLength = m_midiMessageSequence->getEndTime() * m_fSampleRate;
+
 }
 
 void PlayerComponent::play() {
@@ -104,19 +132,29 @@ void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRa
 void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) {
     bufferToFill.clearActiveBufferRegion();
     m_currentMidiBuffer.clear();
+    auto blockSize = bufferToFill.numSamples;
 
-    auto numSamples = bufferToFill.numSamples;
+
 
     if (m_playState == PlayState::Playing) {
-        if (m_midiBuffer.isEmpty()) {
-            m_iCurrentPosition += numSamples;
-            return;
-        }
+//        if (m_midiBuffer.isEmpty()) {
+//            m_iCurrentPosition += blockSize;
+//            return;
+//        }
 
-        m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, numSamples, 0);
-        m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, numSamples);
 
-        m_iCurrentPosition += numSamples;
+        // If not enough samples in m_midiBuffer for new block
+        if ((m_iCurrentPosition + blockSize) > m_iLastRetrievedPosition) {
+            DBG("----Need-more-samples-------------------------");
+            DBG(m_iCurrentPosition << "---" << m_iLastRetrievedPosition << "---" << m_iLastRetrievedPosition - (m_iCurrentPosition+blockSize));
+            fillMidiBuffer(blockSize);
+        } else
+            DBG("-----");
+
+        m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, blockSize, 0);
+        m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, blockSize);
+
+        m_iCurrentPosition += blockSize;
 
         if (m_iCurrentPosition > m_iMaxBufferLength) {
             sendActionMessage(Globals::ActionMessage::Stop);

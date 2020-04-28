@@ -76,12 +76,21 @@ private:
 
     void addMessageToBuffer(const MidiMessage& message);
     void addAllSequenceMessagesToBuffer();
+    void fillMidiBuffer(int iNumSamples);
 
     long m_iMaxBufferLength = 0;
 
     unsigned int BPM = 120;
 
     const MidiMessageSequence* m_midiMessageSequence = nullptr;
+    MidiMessageSequence::MidiEventHolder * const * m_midiEventHolder = nullptr;
+    int m_iMidiEventReadIdx = 0;
+    int m_iMaxMidiEvents = 0;
+
+    long m_iLastRetrievedPosition = 0;
+
+
+
     MidiBuffer m_midiBuffer;
     MidiBuffer m_currentMidiBuffer;
     std::unique_ptr<MidiBuffer::Iterator> m_pIterator;
