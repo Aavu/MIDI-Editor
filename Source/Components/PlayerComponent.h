@@ -65,6 +65,8 @@ public:
     
     double convertQuarterNoteToSec(double positionInQuarterNotes);
     
+    double convertSecToQuarterNote(double positionInSec);
+    
     void setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes);
     
     void setTimeFormat(int timeFormat);

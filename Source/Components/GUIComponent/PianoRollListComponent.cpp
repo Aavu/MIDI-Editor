@@ -104,8 +104,8 @@ void PianoRollListComponent::handleScrollCallback(int newPositionX) {
     m_pPlayer->allNotesOff();
     if (getNumTracks() > 0)
     {
-    double positionByQuarterNote = (newPositionX - m_tracks[0]->getViewPositionX() - Globals::PianoRoll::keyboardWidth)*1.F / m_tracks[0]->getBoxWidth();
-    m_pPlayer->setCurrentPositionByQuarterNotes(positionByQuarterNote);
+        double positionByQuarterNote = (newPositionX - m_tracks[0]->getViewPositionX() - Globals::PianoRoll::keyboardWidth)*1.F / m_tracks[0]->getBoxWidth();
+        m_pPlayer->setCurrentPositionByQuarterNotes(positionByQuarterNote);
     }
 }
 

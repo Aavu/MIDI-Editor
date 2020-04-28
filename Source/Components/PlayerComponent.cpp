@@ -120,16 +120,16 @@ void PlayerComponent::initSynth() {
 //}
 
 void PlayerComponent::fillMidiBuffer(int iNumSamples) {
-    DBG("----PlayerComponent::fillMidiBuffer--------------------------------");
+    //DBG("----PlayerComponent::fillMidiBuffer--------------------------------");
     MidiMessage msg;
-    DBG("Max midi events: " << m_iMaxMidiEvents);
+    //DBG("Max midi events: " << m_iMaxMidiEvents);
     // Retrieve samples to fill at least one next block
     while(m_iLastRetrievedPosition < (m_iCurrentPosition + iNumSamples)) {
         if (m_iMidiEventReadIdx < m_iMaxMidiEvents) {
             msg = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx)->message;
-            DBG(msg.getTimeStamp());
+            //DBG(msg.getTimeStamp());
             auto msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
-            DBG(msgSampleNum << "==" << m_iMidiEventReadIdx);
+            //DBG(msgSampleNum << "==" << m_iMidiEventReadIdx);
             m_midiBuffer.addEvent(msg, msgSampleNum);
             m_iLastRetrievedPosition = msgSampleNum;
             m_iMidiEventReadIdx++;
@@ -138,7 +138,7 @@ void PlayerComponent::fillMidiBuffer(int iNumSamples) {
             break;
     }
 
-    DBG("iRetrievedSamples = " << m_iLastRetrievedPosition - m_iCurrentPosition);
+    //DBG("iRetrievedSamples = " << m_iLastRetrievedPosition - m_iCurrentPosition);
 }
 
 MidiMessageSequence& PlayerComponent::getTempoEvents()
@@ -154,12 +154,15 @@ MidiMessageSequence& PlayerComponent::getTempoEventsInSecs()
 double PlayerComponent::convertQuarterNoteToSec(double positionInQuarterNotes)
 {
     double positionInSec = 0;
+    
+    double target_tick = positionInQuarterNotes * m_iTimeFormat;
+    double cur_tempo = 60.F / 120;
+    int st_tick = 0;
+    double st_sec = 0;
+    
     if (m_TempoEvents.getNumEvents() > 0)
     {
-        double target_tick = positionInQuarterNotes * m_iTimeFormat;
-        double cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
-        int st_tick = 0;
-        double st_sec = 0;
+        cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
         
         // m_TempoEvents is sorted by time
         // m_tempoEventsInSec has the same order as m_TempoEvents
@@ -181,20 +184,24 @@ double PlayerComponent::convertQuarterNoteToSec(double positionInQuarterNotes)
                 break;
             }
         }
-        positionInSec = st_sec + (target_tick-st_tick) * cur_tempo / m_iTimeFormat;
     }
+    positionInSec = st_sec + (target_tick-st_tick) * cur_tempo / m_iTimeFormat;
+    //DBG("quarter to sec: " + String(positionInSec));
     return positionInSec;
 }
 
-double PlayerComponent::getCurrentPositionInQuarterNotes()
+double PlayerComponent::convertSecToQuarterNote(double positionInSec)
 {
-    double curPositionInQuarterNotes = 0;
+    double positionInQuarterNotes = 0;
+    
+    double target_sec = positionInSec;
+    double cur_tempo = 60.F/120;
+    int st_tick = 0;
+    double st_sec = 0;
+    
     if (m_TempoEvents.getNumEvents() > 0)
     {
-        double target_sec = m_iCurrentPosition/m_fSampleRate;
-        double cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
-        int st_tick = 0;
-        double st_sec = 0;
+        cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
         
         // m_TempoEvents is sorted by time
         // m_tempoEventsInSec has the same order as m_TempoEvents
@@ -216,15 +223,22 @@ double PlayerComponent::getCurrentPositionInQuarterNotes()
                 break;
             }
         }
-        curPositionInQuarterNotes = st_tick / m_iTimeFormat + (target_sec-st_sec) / cur_tempo;
     }
+    positionInQuarterNotes = st_tick*1.F / m_iTimeFormat + (target_sec-st_sec) / cur_tempo;
+    //DBG("sec to quarter: " + String(positionInQuarterNotes));
+    return positionInQuarterNotes;
+}
+
+double PlayerComponent::getCurrentPositionInQuarterNotes()
+{
+    double curPositionInQuarterNotes = convertSecToQuarterNote(m_iCurrentPosition*1.F/m_fSampleRate);
     return curPositionInQuarterNotes;
 }
 
 void PlayerComponent::setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes)
 {
     double newPositionInSamples = convertQuarterNoteToSec(newPositionInQuarterNotes) * m_fSampleRate;
-    m_iCurrentPosition = static_cast<long>(newPositionInSamples);
+    m_iCurrentPosition = static_cast<long> (newPositionInSamples);
     return;
 }
 
@@ -283,11 +297,13 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
 
         // If not enough samples in m_midiBuffer for new block
         if ((m_iCurrentPosition + blockSize) > m_iLastRetrievedPosition) {
-            DBG("----Need-more-samples-------------------------");
-            DBG(m_iCurrentPosition << "---" << m_iLastRetrievedPosition << "---" << m_iLastRetrievedPosition - (m_iCurrentPosition+blockSize));
+            //DBG("----Need-more-samples-------------------------");
+            //DBG(m_iCurrentPosition << "---" << m_iLastRetrievedPosition << "---" << m_iLastRetrievedPosition - (m_iCurrentPosition+blockSize));
             fillMidiBuffer(blockSize);
         } else
-            DBG("-----" << (m_iCurrentPosition + blockSize) << "-- "<< m_iLastRetrievedPosition);
+        {
+            //DBG("-----" << (m_iCurrentPosition + blockSize) << "-- "<< m_iLastRetrievedPosition);
+        }
 
         m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, blockSize, 0);
         m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, blockSize);
@@ -319,15 +335,15 @@ void PlayerComponent::updateNoteTimestamp(int iEventIndex, double fNewTimestampI
     double fNewTimestamp = convertQuarterNoteToSec(fNewTimestampInQuarterNote);
     
     auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(iEventIndex);
-    DBG("-------------updateNoteTimestamp--------------------");
-    DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
+    //DBG("-------------updateNoteTimestamp--------------------");
+    //DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
     m_midiMessageSequence->getEventPointer(iEventIndex)->message.setTimeStamp(fNewTimestamp);
     m_midiMessageSequence->sort();
-    DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
+    //DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
     
     //m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx); // why do you change that?
     
-    DBG("----------------------------------------------------");
+    //DBG("----------------------------------------------------");
 }
 
 String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {
