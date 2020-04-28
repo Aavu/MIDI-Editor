@@ -91,8 +91,7 @@ void SoundFontGeneralMidiSynth::addSound(sfzero::Sound *pSound) {
 
 //============================================================================================================
 SfzLoader::SfzLoader() :
-        m_loadThread(this),
-        m_callback(nullptr)
+        m_loadThread(this)
 {
 }
 
