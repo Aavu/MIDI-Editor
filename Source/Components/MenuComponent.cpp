@@ -43,7 +43,7 @@ PopupMenu MenuComponent::getMenuForIndex(int menuIndex, const String& name) {
     PopupMenu menu;
     if (menuIndex == 0) {
         menu.addCommandItem(&commandManager, fileOpen);
-        menu.addCommandItem(&commandManager, fileExportAudio);
+//        menu.addCommandItem(&commandManager, fileExportAudio);
 //        menu.addCommandItem(&commandManager, fileExportMIDI);
     }
     else if (menuIndex == 1) {
@@ -57,7 +57,7 @@ ApplicationCommandTarget* MenuComponent::getNextCommandTarget() {
 }
 
 void MenuComponent::getAllCommands (Array<CommandID>& c) {
-    Array<CommandID> commands { fileOpen, fileExportAudio };
+    Array<CommandID> commands { fileOpen };
     c.addArray (commands);
 }
 
@@ -69,10 +69,10 @@ void MenuComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo&
             result.setInfo ("Open", "Open MIDI file", "File", 0);
             result.addDefaultKeypress ('i', ModifierKeys::commandModifier);
             break;
-        case fileExportAudio:
-            result.setInfo ("Export Audio", "Export Audio", "File", 0);
-            result.addDefaultKeypress ('b', ModifierKeys::commandModifier);
-            break;
+//        case fileExportAudio:
+//            result.setInfo ("Export Audio", "Export Audio", "File", 0);
+//            result.addDefaultKeypress ('b', ModifierKeys::commandModifier);
+//            break;
 //        case fileExportMIDI:
 //            result.setInfo ("Export MIDI", "Export MIDI", "File", 0);
 //            result.addDefaultKeypress ('b', ModifierKeys::shiftModifier | ModifierKeys::commandModifier);

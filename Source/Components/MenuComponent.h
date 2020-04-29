@@ -28,7 +28,7 @@ public:
     
     enum CommandIDs {
         fileOpen = 1,
-        fileExportAudio,
+//        fileExportAudio,
 //        fileExportMIDI,
         editUndo,
         editRedo,
