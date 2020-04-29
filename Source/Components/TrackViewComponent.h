@@ -41,8 +41,8 @@ public:
     
 private:
 
-    TextButton m_header;
-    SidebarComponent m_sidebar;
+//    TextButton m_header;
+//    SidebarComponent m_sidebar;
     
     PianoRollListComponent *m_pianoRollListComp;
     

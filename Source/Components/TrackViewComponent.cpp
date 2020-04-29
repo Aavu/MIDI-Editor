@@ -19,12 +19,12 @@ TrackViewComponent::TrackViewComponent()
 
 void TrackViewComponent::init(PlayerComponent* player) {
     // header (tool bar)
-    m_header.setColour (TextButton::buttonColourId, Colours::cornflowerblue);
-    addAndMakeVisible (m_header);
+    // m_header.setColour (TextButton::buttonColourId, Colours::cornflowerblue);
+    // addAndMakeVisible (m_header);
     
     // sidebar (mute/solo buttons for each track) (not implemented)
-    m_sidebar.setColour (TextButton::buttonColourId, Colours::grey);
-    //addAndMakeVisible (m_sidebar);
+    // m_sidebar.setColour (TextButton::buttonColourId, Colours::grey);
+    // addAndMakeVisible (m_sidebar);
     
     // pianoroll list
     m_pianoRollListComp = new PianoRollListComponent();
@@ -44,10 +44,10 @@ void TrackViewComponent::paint(Graphics &g) {
 void TrackViewComponent::resized() {
     auto area = getLocalBounds();
     auto headerHeight = Globals::GUI::iHeaderHeight;
-    m_header.setBounds (area.removeFromTop(headerHeight));
+    // m_header.setBounds (area.removeFromTop(headerHeight));
 
-    auto sidebarWidth = Globals::GUI::iSideBarWidth;
-    m_sidebar.setBounds (area.removeFromLeft(sidebarWidth));
+    // auto sidebarWidth = Globals::GUI::iSideBarWidth;
+    // m_sidebar.setBounds (area.removeFromLeft(sidebarWidth));
 
     m_iTrackViewComponentWidth = area.getWidth();
     m_pianoRollListComp->setBounds(area);

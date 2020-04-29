@@ -33,14 +33,19 @@ public:
     
     void paint (Graphics& g) override
     {
-        g.setColour (Colours::grey);
-        g.setFont (10.0f);
+        g.fillAll(Colours::cornflowerblue);
+        g.setColour (Colours::lightblue);
+        g.setFont (15.0f);
         
         // draw boxes
         for (int i = 0; i < m_iNumBox; i++) {
-            g.drawRect(1.F*i*m_iboxWidth, 0.F, 1.F*m_iboxWidth, 1.F*getHeight(), 0.5);
-            if (i % 4 == 0)
+            if (i % 4 == 0) {
+                g.drawLine(1.F*i*m_iboxWidth, 0.F, 1.F*i*m_iboxWidth, 1.F*getHeight());
                 g.drawText(String(i/4+1), 1.F*i*m_iboxWidth+5, 0.5*getHeight(), 10, 10, Justification::centred, true);
+            }
+            else {
+                g.drawLine(1.F*i*m_iboxWidth, 0.6F*getHeight(), 1.F*i*m_iboxWidth, 1.F*getHeight());
+            }
         }
         
     }
@@ -105,15 +110,6 @@ public:
         int viewPointY = m_ViewPort.getViewPositionY();
         m_ViewPort.setViewPosition(viewPositionX, viewPointY);
     }
-    
-//    void mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel) override
-//    {
-//        int viewPositionX = m_ViewPort.getViewPositionX();
-//        DBG(viewPositionX);
-//        if (m_syncScrollBars)
-//            m_syncScrollBars(viewPositionX);
-//        Component::mouseWheelMove(e, wheel);
-//    }
     
     std::function<void(int)> m_syncScrollBars = nullptr;
 
