@@ -246,7 +246,7 @@ void PlayerComponent::setMidiMessageSequence(MidiMessageSequence* midiMsgSeq) {
 
     m_iMidiEventReadIdx = 0;
     m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
-
+    // TODO: position var set ??
     m_midiBuffer.clear();
     m_iMaxBufferLength = static_cast<long>(m_midiMessageSequence->getEndTime() * m_fSampleRate);
 
@@ -350,8 +350,11 @@ void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNot
     m_midiMessageSequence->sort();
 
     // Set read index back to correct position after re-ordering.
-    DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
-    m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx); // why do you change that?
+    m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx);
+    DBG("EventAtReadIndex: " << pEventAtReadIdx->message.getDescription() << " " <<pEventAtReadIdx->message.getTimeStamp());
+
+    // Reset buffer length if length of midi has changed (i.e. if last note moved)
+    m_iMaxBufferLength = static_cast<long>(m_midiMessageSequence->getEndTime() * m_fSampleRate);
 
     DBG("----------------------------------------------------");
 }
