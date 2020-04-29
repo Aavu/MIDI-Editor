@@ -21,8 +21,10 @@ class NoteMessage {
     //  maybe put noteOn and noteOff MidiMessage here
 };
 class SelectedNoteList;
+class NoteList;
+class PianoRollBorderComponent;
 
-// TODO: fix dragging behavior
+
 class PianoRollNote: public TextButton, public ComponentBoundsConstrainer
 {
 public:
@@ -74,10 +76,24 @@ private:
     
     // dragger
     ComponentDragger                            m_pMyDragger;
-    ResizableBorderComponent*                   m_pBorder = nullptr;
+    PianoRollBorderComponent*                   m_pBorder = nullptr;
     ComponentBoundsConstrainer*                 m_pConstrainer = nullptr;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PianoRollNote)
+};
+
+class PianoRollBorderComponent: public ResizableBorderComponent
+{
+public:
+    PianoRollBorderComponent(Component *componentToResize, ComponentBoundsConstrainer *constrainer):
+        ResizableBorderComponent(componentToResize, constrainer)
+    {
+    }
+
+    void mouseUp (const MouseEvent &event) override
+    {
+        getParentComponent()->mouseUp(event);
+    }
 };
 
 class NoteList

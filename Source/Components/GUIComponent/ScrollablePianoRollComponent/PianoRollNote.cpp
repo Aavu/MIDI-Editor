@@ -25,7 +25,7 @@ PianoRollNote::PianoRollNote(PlayerComponent* player, int row_n, float offset_n,
     m_iBoxWidth = Globals::PianoRoll::initNoteWidth;
     m_iBoxHeight = Globals::PianoRoll::initNoteHeight;
     
-    m_pBorder = new ResizableBorderComponent(this, NULL);
+    m_pBorder = new PianoRollBorderComponent(this, NULL);
     addChildComponent(m_pBorder);
     m_pBorder->setBorderThickness (BorderSize<int> (0,1,0,1)); // allow draging from both sides
     m_pBorder->setBounds(this->getBounds());
