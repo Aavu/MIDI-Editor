@@ -20,7 +20,7 @@
 //==============================================================================
 /*
 */
-class PlayerComponent : public Component, public ActionBroadcaster, public Timer
+class PlayerComponent : public Component, public ActionBroadcaster, public ActionListener, public Timer
 {
 public:
     PlayerComponent();
@@ -80,6 +80,8 @@ private:
     void addAllSequenceMessagesToBuffer();
 
     void timerCallback() override;
+
+    void actionListenerCallback (const String& message) override;
 
     long m_iMaxBufferLength = 0;
 

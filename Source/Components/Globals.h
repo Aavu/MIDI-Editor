@@ -17,6 +17,7 @@ namespace Globals {
     namespace ActionMessage {
         static const String PlayForExport   = "AM_PlayForExport";
         static const String Stop            = "AM_Stop";
+        static const String EnableTransport = "AM_EnableTransport";
     }
 
     namespace GUI {

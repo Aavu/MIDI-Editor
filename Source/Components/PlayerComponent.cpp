@@ -34,6 +34,7 @@ void PlayerComponent::resized()
 void PlayerComponent::initSynth() {
     File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
     m_synth.initSynth(soundFontFile);
+    m_synth.addActionListener(this);
 }
 
 void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
@@ -133,4 +134,9 @@ String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName
 
 void PlayerComponent::timerCallback() {
     updateTimeDisplay();
+}
+
+void PlayerComponent::actionListenerCallback (const String& message) {
+    if (message == Globals::ActionMessage::EnableTransport) // Just relay message to Transport
+        sendActionMessage(message);
 }

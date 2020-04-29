@@ -40,6 +40,7 @@ void SoundFontGeneralMidiSynth::initSynth(File * pSoundFontFile) {
             addSound(sound);
         }
         DBG( sounds.size() << " sounds added.");
+        sendActionMessage(Globals::ActionMessage::EnableTransport);
     };
     m_sfzLoader->setSfzFile(pSoundFontFile);
     DBG( "Loading sounds...");

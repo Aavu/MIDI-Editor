@@ -11,10 +11,11 @@
 #pragma once
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "../Components/Globals.h"
 
 class SfzLoader;
 
-class SoundFontGeneralMidiSynth : public sfzero::Synth
+class SoundFontGeneralMidiSynth : public sfzero::Synth, public ActionBroadcaster
 {
 public:
     SoundFontGeneralMidiSynth();

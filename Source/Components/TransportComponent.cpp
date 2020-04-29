@@ -21,6 +21,9 @@ TransportComponent::TransportComponent():
         m_bpmLabel("BPM Label", "BPM"),
         m_pPlayer(nullptr)
 {
+    m_playBtn.setImages(false, true, true, m_icons.playBtnNormal, 1, {}, {}, .8, {}, m_icons.playBtnDown, 1, {});
+    m_stopBtn.setImages(false, true, true, m_icons.stopBtnNormal, 1, {}, {}, .8, {}, m_icons.stopBtnDown, 1, {});
+
     m_playBtn.onClick = [this] {playBtnClicked();};
     m_stopBtn.onClick = [this] {stopBtnClicked();};
     m_playBtn.setColour(TextButton::buttonColourId, Colours::blue);
@@ -57,6 +60,9 @@ TransportComponent::TransportComponent():
     m_bpmLabel.setColour (Label::textColourId, Colours::orange);
     m_bpmLabel.setColour (Label::outlineColourId, Colours::orange);
 
+    m_playBtn.setEnabled(false);
+    m_stopBtn.setEnabled(false);
+
     addAndMakeVisible(m_playBtn);
     addAndMakeVisible(m_stopBtn);
     addAndMakeVisible(m_timeDisplay);
@@ -76,8 +82,9 @@ void TransportComponent::resized()
     // This method is where you should set the bounds of any child
     // components that your component contains..
     int pad = 8;
-    m_playBtn.setBounds(pad, pad, 50, getHeight() - pad * 2);
-    m_stopBtn.setBounds(getHeight() + pad, pad, 50, getHeight() - pad * 2);
+
+    m_playBtn.setBounds(pad, pad, 80, getHeight() - pad * 2);
+    m_stopBtn.setBounds(80 + pad, pad, 80, getHeight() - pad * 2);
     int timeDisplayHeight = 28;
     int timeDisplayWidth = 140;
     m_timeDisplay.setBounds((getWidth() - timeDisplayWidth)/ 2, getHeight() - timeDisplayHeight - pad/2, timeDisplayWidth, timeDisplayHeight);
@@ -90,13 +97,13 @@ void TransportComponent::playBtnClicked()
     switch (state) {
         case PlayerComponent::PlayState::Playing:
             m_pPlayer->pause();
-            m_playBtn.setButtonText("Resume");
+            m_playBtn.setImages(false, true, true, m_icons.playBtnNormal, 1, {}, {}, .8, {}, m_icons.playBtnDown, 1, {});
             break;
 
         case PlayerComponent::PlayState::Paused:
         case PlayerComponent::PlayState::Stopped:
             m_pPlayer->play();
-            m_playBtn.setButtonText("Pause");
+            m_playBtn.setImages(false, true, true, m_icons.pauseBtnNormal, 1, {}, {}, .8, {}, m_icons.pauseBtnDown, 1, {});
             break;
     }
 }
@@ -108,15 +115,15 @@ void TransportComponent::stopBtnClicked()
     switch (state) {
         case PlayerComponent::PlayState::Playing:
             m_pPlayer->pause();
-            m_playBtn.setButtonText("Resume");
             break;
 
         case PlayerComponent::PlayState::Paused:
         case PlayerComponent::PlayState::Stopped:
             m_pPlayer->stop();
-            m_playBtn.setButtonText("Play");
             break;
     }
+    m_playBtn.setImages(false, true, true, m_icons.playBtnNormal, 1, {}, {}, .8, {}, m_icons.playBtnDown, 1, {});
+
 }
 
 void TransportComponent::init(PlayerComponent* playerComponent) {
@@ -136,6 +143,9 @@ void TransportComponent::actionListenerCallback (const String& message) {
         stopBtnClicked(); // pause
         stopBtnClicked(); // stop
         playBtnClicked();
+    } else if (message == EnableTransport) {
+        m_playBtn.setEnabled(true);
+        m_stopBtn.setEnabled(true);
     }
 }
 

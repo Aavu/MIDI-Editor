@@ -12,6 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PlayerComponent.h"
+#include "Util.h"
 #include "Globals.h"
 
 //==============================================================================
@@ -43,8 +44,21 @@ private:
     void updateTimeDisplay();
     void convertToSMPTE(SMPTE& smpte, long iPositionInSamples);
 
-    TextButton m_playBtn;
-    TextButton m_stopBtn;
+    struct Icons {
+        const Image playBtnNormal  = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/playBtnNormal.png"));
+        const Image playBtnDown    = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/playBtnDown.png"));
+        const Image pauseBtnNormal = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/pauseBtnNormal.png"));
+        const Image pauseBtnDown   = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/pauseBtnDown.png"));
+        const Image stopBtnNormal  = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/stopBtnNormal.png"));
+        const Image stopBtnDown    = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/stopBtnDown.png"));
+    };
+
+    Icons m_icons;
+
+//    TextButton m_playBtn;
+//    TextButton m_stopBtn;
+    ImageButton m_playBtn;
+    ImageButton m_stopBtn;
 
     Label m_timeDisplay;
     Label m_timeLabel;
