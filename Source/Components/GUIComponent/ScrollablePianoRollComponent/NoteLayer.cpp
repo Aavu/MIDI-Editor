@@ -142,7 +142,7 @@ void NoteLayer::RowComponent::mouseDown (const MouseEvent& event)
 {
     auto* existingNote = static_cast<PianoRollNote*> (event.originalComponent);
     
-    std::cout << "mouseDown called: " << m_iRow << std::endl;
+//    std::cout << "mouseDown called: " << m_iRow << std::endl;
     
     if (existingNote->ifInit() == false)   // create a new note
     {
@@ -182,14 +182,14 @@ void NoteLayer::RowComponent::detachNote(PianoRollNote* noteToDetach)
 void NoteLayer::RowComponent::attachNote(PianoRollNote* noteToAttach)
 {
     addAndMakeVisible(noteToAttach);
-    std::cout << "attachpitch rowcomp: " << m_iRow << std::endl;
+//    std::cout << "attachpitch rowcomp: " << m_iRow << std::endl;
     noteToAttach->changePitch = [this] (PianoRollNote* note, int direction) { changePitch(note, direction); };
     repaint();
 }
 
 void NoteLayer::RowComponent::changePitch(PianoRollNote* noteToMove, int direction)
 {
-    std::cout << "changepitch rowcomp: " << m_iRow << std::endl;
+//    std::cout << "changepitch rowcomp: " << m_iRow << std::endl;
     detachNote(noteToMove);
     RowComponent* targetRow = static_cast<RowComponent*> (m_Owner.oneColumnTable.getCellComponent(1,m_iRow+direction));
     targetRow->attachNote(noteToMove);
