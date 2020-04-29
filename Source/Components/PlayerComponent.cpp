@@ -357,7 +357,7 @@ void PlayerComponent::addNote(PianoRollNote * pPianoRollNote) {
     double a = convertQuarterNoteToSec(pPianoRollNote->getOffset());
     noteOnMsg.setTimeStamp(convertQuarterNoteToSec(pPianoRollNote->getOffset()));
 
-    auto noteOffMsg = MidiMessage::noteOn (1, pPianoRollNote->getNoteNumber(), (uint8) 120);
+    auto noteOffMsg = MidiMessage::noteOff (1, pPianoRollNote->getNoteNumber(), (uint8) 120);
     double d = convertQuarterNoteToSec(pPianoRollNote->getOffset() + pPianoRollNote->getLength());
     noteOffMsg.setTimeStamp(d);
 
