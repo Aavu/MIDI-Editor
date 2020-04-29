@@ -207,12 +207,18 @@ void PlayerComponent::setCurrentPositionByQuarterNotes(double newPositionInQuart
 {
     double newPositionInSamples = convertQuarterNoteToSec(newPositionInQuarterNotes) * m_fSampleRate;
     m_iCurrentPosition = static_cast<long> (newPositionInSamples);
-    return;
 }
 
 void PlayerComponent::setTimeFormat(int timeFormat)
 {
     m_iTimeFormat = timeFormat;
+}
+
+void PlayerComponent::resetPlayer() {
+    m_iMidiEventReadIdx = 0;
+    m_iCurrentPosition = 0;
+    m_iLastRetrievedPosition = 0;
+    m_midiBuffer.clear();
 }
 
 MidiMessageSequence *PlayerComponent::getMidiMessageSequence() const {
@@ -224,13 +230,9 @@ MidiMessageSequence *PlayerComponent::getMidiMessageSequence() const {
 void PlayerComponent::setMidiMessageSequence(MidiMessageSequence* midiMsgSeq) {
     m_midiMessageSequence = midiMsgSeq;
     m_midiMessageSequence->sort();
-
-    m_iMidiEventReadIdx = 0;
     m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
-    // TODO: position var set ??
-    m_midiBuffer.clear();
     m_iMaxBufferLength = static_cast<long>((m_midiMessageSequence->getEndTime() + m_fMinBufferLengthInSec) * m_fSampleRate);
-
+    resetPlayer();
 }
 
 void PlayerComponent::play() {
@@ -243,14 +245,8 @@ void PlayerComponent::pause() {
 
 void PlayerComponent::stop() {
     m_playState = PlayState::Stopped;
-    // TODO: Make sure to flush note ons.
-    //resetCurrentPosition();
     DBG("Stop");
-    //setCurrentPositionByQuarterNotes(0);
-    m_iMidiEventReadIdx = 0;
-    m_iCurrentPosition = 0;
-    m_iLastRetrievedPosition = 0;
-    m_midiBuffer.clear();
+    resetPlayer();
 }
 
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
@@ -265,11 +261,6 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
     auto blockSize = bufferToFill.numSamples;
 
     if (m_playState == PlayState::Playing) {
-//        if (m_midiBuffer.isEmpty()) {
-//            m_iCurrentPosition += blockSize;
-//            return;
-//        }
-
         // If not enough samples in m_midiBuffer for new block
         if ((m_iCurrentPosition + blockSize) > m_iLastRetrievedPosition) {
             DBG("----Need-more-samples-------------------------");
@@ -278,10 +269,8 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
         } else {
 //            DBG("-----" << (m_iCurrentPosition + blockSize) << "-- " << m_iLastRetrievedPosition);
         }
-
         m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, blockSize, 0);
         m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, blockSize);
-
         m_iCurrentPosition += blockSize;
 
         if (m_iCurrentPosition > m_iMaxBufferLength) {
@@ -347,6 +336,11 @@ void PlayerComponent::updateNote(int iNoteOnEventIndex, double fNewNoteOnTimesta
     m_iMaxBufferLength = static_cast<long>((m_midiMessageSequence->getEndTime() + m_fMinBufferLengthInSec) * m_fSampleRate);
 
     DBG("----------------------------------------------------");
+}
+
+void PlayerComponent::deleteNote(int iNoteOnEventIndex) {
+    auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx);
+
 }
 
 String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {

@@ -63,6 +63,7 @@ public:
     //------------------------------------------------------Midi-note-operations----
     // void addNote(); // TODO: Define
     void deleteNote(int iNoteOnEventIndex);
+
     /*
      * Changes noteOn and noteOff timestamps.
      * Duration is set to fNoteDurationInQuarterNote if provided, else it is kept the same.
@@ -80,6 +81,11 @@ private:
     //------------------------------------------------------------------------------
     void initSynth();
     void fillMidiBuffer(int iNumSamples);
+
+    /*
+     * Resets all m_midiBuffer and m_midiMessageSequence indices and clears the buffer.
+     */
+    void resetPlayer();
     //==============================================================================
 
     MidiMessageSequence m_TempoEvents;          // timestamp in ticks
