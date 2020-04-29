@@ -27,7 +27,7 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 
-    void init(PlayerComponent* playerComponent);
+    void init(std::shared_ptr<PlayerComponent> playerComponent);
 
     struct SMPTE {
         int hh = 0, mm = 0, ss = 0, ff = 0;
@@ -66,7 +66,7 @@ private:
     Label m_bpmDisplay;
     Label m_bpmLabel;
 
-    PlayerComponent *m_pPlayer = nullptr;
+    std::shared_ptr<PlayerComponent> m_pPlayer = nullptr;
 
     unsigned int m_bpm = 120;
 

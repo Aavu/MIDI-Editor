@@ -10,8 +10,8 @@
 
 //==============================================================================
 MainComponent::MainComponent() :
-m_pPlayer(std::make_shared<PlayerComponent>()),
-m_pTrackView(std::make_unique<TrackViewComponent>())
+    m_pPlayer(PlayerComponent::getInstance()),
+    m_pTrackView(std::make_unique<TrackViewComponent>())
 {
     // Make sure you set the size of the component after
     // you add any child components.
@@ -20,10 +20,10 @@ m_pTrackView(std::make_unique<TrackViewComponent>())
     m_menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
 
     // Create Player
-    m_transportBar.init(m_pPlayer.get());
+    m_transportBar.init(m_pPlayer);
 
     //TracksView
-    m_pTrackView->init(m_pPlayer.get());
+    m_pTrackView->init(m_pPlayer);
     addAndMakeVisible(*m_pTrackView);
 
     // Some platforms require permissions to open input channels so request that here

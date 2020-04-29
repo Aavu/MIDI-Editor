@@ -23,12 +23,12 @@ class NoteMessage {
 class SelectedNoteList;
 class NoteList;
 class PianoRollBorderComponent;
-
+class PlayerComponent;
 
 class PianoRollNote: public TextButton, public ComponentBoundsConstrainer
 {
 public:
-    PianoRollNote(PlayerComponent* player, int row_n, float offset_n, float length_n, int velocity_n, MidiMessageSequence::MidiEventHolder* pNoteOnEvent, MidiMessageSequence::MidiEventHolder* pNoteOffEvent, NoteMessage *noteMessage_n);
+    PianoRollNote(std::shared_ptr<PlayerComponent> player, int row_n, float offset_n, float length_n = 1, int velocity_n = 120, MidiMessageSequence::MidiEventHolder* pNoteOnEvent = nullptr, MidiMessageSequence::MidiEventHolder* pNoteOffEvent = nullptr, NoteMessage *noteMessage_n = nullptr);
     
     ~PianoRollNote() override;
     
@@ -49,8 +49,13 @@ public:
     float getLength();
     NoteMessage* getNoteMessage();
     bool ifInit();
+    int getNoteNumber() const;
+
+    void setNoteOnEventPtr(MidiMessageSequence::MidiEventHolder * pNoteOnEvent);
+    void setNoteOffEventPtr(MidiMessageSequence::MidiEventHolder * pNoteOffEvent);
 
     void deleteFromPlayer();
+    void addNoteToPlayer();
     
     std::function<void(PianoRollNote*, int)> changePitch;
     std::function<void()> hightlightRow;
@@ -70,7 +75,7 @@ private:
     NoteMessage                                *m_pNoteMessage = nullptr;
     
     // player
-    PlayerComponent                            *m_pPlayer;
+    std::shared_ptr<PlayerComponent>            m_pPlayer;
     
     // dragger
     ComponentDragger                            m_pMyDragger;

@@ -16,7 +16,9 @@
 
 #include "../Synth/SfzMidiSynth.h"
 #include "Globals.h"
+#include "GUIComponent/ScrollablePianoRollComponent/PianoRollNote.h"
 
+class PianoRollNote;
 //==============================================================================
 /*
 */
@@ -30,6 +32,8 @@ public:
     };
     //==============================================================================
 
+    static std::shared_ptr<PlayerComponent> getInstance();
+    //------------------------------------------------------------------------------
     PlayerComponent();
     ~PlayerComponent() override;
     //------------------------------------------------------------------------------
@@ -61,7 +65,7 @@ public:
     void stop();
     void allNotesOff();
     //------------------------------------------------------Midi-note-operations----
-    // void addNote(); // TODO: Define
+    void addNote(PianoRollNote * pPianoRollNote); // TODO: Define
     void deleteNote(int iNoteOnEventIndex);
 
     /*
@@ -74,6 +78,8 @@ public:
     std::function<void()> updateTimeDisplay = nullptr;
 
 private:
+    static std::shared_ptr<PlayerComponent> m_pInstance;
+
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
     //------------------------------------------------------------------------------
     void timerCallback() override;

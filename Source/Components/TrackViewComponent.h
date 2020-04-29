@@ -27,7 +27,7 @@ public:
 
     ~TrackViewComponent() override;
 
-    void init(PlayerComponent* player);
+    void init(std::shared_ptr<PlayerComponent> player);
     void paint(Graphics& g) override;
     void resized() override;
 

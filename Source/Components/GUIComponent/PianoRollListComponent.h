@@ -31,7 +31,7 @@ public:
     
     ~PianoRollListComponent() override;
     
-    void init(PlayerComponent* player);
+    void init(std::shared_ptr<PlayerComponent> player);
     void paint(Graphics& g) override;
     void resized() override;
     
@@ -52,7 +52,7 @@ private:
     
     int m_iTimeFormat;
     
-    PlayerComponent* m_pPlayer = nullptr;
+    std::shared_ptr<PlayerComponent> m_pPlayer;
     PlayHeadScrollComponent m_playHeadScroll;
     std::shared_ptr<PlayHeadComponent> m_pPlayHead = nullptr;
     

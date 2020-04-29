@@ -17,7 +17,7 @@ TrackViewComponent::TrackViewComponent()
 {
 }
 
-void TrackViewComponent::init(PlayerComponent* player) {
+void TrackViewComponent::init(std::shared_ptr<PlayerComponent> player) {
     // header (tool bar)
     m_header.setColour (TextButton::buttonColourId, Colours::cornflowerblue);
     addAndMakeVisible (m_header);

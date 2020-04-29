@@ -10,7 +10,7 @@
 
 #include "PianoRollNote.h"
 
-PianoRollNote::PianoRollNote(PlayerComponent* player, int row_n, float offset_n, float length_n /*= 1*/, int velocity_n, MidiMessageSequence::MidiEventHolder* pNoteOnEvent, MidiMessageSequence::MidiEventHolder* pNoteOffEvent, NoteMessage *noteMessage_n /*= nullptr*/):
+PianoRollNote::PianoRollNote(std::shared_ptr<PlayerComponent> player, int row_n, float offset_n, float length_n /*= 1*/, int velocity_n /*= 120*/, MidiMessageSequence::MidiEventHolder* pNoteOnEvent /*= nullptr*/, MidiMessageSequence::MidiEventHolder* pNoteOffEvent /*= nullptr*/, NoteMessage *noteMessage_n /*= nullptr*/):
     m_pPlayer(player),
     m_iRow(row_n),
     m_fOffset(offset_n),
@@ -71,7 +71,7 @@ void PianoRollNote::mouseDown (const MouseEvent& event)
 void PianoRollNote::mouseUp (const MouseEvent& event)
 {
     auto * pSequence = m_pPlayer->getMidiMessageSequence();
-    m_pPlayer->updateNote(pSequence->getIndexOf(m_pNoteOnEvent), m_fOffset, m_fLength, Globals::PianoRoll::midiNoteNum-m_iRow+1);
+    m_pPlayer->updateNote(pSequence->getIndexOf(m_pNoteOnEvent), m_fOffset, m_fLength, getNoteNumber());
 //    DBG( "GUI Note On: " << m_pNoteOnEvent->message.getDescription() << " " << m_pNoteOnEvent->message.getTimeStamp());
 //    DBG( "GUI Note Off: " << m_pNoteOffEvent->message.getDescription() << " " << m_pNoteOffEvent->message.getTimeStamp());
 //    DBG( "GUI Note Length: " << m_pNoteOffEvent->message.getTimeStamp() - m_pNoteOnEvent->message.getTimeStamp());
@@ -123,8 +123,22 @@ NoteMessage* PianoRollNote::getNoteMessage() { return m_pNoteMessage; }
 
 bool PianoRollNote::ifInit() { return m_bInit; }
 
+int PianoRollNote::getNoteNumber() const { return Globals::PianoRoll::midiNoteNum-m_iRow+1; }
+
+void PianoRollNote::setNoteOnEventPtr(MidiMessageSequence::MidiEventHolder * pNoteOnEvent) {
+    m_pNoteOnEvent = pNoteOnEvent;
+}
+
+void PianoRollNote::setNoteOffEventPtr(MidiMessageSequence::MidiEventHolder * pNoteOffEvent) {
+    m_pNoteOffEvent = pNoteOffEvent;
+}
+
 void PianoRollNote::deleteFromPlayer() {
     m_pPlayer->deleteNote(m_pPlayer->getMidiMessageSequence()->getIndexOf(m_pNoteOnEvent));
+}
+
+void PianoRollNote::addNoteToPlayer() {
+    m_pPlayer->addNote(this);
 }
 
 void PianoRollNote::paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)

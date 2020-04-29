@@ -56,6 +56,12 @@ static double convertTicksToSeconds (double time,
 }
 
 //==============================================================================
+
+std::shared_ptr<PlayerComponent> PlayerComponent::getInstance() {
+    static std::shared_ptr<PlayerComponent> m_pInstance(new PlayerComponent());
+    return m_pInstance;
+}
+
 PlayerComponent::PlayerComponent()
 {
     initSynth();
@@ -343,6 +349,23 @@ void PlayerComponent::updateNote(int iNoteOnEventIndex, double fNewNoteOnTimesta
     m_iMaxBufferLength = static_cast<long>((m_midiMessageSequence->getEndTime() + m_fMinBufferLengthInSec) * m_fSampleRate);
 
     DBG("----------------------------------------------------");
+}
+
+void PlayerComponent::addNote(PianoRollNote * pPianoRollNote) {
+    // Create midi messages
+    auto noteOnMsg = MidiMessage::noteOn (1, pPianoRollNote->getNoteNumber(), (uint8) 120);
+    double a = convertQuarterNoteToSec(pPianoRollNote->getOffset());
+    noteOnMsg.setTimeStamp(convertQuarterNoteToSec(pPianoRollNote->getOffset()));
+
+    auto noteOffMsg = MidiMessage::noteOn (1, pPianoRollNote->getNoteNumber(), (uint8) 120);
+    double d = convertQuarterNoteToSec(pPianoRollNote->getOffset() + pPianoRollNote->getLength());
+    noteOffMsg.setTimeStamp(d);
+
+    // Add to midiMessageSequence
+    auto * e1 = m_midiMessageSequence->addEvent(noteOnMsg);
+    pPianoRollNote->setNoteOnEventPtr(e1);
+    auto * e2 = m_midiMessageSequence->addEvent(noteOffMsg);
+    pPianoRollNote->setNoteOffEventPtr(e2);
 }
 
 void PlayerComponent::deleteNote(int iNoteOnEventIndex) {

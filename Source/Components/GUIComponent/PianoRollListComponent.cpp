@@ -14,7 +14,7 @@ PianoRollListComponent::PianoRollListComponent() : m_pPlayHead(std::make_shared<
 {
 }
 
-void PianoRollListComponent::init(PlayerComponent* player) {
+void PianoRollListComponent::init(std::shared_ptr<PlayerComponent> player) {
     m_pPlayer = player;
     
     if (m_iNumTracks > 0) {
