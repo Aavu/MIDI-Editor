@@ -74,6 +74,7 @@ void PlayerComponent::addAllSequenceMessagesToBuffer() {
 }
 
 void PlayerComponent::setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq) {
+    sendActionMessage(Globals::ActionMessage::Stop);
     m_midiMessageSequence = midiMsgSeq;
     m_midiBuffer.clear();
     addAllSequenceMessagesToBuffer();
@@ -90,6 +91,7 @@ void PlayerComponent::pause() {
 void PlayerComponent::stop() {
     m_playState = PlayState::Stopped;
     resetCurrentPosition();
+    allNotesOff();
 }
 
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
@@ -142,8 +144,6 @@ void PlayerComponent::allNotesOff() {
 void PlayerComponent::setCurrentPosition(long value) {
     m_iCurrentPosition = value;
     updateTempo();
-//    if (m_pIterator)
-//        m_pIterator->setNextSamplePosition((int)m_iCurrentPosition);
 }
 
 void PlayerComponent::resetCurrentPosition() {

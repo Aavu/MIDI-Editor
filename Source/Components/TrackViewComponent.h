@@ -30,22 +30,26 @@ public:
     void paint(Graphics& g) override;
     void resized() override;
 
-    int getNumTracks() const;
+//    int getNumTracks() const;
+//
+//    void addTrack(int numTimeStampsForPianoRoll);
 
-    void addTrack(int numTimeStampsForPianoRoll);
+    void setTrack(int numTimeStampsForPianoRoll, const MidiMessageSequence *message);
     
     void setTimeFormat(int timeFormat);
-    
-    void convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message);
 
 private:
     void timerCallback() override;
     void updatePlayHeadPosition();
     void handleScrollCallback(int newPositionX);
 
+    void convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message);
+
     TextButton m_header;
     SidebarComponent m_sidebar;
-    std::vector<ScrollablePianoRollComponent*> m_tracks;
+//    std::vector<ScrollablePianoRollComponent*> m_tracks;
+
+    ScrollablePianoRollComponent* m_pTrack = nullptr;
     
     int m_iTimeFormat;
 
