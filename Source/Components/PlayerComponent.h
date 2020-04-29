@@ -33,9 +33,8 @@ public:
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill);
 
-    void setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq);
+    void setMidiMessageSequence(MidiMessageSequence* midiMsgSeq);
     void setTempoEventSequence(const MidiMessageSequence* midiMsgSeq);
-
     void play();
     void pause();
     void stop();
@@ -74,14 +73,16 @@ public:
 
     std::function<void()> updateTransportDisplay = nullptr;
 
+
 private:
     void initSynth();
 
-    void addMessageToBuffer(const MidiMessage& message);
+    void fillMidiBuffer(int iNumSamples);
     void addMessageToTempoBuffer(const MidiMessage& message);
-    void addAllSequenceMessagesToBuffer();
+    void addAllTempoMessagesToBuffer();
 
     void updateTempo();
+
 
     void timerCallback() override;
 
@@ -92,7 +93,15 @@ private:
     double m_fCurrentTempo = 120;
     MidiBuffer m_tempoEventBuffer;
 
-    const MidiMessageSequence* m_midiMessageSequence = nullptr;
+    MidiMessageSequence* m_midiMessageSequence = nullptr;
+
+    int m_iMidiEventReadIdx = 0;
+    int m_iMaxMidiEvents = 0;
+
+    long m_iLastRetrievedPosition = 0;
+
+
+
     MidiBuffer m_midiBuffer;
     MidiBuffer m_currentMidiBuffer;
     std::unique_ptr<MidiBuffer::Iterator> m_pIterator;

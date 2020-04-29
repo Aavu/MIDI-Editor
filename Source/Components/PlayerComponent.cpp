@@ -37,19 +37,13 @@ void PlayerComponent::initSynth() {
     m_synth.addActionListener(this);
 }
 
-void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
-    auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
-    //std::cout << message.getTimeStamp() << "\t" << msgSampleNumber << "\t" << message.getDescription() << std::endl;
-    m_midiBuffer.addEvent(message, msgSampleNumber);
-}
-
 void PlayerComponent::addMessageToTempoBuffer(const MidiMessage& message) {
     auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
     //std::cout << message.getTimeStamp() << "\t" << msgSampleNumber << "\t" << message.getDescription() << std::endl;
     m_tempoEventBuffer.addEvent(message, msgSampleNumber);
 }
 
-void PlayerComponent::addAllSequenceMessagesToBuffer() {
+void PlayerComponent::addAllTempoMessagesToBuffer() {
     auto numEvents = m_midiMessageSequence->getNumEvents();
     MidiMessageSequence::MidiEventHolder* const * eventHolder = m_midiMessageSequence->begin();
     MidiMessage msg;
@@ -62,22 +56,40 @@ void PlayerComponent::addAllSequenceMessagesToBuffer() {
                 m_fCurrentTempo = 60 / msg.getTempoSecondsPerQuarterNote();
                 firstTempo = false;
             }
-        } else {
-            addMessageToBuffer(msg);
         }
     }
-
     m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_tempoEventBuffer);
-    m_iMaxBufferLength = m_midiBuffer.getLastEventTime();
-
-//    DBG("max length : " << m_iMaxBufferLength);
 }
 
-void PlayerComponent::setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq) {
+void PlayerComponent::fillMidiBuffer(int iNumSamples) {
+    MidiMessage msg;
+    // Retrieve samples to fill at least one next block
+    while(m_iLastRetrievedPosition < (m_iCurrentPosition + iNumSamples)) {
+        if (m_iMidiEventReadIdx < m_iMaxMidiEvents) {
+            msg = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx)->message;
+            auto msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
+            m_midiBuffer.addEvent(msg, msgSampleNum);
+            m_iLastRetrievedPosition = msgSampleNum;
+            m_iMidiEventReadIdx++;
+        }
+        else
+            break;
+    }
+}
+
+
+void PlayerComponent::setMidiMessageSequence(MidiMessageSequence* midiMsgSeq) {
     sendActionMessage(Globals::ActionMessage::Stop);
     m_midiMessageSequence = midiMsgSeq;
+    m_midiMessageSequence->sort();
+
+    resetCurrentPosition();
+    m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
+
     m_midiBuffer.clear();
-    addAllSequenceMessagesToBuffer();
+    m_iMaxBufferLength = static_cast<long>(m_midiMessageSequence->getEndTime() * m_fSampleRate);
+
+    addAllTempoMessagesToBuffer();
 }
 
 void PlayerComponent::play() {
@@ -103,22 +115,26 @@ void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRa
 void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill) {
     bufferToFill.clearActiveBufferRegion();
     m_currentMidiBuffer.clear();
-
-    auto numSamples = bufferToFill.numSamples;
+    auto blockSize = bufferToFill.numSamples;
 
     if (m_playState == PlayState::Playing) {
+
+        // If not enough samples in m_midiBuffer for new block
+        if ((m_iCurrentPosition + blockSize) > m_iLastRetrievedPosition) {
+            fillMidiBuffer(blockSize);
+
         if (m_midiBuffer.isEmpty()) {
-            m_iCurrentPosition += numSamples;
+            m_iCurrentPosition += blockSize;
             return;
         }
 
-        m_currentMidiBuffer.addEvents(m_midiBuffer, (int)m_iCurrentPosition, numSamples, 0);
-        m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, numSamples);
+        m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, blockSize, 0);
+        m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, blockSize);
 
         // Tempo update
         updateTempo();
 
-        m_iCurrentPosition += numSamples;
+        m_iCurrentPosition += blockSize;
 
         if (m_iCurrentPosition > m_iMaxBufferLength) {
             sendActionMessage(Globals::ActionMessage::Stop);
@@ -139,7 +155,7 @@ void PlayerComponent::updateTempo() {
 
 void PlayerComponent::allNotesOff() {
     for (int i=0; i<SoundFontGeneralMidiSynth::kiNumChannels; i++)
-        m_synth.allNotesOff(0, true);
+        m_synth.allNotesOff(0, false);
 }
 
 void PlayerComponent::setCurrentPosition(long value) {
@@ -149,6 +165,8 @@ void PlayerComponent::setCurrentPosition(long value) {
 
 void PlayerComponent::resetCurrentPosition() {
     setCurrentPosition(0);
+    m_iMidiEventReadIdx = 0;
+    m_iLastRetrievedPosition = 0;
 }
 
 void PlayerComponent::timerCallback() {

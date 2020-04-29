@@ -63,6 +63,7 @@ m_pTrackView(std::make_unique<TrackViewComponent>())
 MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
+    delete m_pSequence;
     removeAllActionListeners();
     shutdownAudio();
 }
@@ -170,25 +171,25 @@ void MainComponent::handleFileOpen() {
         int timeFormat = m_midiFile.getTimeFormat();
         m_pTrackView->setTimeFormat(timeFormat);
 
-//        auto* sequence = m_midiFile.getTrack(0);
-        std::shared_ptr<MidiMessageSequence> sequence = std::make_shared<MidiMessageSequence>();
+        m_pSequence = new MidiMessageSequence();
         for (int i=0; i < m_midiFile.getNumTracks(); i++) {
-            sequence->addSequence(*m_midiFile.getTrack(i), 0);
-            sequence->updateMatchedPairs();
+            m_pSequence->addSequence(*m_midiFile.getTrack(i), 0);
+            m_pSequence->updateMatchedPairs();
         }
 
-        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(sequence->getEndTime()/timeFormat) + 10);
-        m_pTrackView->setTrack(numTimeStampsForPianoRoll, sequence.get());
+        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(m_pSequence->getEndTime()/timeFormat) + 10);
+        m_pTrackView->setTrack(numTimeStampsForPianoRoll, m_pSequence);
         m_midiFile.convertTimestampTicksToSeconds();
 
         // Doing this again is very unoptimistic. But given the time, this is the best solution.
-        sequence->clear();
+        m_pSequence->clear();
         for (int i=0; i < m_midiFile.getNumTracks(); i++) {
-            sequence->addSequence(*m_midiFile.getTrack(i), 0);
-            sequence->updateMatchedPairs();
+            m_pSequence->addSequence(*m_midiFile.getTrack(i), 0);
+            m_pSequence->updateMatchedPairs();
         }
-        m_pPlayer->setMidiMessageSequence(sequence.get());
+        m_pPlayer->setMidiMessageSequence(m_pSequence);
         toFront(true);
+
         delete stream;
     }
 }
