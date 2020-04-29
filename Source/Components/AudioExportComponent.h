@@ -28,6 +28,11 @@ public:
     void init(const File& file) {
         if (m_bInitialized)
             return;
+
+        if (file.existsAsFile()) {
+            file.deleteFile();
+        }
+
         if (auto fileStream = std::unique_ptr<FileOutputStream> (file.createOutputStream())) {
             WavAudioFormat wavFormat;
             if (auto writer = wavFormat.createWriterFor(fileStream.get(), m_fSampleRate, m_iNumChannels, m_iBitDepth, {}, 0)) {
