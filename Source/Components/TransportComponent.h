@@ -47,12 +47,18 @@ private:
     void updateTimeDisplay(const SMPTE& smpte);
 
     struct Icons {
-        const Image playBtnNormal  = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/playBtnNormal.png"));
-        const Image playBtnDown    = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/playBtnDown.png"));
-        const Image pauseBtnNormal = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/pauseBtnNormal.png"));
-        const Image pauseBtnDown   = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/pauseBtnDown.png"));
-        const Image stopBtnNormal  = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/stopBtnNormal.png"));
-        const Image stopBtnDown    = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/stopBtnDown.png"));
+        const Image playBtnNormal  = ImageCache::getFromFile(File(
+                CUtil::getResourcePath() + "/icons/playBtnNormal.png"));
+        const Image playBtnDown    = ImageCache::getFromFile(File(
+                CUtil::getResourcePath() + "/icons/playBtnDown.png"));
+        const Image pauseBtnNormal = ImageCache::getFromFile(File(
+                CUtil::getResourcePath() + "/icons/pauseBtnNormal.png"));
+        const Image pauseBtnDown   = ImageCache::getFromFile(File(
+                CUtil::getResourcePath() + "/icons/pauseBtnDown.png"));
+        const Image stopBtnNormal  = ImageCache::getFromFile(File(
+                CUtil::getResourcePath() + "/icons/stopBtnNormal.png"));
+        const Image stopBtnDown    = ImageCache::getFromFile(File(
+                CUtil::getResourcePath() + "/icons/stopBtnDown.png"));
     };
 
     Icons m_icons;
