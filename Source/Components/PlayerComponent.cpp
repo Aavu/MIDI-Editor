@@ -64,7 +64,7 @@ PlayerComponent::PlayerComponent()
 
 PlayerComponent::~PlayerComponent()
 {
-    //TODO: destroy midimessage seq ???
+    delete m_midiMessageSequence;
 }
 
 void PlayerComponent::paint (Graphics& g)
@@ -329,11 +329,15 @@ void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNot
     DBG("-------------updateNoteTimestamps--------------------");
 
     auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx); // To maintain read index after sort
-    DBG("EventAtReadIndex: " << pEventAtReadIdx->message.getDescription() << " " <<pEventAtReadIdx->message.getTimeStamp());
+
+    DBG("Old EventAtReadIndex: " << pEventAtReadIdx->message.getDescription() << " " <<pEventAtReadIdx->message.getTimeStamp());
 
     // Get noteOn and noteOff events
     auto * pNoteOnEvent = m_midiMessageSequence->getEventPointer(iNoteOnEventIndex);
     auto * pNoteOffEvent = m_midiMessageSequence->getEventPointer(m_midiMessageSequence->getIndexOfMatchingKeyUp(iNoteOnEventIndex));
+    DBG( "Old Note On: " << pNoteOnEvent->message.getDescription() << " " << pNoteOnEvent->message.getTimeStamp());
+    DBG( "Old Note Off: " << pNoteOffEvent->message.getDescription() << " " << pNoteOffEvent->message.getTimeStamp());
+    DBG( "Old Note Length: " << pNoteOffEvent->message.getTimeStamp() - pNoteOnEvent->message.getTimeStamp());
 
     // Update timestamps for both noteOn and noteOff
     auto fNewNoteOnTimestamp = convertQuarterNoteToSec(fNewNoteOnTimestampInQuarterNotes);
@@ -341,18 +345,21 @@ void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNot
     if (fNoteDurationInQuarterNotes == -1) // keep duration same as before
         fNoteDuration = pNoteOffEvent->message.getTimeStamp() - pNoteOnEvent->message.getTimeStamp();
     else
-        fNoteDuration = convertQuarterNoteToSec(fNewNoteOnTimestamp);
+        fNoteDuration = convertQuarterNoteToSec(fNoteDurationInQuarterNotes);
     pNoteOnEvent->message.setTimeStamp(fNewNoteOnTimestamp);
     pNoteOffEvent->message.setTimeStamp(fNewNoteOnTimestamp + fNoteDuration);
 
     // Re-order MidiMessageSeuence
-    m_midiMessageSequence->updateMatchedPairs(); //TODO: Are both updateMatchedPairs and sort required ???
     m_midiMessageSequence->sort();
+    m_midiMessageSequence->updateMatchedPairs(); //TODO: Are both updateMatchedPairs and sort required ???
 
     // Set read index back to correct position after re-ordering.
     m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx);
-    DBG("EventAtReadIndex: " << pEventAtReadIdx->message.getDescription() << " " <<pEventAtReadIdx->message.getTimeStamp());
 
+    DBG("New EventAtReadIndex: " << pEventAtReadIdx->message.getDescription() << " " <<pEventAtReadIdx->message.getTimeStamp());
+    DBG( "New Note On: " << pNoteOnEvent->message.getDescription() << " " << pNoteOnEvent->message.getTimeStamp());
+    DBG( "New Note Off: " << pNoteOffEvent->message.getDescription() << " " << pNoteOffEvent->message.getTimeStamp());
+    DBG( "New Note Length: " << pNoteOffEvent->message.getTimeStamp() - pNoteOnEvent->message.getTimeStamp());
     // Reset buffer length if length of midi has changed (i.e. if last note moved)
     m_iMaxBufferLength = static_cast<long>(m_midiMessageSequence->getEndTime() * m_fSampleRate);
 
