@@ -199,8 +199,7 @@ double PlayerComponent::convertSecToQuarterNote(double positionInSec)
 
 double PlayerComponent::getCurrentPositionInQuarterNotes()
 {
-    double curPositionInQuarterNotes = convertSecToQuarterNote(m_iCurrentPosition*1.F/m_fSampleRate);
-    return curPositionInQuarterNotes;
+    return convertSecToQuarterNote(m_iCurrentPosition*1.F/m_fSampleRate);
 }
 
 void PlayerComponent::setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes)
@@ -278,6 +277,14 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
         }
     }
 }
+
+PlayerComponent::PlayState PlayerComponent::getPlayState() const {return m_playState;}
+
+double PlayerComponent::getSampleRate() const {return m_fSampleRate;}
+
+long PlayerComponent::getMaxBufferLength() const {return m_iMaxBufferLength;}
+
+long PlayerComponent::getCurrentPosition() const {return m_iCurrentPosition;}
 
 void PlayerComponent::allNotesOff() {
     for (int i=0; i<SoundFontGeneralMidiSynth::kiNumChannels; i++)

@@ -41,10 +41,10 @@ public:
     //------------------------------------------------------------------------------
     MidiMessageSequence * getMidiMessageSequence() const;
     void setMidiMessageSequence(MidiMessageSequence* midiMsgSeq);
-    PlayState getPlayState() {return m_playState;}
-    double getSampleRate() {return m_fSampleRate;}
-    long getMaxBufferLength() {return m_iMaxBufferLength;}
-    long getCurrentPosition() {return m_iCurrentPosition;}
+    PlayState getPlayState() const;
+    double getSampleRate() const;
+    long getMaxBufferLength() const;
+    long getCurrentPosition() const;
     void setCurrentPosition(long value);
     double getCurrentPositionInQuarterNotes();
     void setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes);
