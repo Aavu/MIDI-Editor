@@ -19,7 +19,7 @@ void SoundFontGeneralMidiSynth::handleProgramChange(int iMidiChannel, int iProgr
     auto *sound = getSoundForChannel(iMidiChannel);
     if (sound) {
         sound->useSubsound(iProgram);
-        DBG("SoundFontGeneralMidiSynth::handleProgramChange-->  midiChannel: " << iMidiChannel << " set to programNumber: " << iProgram);
+//        DBG("SoundFontGeneralMidiSynth::handleProgramChange-->  midiChannel: " << iMidiChannel << " set to programNumber: " << iProgram);
     }
 }
 

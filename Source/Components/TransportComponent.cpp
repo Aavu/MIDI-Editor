@@ -171,6 +171,6 @@ void TransportComponent::updateTimeDisplay() {
 void TransportComponent::updateTempoDisplay(double bpm) {
     char text[5];
     sprintf(text, "%03.01f", std::round(bpm));
-    DBG(text);
+//    DBG(text);
     m_bpmDisplay.setText(text, dontSendNotification);
 }

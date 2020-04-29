@@ -55,7 +55,7 @@ void PlayerComponent::addAllSequenceMessagesToBuffer() {
     m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);
     m_iMaxBufferLength = m_midiBuffer.getLastEventTime();
 
-    DBG("max length : " << m_iMaxBufferLength);
+//    DBG("max length : " << m_iMaxBufferLength);
 }
 
 void PlayerComponent::setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq) {
