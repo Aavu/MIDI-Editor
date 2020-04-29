@@ -59,7 +59,8 @@ void PlayerComponent::addAllSequenceMessagesToBuffer() {
         if (msg.isTempoMetaEvent()) {
             addMessageToTempoBuffer(msg);
             if (firstTempo) {
-                m_fCurrentTempo = 60 / msg.getTempoSecondsPerQuarterNote();
+                if (msg.getTempoSecondsPerQuarterNote() != 0)
+                    m_fCurrentTempo = 60 / msg.getTempoSecondsPerQuarterNote();
                 firstTempo = false;
             }
         } else {
@@ -133,7 +134,8 @@ void PlayerComponent::updateTempo() {
     MidiMessage result;
     int samplePosition;
     m_pIterator->getNextEvent(result, samplePosition);
-    m_fCurrentTempo = 60 / result.getTempoSecondsPerQuarterNote();
+    if (result.getTempoSecondsPerQuarterNote() != 0)
+        m_fCurrentTempo = 60 / result.getTempoSecondsPerQuarterNote();
 }
 
 void PlayerComponent::allNotesOff() {

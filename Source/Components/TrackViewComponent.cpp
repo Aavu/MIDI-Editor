@@ -9,10 +9,6 @@
 */
 #include "TrackViewComponent.h"
 
-//int TrackParameters::m_iNumTracks = 0;
-//int TrackParameters::k_iDefaultTrackHeight = 300;
-//std::vector<int> TrackParameters::m_aiTrackHeight {};
-
 TrackViewComponent::TrackViewComponent() : m_pPlayHead(std::make_shared<PlayHeadComponent>())
 {
 }
