@@ -147,8 +147,8 @@ bool MainComponent::fileCallback(CommandID commandID) {
             handleExportAudio();
             break;
 
-        case MenuComponent::fileExportMIDI:
-            break;
+//        case MenuComponent::fileExportMIDI:
+//            break;
 
         default:
             return false;
