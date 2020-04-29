@@ -29,7 +29,7 @@ public:
     void init(PlayerComponent* player);
     void paint(Graphics& g) override;
     void resized() override;
-
+    
     int getNumTracks();
     
     void addTrack(int numTimeStampsForPianoRoll);

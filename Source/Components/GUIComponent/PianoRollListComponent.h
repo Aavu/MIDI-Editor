@@ -36,7 +36,7 @@ public:
     
     int getNumTracks() const;
     
-    void addTrack(int numTimeStampsForPianoRoll);
+    void setTrack(int numTimeStampsForPianoRoll);
     
     void setTimeFormat(int timeFormat);
     

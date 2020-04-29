@@ -66,12 +66,17 @@ int PianoRollListComponent::getNumTracks() const {
     return m_iNumTracks;
 }
 
-void PianoRollListComponent::addTrack(int numTimeStampsForPianoRoll) {
+void PianoRollListComponent::setTrack(int numTimeStampsForPianoRoll) {
+    if (m_iNumTracks == 1){
+        m_iNumTracks = 0;
+        delete m_tracks[0];
+        m_tracks.pop_back();
+    }
     m_tracks.push_back(new ScrollablePianoRollComponent(numTimeStampsForPianoRoll));
     m_tracks[0]->m_syncScrollBars = [this] (int setViewPosition) { syncViewPositionX(setViewPosition); };
     addAndMakeVisible (m_tracks[m_iNumTracks], 0);
 
-    m_iNumTracks++;
+    m_iNumTracks = 1;
     
     m_playHeadScroll.m_syncScrollBars = [this] (int setViewPosition) { syncViewPositionX(setViewPosition); };
     m_playHeadScroll.setBoxWidthAndNumBox(m_tracks[0]->getBoxWidth(), numTimeStampsForPianoRoll);
@@ -86,7 +91,7 @@ void PianoRollListComponent::addTrack(int numTimeStampsForPianoRoll) {
 }
 
 void PianoRollListComponent::timerCallback() {
-    if (!m_pPlayer)
+    if (!m_pPlayer || m_iNumTracks == 0)
         return;
     m_iCurrentPlayHeadPosition = m_pPlayer->getCurrentPositionInQuarterNotes()*m_tracks.at(0)->getBoxWidth() + m_tracks.at(0)->getViewPositionX();
     if (m_iCurrentPlayHeadPosition < 0)

@@ -58,7 +58,7 @@ int TrackViewComponent::getNumTracks() {
 }
 
 void TrackViewComponent::addTrack(int numTimeStampsForPianoRoll) {
-    m_pianoRollListComp->addTrack(numTimeStampsForPianoRoll);
+    m_pianoRollListComp->setTrack(numTimeStampsForPianoRoll);
     resized();
 }
 
