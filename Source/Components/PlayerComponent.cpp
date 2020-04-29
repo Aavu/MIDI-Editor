@@ -300,6 +300,7 @@ void PlayerComponent::resetCurrentPosition() {
 
 void PlayerComponent::updateNote(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes /*= -1*/, int iNewNoteNumber /*= -1*/) {
     DBG("-------------updateNoteTimestamps--------------------");
+    const ScopedLock scopedLock(m_criticalSection);
 
     auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx); // To maintain read index after sort
     DBG("Old EventAtReadIndex: " << pEventAtReadIdx->message.getDescription() << " " <<pEventAtReadIdx->message.getTimeStamp());

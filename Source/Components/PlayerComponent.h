@@ -108,6 +108,8 @@ private:
 
     PlayState m_playState = PlayState::Stopped;
     SoundFontGeneralMidiSynth m_synth;
+
+    CriticalSection m_criticalSection;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlayerComponent)
 };
