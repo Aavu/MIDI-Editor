@@ -67,8 +67,7 @@ public:
      * Changes noteOn and noteOff timestamps.
      * Duration is set to fNoteDurationInQuarterNote if provided, else it is kept the same.
      */
-    void updateNoteTimestamps(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes = -1);
-    void updateNotePitch(int iNoteOnEventIndex, int iNewNoteNumber);
+    void updateNote(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes = -1, int iNewNoteNumber = -1);
     // void addNote() // TODO: Define
     // void deleteNote(int iNoteOnEventIndex) // TODO: Define
 

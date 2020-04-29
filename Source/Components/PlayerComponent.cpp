@@ -325,11 +325,10 @@ void PlayerComponent::resetCurrentPosition() {
     setCurrentPosition(0);
 }
 
-void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes /*= -1*/) {
+void PlayerComponent::updateNote(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes /*= -1*/, int iNewNoteNumber /*= -1*/) {
     DBG("-------------updateNoteTimestamps--------------------");
 
     auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx); // To maintain read index after sort
-
     DBG("Old EventAtReadIndex: " << pEventAtReadIdx->message.getDescription() << " " <<pEventAtReadIdx->message.getTimeStamp());
 
     // Get noteOn and noteOff events
@@ -349,9 +348,15 @@ void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNot
     pNoteOnEvent->message.setTimeStamp(fNewNoteOnTimestamp);
     pNoteOffEvent->message.setTimeStamp(fNewNoteOnTimestamp + fNoteDuration);
 
-    // Re-order MidiMessageSeuence
+    // Update pitch of both noteOn abd noteOff events
+    if (iNewNoteNumber != -1) {
+        pNoteOnEvent->message.setNoteNumber(iNewNoteNumber);
+        pNoteOffEvent->message.setNoteNumber(iNewNoteNumber);
+    }
+
+    // Re-order MidiMessageSequence
     m_midiMessageSequence->sort();
-    m_midiMessageSequence->updateMatchedPairs(); //TODO: Are both updateMatchedPairs and sort required ???
+    m_midiMessageSequence->updateMatchedPairs();
 
     // Set read index back to correct position after re-ordering.
     m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx);
@@ -364,17 +369,6 @@ void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNot
     m_iMaxBufferLength = static_cast<long>(m_midiMessageSequence->getEndTime() * m_fSampleRate);
 
     DBG("----------------------------------------------------");
-}
-
-void PlayerComponent::updateNotePitch(int iNoteOnEventIndex, int iNewNoteNumber) {
-    DBG("-------------updateNotePitch--------------------");
-    auto * pNoteOnEvent = m_midiMessageSequence->getEventPointer(iNoteOnEventIndex);
-    auto * pNoteOffEvent = m_midiMessageSequence->getEventPointer(m_midiMessageSequence->getIndexOfMatchingKeyUp(iNoteOnEventIndex));
-    pNoteOnEvent->message.setNoteNumber(iNewNoteNumber);
-    pNoteOffEvent->message.setNoteNumber(iNewNoteNumber);
-    //TODO: is updateMatchedPairs required here?
-    DBG("----------------------------------------------------");
-
 }
 
 String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {

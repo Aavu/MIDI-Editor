@@ -74,10 +74,10 @@ void PianoRollNote::mouseDown (const MouseEvent& event)
 void PianoRollNote::mouseUp (const MouseEvent& event)
 {
     auto * pSequence = m_pPlayer->getMidiMessageSequence();
-    m_pPlayer->updateNoteTimestamps(pSequence->getIndexOf(m_pNoteOnEvent), m_fOffset, m_fLength);
-    DBG( "GUI Note On: " << m_pNoteOnEvent->message.getDescription() << " " << m_pNoteOnEvent->message.getTimeStamp());
-    DBG( "GUI Note Off: " << m_pNoteOffEvent->message.getDescription() << " " << m_pNoteOffEvent->message.getTimeStamp());
-    DBG( "GUI Note Length: " << m_pNoteOffEvent->message.getTimeStamp() - m_pNoteOnEvent->message.getTimeStamp());
+    m_pPlayer->updateNote(pSequence->getIndexOf(m_pNoteOnEvent), m_fOffset, m_fLength, Globals::PianoRoll::midiNoteNum-m_iRow+1);
+//    DBG( "GUI Note On: " << m_pNoteOnEvent->message.getDescription() << " " << m_pNoteOnEvent->message.getTimeStamp());
+//    DBG( "GUI Note Off: " << m_pNoteOffEvent->message.getDescription() << " " << m_pNoteOffEvent->message.getTimeStamp());
+//    DBG( "GUI Note Length: " << m_pNoteOffEvent->message.getTimeStamp() - m_pNoteOnEvent->message.getTimeStamp());
     DBG("----------------");
 }
 
