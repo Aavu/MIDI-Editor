@@ -63,8 +63,6 @@ private:
 
     Icons m_icons;
 
-//    TextButton m_playBtn;
-//    TextButton m_stopBtn;
     ImageButton m_playBtn;
     ImageButton m_stopBtn;
 
@@ -75,8 +73,6 @@ private:
     Label m_bpmLabel;
 
     PlayerComponent *m_pPlayer = nullptr;
-
-    unsigned int m_bpm = 120;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TransportComponent)
 };

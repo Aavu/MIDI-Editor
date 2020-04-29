@@ -97,6 +97,7 @@ void PianoRollListComponent::timerCallback() {
     if (m_iCurrentPlayHeadPosition < 0)
         m_iCurrentPlayHeadPosition = -Globals::PianoRoll::keyboardWidth-10;
     updatePlayHeadPosition();
+    m_pPlayer->updateTransportDisplay();
 }
 
 void PianoRollListComponent::updatePlayHeadPosition() {

@@ -116,18 +116,19 @@ void TransportComponent::playBtnClicked()
 
 void TransportComponent::stopBtnClicked()
 {
-    auto state = m_pPlayer->getPlayState();
+//    auto state = m_pPlayer->getPlayState();
+    m_pPlayer->stop();
 
-    switch (state) {
-        case PlayerComponent::PlayState::Playing:
-            m_pPlayer->pause();
-            break;
-
-        case PlayerComponent::PlayState::Paused:
-        case PlayerComponent::PlayState::Stopped:
-            m_pPlayer->stop();
-            break;
-    }
+//    switch (state) {
+//        case PlayerComponent::PlayState::Playing:
+//            m_pPlayer->pause();
+//            break;
+//
+//        case PlayerComponent::PlayState::Paused:
+//        case PlayerComponent::PlayState::Stopped:
+//
+//            break;
+//    }
     m_playBtn.setImages(false, true, true, m_icons.playBtnNormal, 1, {}, {}, .8, {}, m_icons.playBtnDown, 1, {});
 
 }

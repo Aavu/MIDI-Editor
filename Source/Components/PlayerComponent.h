@@ -51,7 +51,11 @@ public:
     long getCurrentPosition() {return m_iCurrentPosition;}
     double getSampleRate() {return m_fSampleRate;}
     long getMaxBufferLength() {return m_iMaxBufferLength;}
-    double getTempo() {return m_fCurrentTempo;}
+    
+    double getTempo() {
+        updateTempo();
+        return m_fCurrentTempo;
+    }
     
     MidiMessageSequence& getTempoEvents();
     MidiMessageSequence& getTempoEventsInSecs();
