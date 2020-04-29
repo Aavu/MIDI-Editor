@@ -58,9 +58,8 @@ void PlayerComponent::addAllSequenceMessagesToBuffer() {
         msg = eventHolder[i]->message;
         if (msg.isTempoMetaEvent()) {
             addMessageToTempoBuffer(msg);
-            if (firstTempo) {
-                if (msg.getTempoSecondsPerQuarterNote() != 0)
-                    m_fCurrentTempo = 60 / msg.getTempoSecondsPerQuarterNote();
+            if (firstTempo && msg.getTempoSecondsPerQuarterNote() != 0) {
+                m_fCurrentTempo = 60 / msg.getTempoSecondsPerQuarterNote();
                 firstTempo = false;
             }
         } else {
