@@ -244,4 +244,9 @@ void MainComponent::actionListenerCallback (const String& message) {
         m_pAudioExporter->finish();
         m_bExporting = false;
     }
+
+    if ((message == Globals::ActionMessage::Stop) && m_bExporting) {
+        m_pAudioExporter->finish();
+        m_bExporting = false;
+    }
 }
