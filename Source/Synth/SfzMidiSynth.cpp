@@ -19,7 +19,7 @@ void SoundFontGeneralMidiSynth::handleProgramChange(int iMidiChannel, int iProgr
     auto *sound = getSoundForChannel(iMidiChannel);
     if (sound) {
         sound->useSubsound(iProgram);
-        DBG("SoundFontGeneralMidiSynth::handleProgramChange-->  midiChannel: " << iMidiChannel << " set to programNumber: " << iProgram);
+//        DBG("SoundFontGeneralMidiSynth::handleProgramChange-->  midiChannel: " << iMidiChannel << " set to programNumber: " << iProgram);
     }
 }
 
@@ -40,6 +40,7 @@ void SoundFontGeneralMidiSynth::initSynth(File * pSoundFontFile) {
             addSound(sound);
         }
         DBG( sounds.size() << " sounds added.");
+        sendActionMessage(Globals::ActionMessage::EnableTransport);
     };
     m_sfzLoader->setSfzFile(pSoundFontFile);
     DBG( "Loading sounds...");

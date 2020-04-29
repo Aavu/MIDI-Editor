@@ -20,7 +20,7 @@
 //==============================================================================
 /*
 */
-class PlayerComponent : public Component, public ActionBroadcaster
+class PlayerComponent : public Component, public ActionBroadcaster, public ActionListener, public Timer
 {
 public:
     PlayerComponent();
@@ -66,6 +66,7 @@ public:
     }
 
     void setCurrentPosition(long value);
+
     void resetCurrentPosition();
 
 
@@ -75,6 +76,10 @@ private:
     void initSynth();
 
     void fillMidiBuffer(int iNumSamples);
+
+    void timerCallback() override;
+
+    void actionListenerCallback (const String& message) override;
 
     long m_iMaxBufferLength = 0;
 

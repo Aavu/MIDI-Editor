@@ -15,11 +15,12 @@
 PlayerComponent::PlayerComponent()
 {
     initSynth();
-
+    startTimer(Globals::GUI::iUpdateInterval_ms);
 }
 
 PlayerComponent::~PlayerComponent()
 {
+    stopTimer();
 }
 
 void PlayerComponent::paint (Graphics& g)
@@ -33,6 +34,7 @@ void PlayerComponent::resized()
 void PlayerComponent::initSynth() {
     File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
     m_synth.initSynth(soundFontFile);
+    m_synth.addActionListener(this);
 }
 
 void PlayerComponent::fillMidiBuffer(int iNumSamples) {
@@ -76,12 +78,10 @@ void PlayerComponent::play() {
 
 void PlayerComponent::pause() {
     m_playState = PlayState::Paused;
-    // TODO: Make sure to flush note ons.
 }
 
 void PlayerComponent::stop() {
     m_playState = PlayState::Stopped;
-    // TODO: Make sure to flush note ons.
     resetCurrentPosition();
 }
 
@@ -148,4 +148,13 @@ String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName
             return String();
     }
     return currentDir.getFullPathName();
+}
+
+void PlayerComponent::timerCallback() {
+    updateTimeDisplay();
+}
+
+void PlayerComponent::actionListenerCallback (const String& message) {
+    if (message == Globals::ActionMessage::EnableTransport) // Just relay message to Transport
+        sendActionMessage(message);
 }

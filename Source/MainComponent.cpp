@@ -171,8 +171,7 @@ void MainComponent::handleFileOpen() {
         m_pTrackView->setTimeFormat(timeFormat);
         
         const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
-
-
+        
         int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(sequence->getEndTime()/timeFormat) + 10);
         
         m_pTrackView->addTrack(numTimeStampsForPianoRoll);
@@ -183,6 +182,12 @@ void MainComponent::handleFileOpen() {
         MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*sequence);
 
         m_pPlayer->setMidiMessageSequence(sequenceCopy);
+
+        MidiMessageSequence tempos;
+        m_midiFile.findAllTempoEvents(tempos);
+        MidiMessageSequence::MidiEventHolder* const * eh = tempos.begin();
+        auto bpm = 60 / eh[0]->message.getTempoSecondsPerQuarterNote();
+        m_transportBar.updateTempoDisplay(bpm);
         delete stream;
     }
 }
