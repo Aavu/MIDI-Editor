@@ -34,7 +34,7 @@ public:
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill);
 
     void setMidiMessageSequence(MidiMessageSequence* midiMsgSeq);
-    void setTempoEventSequence(const MidiMessageSequence* midiMsgSeq);
+
     void play();
     void pause();
     void stop();

@@ -68,7 +68,7 @@ void PlayerComponent::fillMidiBuffer(int iNumSamples) {
         if (m_iMidiEventReadIdx < m_iMaxMidiEvents) {
             msg = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx)->message;
             auto msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
-            m_midiBuffer.addEvent(msg, msgSampleNum);
+            m_midiBuffer.addEvent(msg, (int)msgSampleNum);
             m_iLastRetrievedPosition = msgSampleNum;
             m_iMidiEventReadIdx++;
         }
@@ -129,7 +129,7 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
             return;
         }
 
-        m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, blockSize, 0);
+        m_currentMidiBuffer.addEvents(m_midiBuffer, (int)m_iCurrentPosition, blockSize, 0);
         m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, blockSize);
 
         // Tempo update
