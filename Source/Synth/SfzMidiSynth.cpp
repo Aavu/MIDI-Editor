@@ -34,8 +34,9 @@ void SoundFontGeneralMidiSynth::initSynth(File * pSoundFontFile) {
         auto sounds = m_sfzLoader->getLoadedSounds();
         for (auto i=0; i<sounds.size(); i++) {
             auto * sound = sounds.getUnchecked(i).get();
-            sound->setChannelNum(i);
-            if (i == kiPercussionChannelNum)
+            auto channelNum = i+1;
+            sound->setChannelNum(channelNum);
+            if (channelNum == kiPercussionChannelNum)
                 sound->useSubsound(kiPercussionSubSoundNum);
             addSound(sound);
         }
