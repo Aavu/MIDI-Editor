@@ -63,8 +63,6 @@ void PianoRollComponent::resized()
 {
     auto area = getLocalBounds();
     
-    auto area_parent = getBoundsInParent();
-    
     auto sidebarWidth = Globals::PianoRoll::keyboardWidth;
     m_pKeyboardComponent->setBounds (area.removeFromLeft (sidebarWidth));
     
