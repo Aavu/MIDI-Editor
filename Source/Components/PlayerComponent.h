@@ -69,6 +69,8 @@ public:
 
     void resetCurrentPosition();
 
+    std::function<void()> updateTimeDisplay = nullptr;
+
 
 private:
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
