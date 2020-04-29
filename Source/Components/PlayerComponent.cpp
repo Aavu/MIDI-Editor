@@ -368,6 +368,7 @@ void PlayerComponent::addNote(PianoRollNote * pPianoRollNote) {
     pPianoRollNote->setNoteOffEventPtr(e2);
 
     m_midiMessageSequence->updateMatchedPairs();
+    m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
 }
 
 void PlayerComponent::deleteNote(int iNoteOnEventIndex) {
