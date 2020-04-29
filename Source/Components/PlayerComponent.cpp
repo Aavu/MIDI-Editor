@@ -11,50 +11,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PlayerComponent.h"
 
-
-static double convertTicksToSeconds (double time,
-                                     const MidiMessageSequence& tempoEvents,
-                                     int timeFormat)
-{
-    if (timeFormat < 0)
-        return time / (-(timeFormat >> 8) * (timeFormat & 0xff));
-    
-    double lastTime = 0, correctedTime = 0;
-    auto tickLen = 1.0 / (timeFormat & 0x7fff);
-    auto secsPerTick = 0.5 * tickLen;
-    auto numEvents = tempoEvents.getNumEvents();
-    
-    for (int i = 0; i < numEvents; ++i)
-    {
-        auto& m = tempoEvents.getEventPointer(i)->message;
-        auto eventTime = m.getTimeStamp();
-        
-        if (eventTime >= time)
-            break;
-        
-        correctedTime += (eventTime - lastTime) * secsPerTick;
-        lastTime = eventTime;
-        
-        if (m.isTempoMetaEvent())
-            secsPerTick = tickLen * m.getTempoSecondsPerQuarterNote();
-        
-        while (i + 1 < numEvents)
-        {
-            auto& m2 = tempoEvents.getEventPointer(i + 1)->message;
-            
-            if (m2.getTimeStamp() != eventTime)
-                break;
-            
-            if (m2.isTempoMetaEvent())
-                secsPerTick = tickLen * m2.getTempoSecondsPerQuarterNote();
-            
-            ++i;
-        }
-    }
-    
-    return correctedTime + (time - lastTime) * secsPerTick;
-}
-
 //==============================================================================
 PlayerComponent::PlayerComponent()
 {

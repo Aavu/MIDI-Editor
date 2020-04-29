@@ -43,12 +43,11 @@ PianoRollNote::~PianoRollNote()
         delete m_pBorder;
     if (m_pConstrainer)
         delete m_pConstrainer;
-    std::cout << "delete " << m_iRow << ' ' << m_fOffset << std::endl;
+    // std::cout << "delete " << m_iRow << ' ' << m_fOffset << std::endl;
 }
 
 void PianoRollNote::resized()
 {
-    // TODO: not working now
     if (m_pBorder)
     {
         m_pBorder->setBounds(0,0,getWidth(),getHeight());
@@ -56,7 +55,6 @@ void PianoRollNote::resized()
         auto newBounds = getBoundsInParent();
         m_fOffset = 1.F * newBounds.getX() / m_iBoxWidth;
         m_fLength = 1.F*newBounds.getWidth() / m_iBoxWidth;
-        // TODO: update offset
         // std::cout << m_fOffset << ' ' << m_fLength << ' ' << 1.F*newBounds.getWidth() / m_iBoxWidth << std::endl;
         repaint();
     }
@@ -67,11 +65,12 @@ void PianoRollNote::mouseDown (const MouseEvent& event)
     // add to selectedNoteList
     getParentComponent()->mouseDown(event);
     m_pMyDragger.startDraggingComponent (this, event);
+    
+    repaint();
 }
 
 void PianoRollNote::mouseUp (const MouseEvent& event)
 {
-    // getParentComponent()->mouseUp(event);
     m_pPlayer->updateNoteTimestamps(m_iOrigIdxOn, m_fOffset, m_fLength);
 }
 
@@ -106,11 +105,14 @@ void PianoRollNote::mouseDrag (const MouseEvent& event)
     {
         //std::cout << "stay" << std::endl;
     }
+    
+    repaint();
 }
 
 void PianoRollNote::mouseEnter(const MouseEvent& event)
 {
-    //std::cout << "mouse enter: " << m_iRow << std::endl;
+    // std::cout << "mouse enter: " << m_iRow << std::endl;
+    repaint();
     hightlightRow();
 }
 
@@ -126,6 +128,7 @@ bool PianoRollNote::ifInit() { return m_bInit; }
 void PianoRollNote::paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
     g.setColour (Colours::limegreen);
+
     g.fillRoundedRectangle(0, 0, m_fLength*m_iBoxWidth, m_iBoxHeight, 4);
     g.setColour (Colours::lime);
     g.drawRoundedRectangle(0, 0, m_fLength*m_iBoxWidth, m_iBoxHeight, 4, 1);
