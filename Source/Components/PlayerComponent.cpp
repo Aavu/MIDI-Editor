@@ -64,6 +64,7 @@ PlayerComponent::PlayerComponent()
 
 PlayerComponent::~PlayerComponent()
 {
+    //TODO: destroy midimessage seq ???
 }
 
 void PlayerComponent::paint (Graphics& g)
@@ -233,6 +234,12 @@ void PlayerComponent::setTimeFormat(int timeFormat)
     m_iTimeFormat = timeFormat;
 }
 
+MidiMessageSequence *PlayerComponent::getMidiMessageSequence() const {
+    if (m_midiMessageSequence)
+        return m_midiMessageSequence;
+    return nullptr;
+}
+
 void PlayerComponent::setMidiMessageSequence(MidiMessageSequence* midiMsgSeq) {
     m_midiMessageSequence = midiMsgSeq;
     m_midiMessageSequence->sort();
@@ -370,3 +377,4 @@ String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName
     }
     return currentDir.getFullPathName();
 }
+

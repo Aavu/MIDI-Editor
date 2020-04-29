@@ -10,12 +10,14 @@
 
 #include "PianoRollNote.h"
 
-PianoRollNote::PianoRollNote(PlayerComponent* player, int row_n, float offset_n, float length_n, int velocity_n, int orig_idx_on, int orig_idx_off, NoteMessage *noteMessage_n):
+PianoRollNote::PianoRollNote(PlayerComponent* player, int row_n, float offset_n, float length_n /*= 1*/, int velocity_n, MidiMessageSequence::MidiEventHolder* pNoteOnEvent, MidiMessageSequence::MidiEventHolder* pNoteOffEvent, NoteMessage *noteMessage_n /*= nullptr*/):
     m_pPlayer(player),
     m_iRow(row_n),
-    m_fOffset(offset_n), m_fLength(length_n),
+    m_fOffset(offset_n),
+    m_fLength(length_n),
+    m_pNoteOnEvent(pNoteOnEvent),
+    m_pNoteOffEvent(pNoteOffEvent),
     m_iVelocity(velocity_n),
-    m_iOrigIdxOn(orig_idx_on), m_iOrigIdxOff(orig_idx_off),
     m_pNoteMessage(noteMessage_n),
     m_pBorder(0)
 {
@@ -72,7 +74,8 @@ void PianoRollNote::mouseDown (const MouseEvent& event)
 void PianoRollNote::mouseUp (const MouseEvent& event)
 {
     // getParentComponent()->mouseUp(event);
-    m_pPlayer->updateNoteTimestamps(m_iOrigIdxOn, m_fOffset, m_fLength);
+    auto * pSequence = m_pPlayer->getMidiMessageSequence();
+    m_pPlayer->updateNoteTimestamps(pSequence->getIndexOf(m_pNoteOnEvent), m_fOffset, m_fLength);
 }
 
 void PianoRollNote::mouseDrag (const MouseEvent& event)
@@ -86,9 +89,6 @@ void PianoRollNote::mouseDrag (const MouseEvent& event)
         m_fOffset = 1.F * newBounds.getX() / m_iBoxWidth;
         m_pConstrainer->setMinimumOnscreenAmounts (getHeight(), getWidth(), getHeight(), getWidth());
         
-        // update player
-        //m_pPlayer->moveNote(m_iOrigIdxOn, m_fOffset);
-        //m_pPlayer->updateNoteTimestamp(m_iOrigIdxOff, m_fOffset + m_fLength);
     }
     if (event.getPosition().getY() < 0 && m_iRow > 0)
     {

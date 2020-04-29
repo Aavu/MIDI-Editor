@@ -186,10 +186,10 @@ void NoteLayer::RowComponent::mouseDoubleClick (const MouseEvent& event)
     {
         float offset = 1.F*event.getMouseDownX() / m_iBoxWidth;
         offset = (static_cast<int> (offset*2))/2.F; // quantize
-        PianoRollNote* newNote = new PianoRollNote(nullptr, m_iRow,offset); // CHANGE
-        
-        addNote(newNote);
-        m_Owner.selectOneNote(newNote);
+//        PianoRollNote* newNote = new PianoRollNote(nullptr, m_iRow,offset); // TODO: CHANGE
+//
+//        addNote(newNote);
+//        m_Owner.selectOneNote(newNote);
     }
     else    // add the existing note to selected list
     {

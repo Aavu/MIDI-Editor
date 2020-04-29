@@ -32,6 +32,7 @@ public:
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill);
 
+    MidiMessageSequence * getMidiMessageSequence() const;
     void setMidiMessageSequence(MidiMessageSequence* midiMsgSeq);
     void play();
     void pause();

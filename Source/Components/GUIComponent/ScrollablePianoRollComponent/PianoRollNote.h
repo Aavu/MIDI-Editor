@@ -26,9 +26,9 @@ class SelectedNoteList;
 class PianoRollNote: public TextButton, public ComponentBoundsConstrainer
 {
 public:
-    PianoRollNote(PlayerComponent* player, int row_n, float offset_n, float length_n = 1, int velocity_n = Globals::PianoRoll::midiNoteNum, int orig_idx_on = -1, int orig_idx_off = -1, NoteMessage *noteMessage_n = 0);
+    PianoRollNote(PlayerComponent* player, int row_n, float offset_n, float length_n, int velocity_n, MidiMessageSequence::MidiEventHolder* pNoteOnEvent, MidiMessageSequence::MidiEventHolder* pNoteOffEvent, NoteMessage *noteMessage_n);
     
-    ~PianoRollNote();
+    ~PianoRollNote() override;
     
     void resized() override;
     
@@ -57,25 +57,25 @@ public:
     
 private:
     
-    bool                m_bInit = false;
-    int                 m_iOrigIdxOn;                    // index of noteOn in the MidiMessageSequence
-    int                 m_iOrigIdxOff;                   // index of noteOff in the MidiMessageSequence
-    int                 m_iRow;                          // midi number (0~127)
-    float               m_fOffset;
-    float               m_fLength;                      // relative length (1 means 1 quarter note)
-    uint8                 m_iVelocity;
-    int                 m_iBoxWidth;
-    int                 m_iBoxHeight;
+    bool                                        m_bInit = false;
+    MidiMessageSequence::MidiEventHolder       *m_pNoteOnEvent  = nullptr; // index of noteOn in the MidiMessageSequence
+    MidiMessageSequence::MidiEventHolder       *m_pNoteOffEvent = nullptr; // index of noteOff in the MidiMessageSequence
+    int                                         m_iRow;                  // midi number (0~127)
+    float                                       m_fOffset;
+    float                                       m_fLength;               // relative length (1 means 1 quarter note)
+    uint8                                       m_iVelocity;
+    int                                         m_iBoxWidth;
+    int                                         m_iBoxHeight;
     
-    NoteMessage         *m_pNoteMessage;
+    NoteMessage                                *m_pNoteMessage = nullptr;
     
     // player
-    PlayerComponent     *m_pPlayer;
+    PlayerComponent                            *m_pPlayer;
     
     // dragger
-    ComponentDragger                m_pMyDragger;
-    ResizableBorderComponent*       m_pBorder;
-    ComponentBoundsConstrainer*     m_pConstrainer;
+    ComponentDragger                            m_pMyDragger;
+    ResizableBorderComponent*                   m_pBorder = nullptr;
+    ComponentBoundsConstrainer*                 m_pConstrainer = nullptr;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PianoRollNote)
 };
