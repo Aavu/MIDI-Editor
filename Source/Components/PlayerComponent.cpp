@@ -366,6 +366,8 @@ void PlayerComponent::addNote(PianoRollNote * pPianoRollNote) {
     pPianoRollNote->setNoteOnEventPtr(e1);
     auto * e2 = m_midiMessageSequence->addEvent(noteOffMsg);
     pPianoRollNote->setNoteOffEventPtr(e2);
+
+    m_midiMessageSequence->updateMatchedPairs();
 }
 
 void PlayerComponent::deleteNote(int iNoteOnEventIndex) {
