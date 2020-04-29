@@ -173,6 +173,9 @@ void MainComponent::handleFileOpen() {
 
         m_pPlayer->setTimeFormat(timeFormat);
         
+        if (m_pSequence)
+            delete m_pSequence;
+        
         m_pSequence = new MidiMessageSequence();
         for (int i=0; i < m_midiFile.getNumTracks(); i++) {
             m_pSequence->addSequence(*m_midiFile.getTrack(i), 0);
