@@ -86,7 +86,6 @@ void PlayerComponent::initSynth() {
 void PlayerComponent::fillMidiBuffer(int iNumSamples) {
     //DBG("----PlayerComponent::fillMidiBuffer--------------------------------");
     MidiMessage msg;
-    //DBG("Max midi events: " << m_iMaxMidiEvents);
     // Retrieve samples to fill at least one next block
     while(m_iLastRetrievedPosition < (m_iCurrentPosition + iNumSamples)) {
         if (m_iMidiEventReadIdx < m_iMaxMidiEvents) {
@@ -346,8 +345,9 @@ void PlayerComponent::updateNote(int iNoteOnEventIndex, double fNewNoteOnTimesta
 }
 
 void PlayerComponent::deleteNote(int iNoteOnEventIndex) {
-    auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx);
-
+    m_midiMessageSequence->deleteEvent(iNoteOnEventIndex, true);
+    m_midiMessageSequence->updateMatchedPairs();
+    m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
 }
 
 String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {

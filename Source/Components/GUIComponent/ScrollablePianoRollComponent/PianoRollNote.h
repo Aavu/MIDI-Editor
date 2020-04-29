@@ -38,27 +38,25 @@ public:
 
     void mouseUp (const MouseEvent &event) override ;
 
-
     void mouseDrag (const MouseEvent& event) override;
     
     void mouseEnter(const MouseEvent& event) override;
-    
-    int getRow();
 
+    void paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+
+    int getRow();
     float getOffset();
     float getLength();
-    
     NoteMessage* getNoteMessage();
-    
     bool ifInit();
-    
-    void paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+
+    void deleteFromPlayer();
     
     std::function<void(PianoRollNote*, int)> changePitch;
     std::function<void()> hightlightRow;
     
 private:
-    
+
     bool                                        m_bInit = false;
     MidiMessageSequence::MidiEventHolder       *m_pNoteOnEvent  = nullptr; // index of noteOn in the MidiMessageSequence
     MidiMessageSequence::MidiEventHolder       *m_pNoteOffEvent = nullptr; // index of noteOff in the MidiMessageSequence
@@ -115,7 +113,7 @@ public:
     
     void deleteNote(int row, int idx);
     
-    void deleteNote(PianoRollNote *noteToBeRemoved);
+    void deleteNote(PianoRollNote *noteToBeRemoved, bool removeFromPlayer = false);
     
 private:
     Array<PianoRollNote*>               *m_pNoteList;

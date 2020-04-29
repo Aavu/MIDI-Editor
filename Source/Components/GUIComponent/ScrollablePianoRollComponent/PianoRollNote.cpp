@@ -39,12 +39,9 @@ PianoRollNote::PianoRollNote(PlayerComponent* player, int row_n, float offset_n,
 
 PianoRollNote::~PianoRollNote()
 {
-    if (m_pNoteMessage)
-        delete m_pNoteMessage;
-    if (m_pBorder)
-        delete m_pBorder;
-    if (m_pConstrainer)
-        delete m_pConstrainer;
+    delete m_pNoteMessage;
+    delete m_pBorder;
+    delete m_pConstrainer;
     std::cout << "delete " << m_iRow << ' ' << m_fOffset << std::endl;
 }
 
@@ -126,6 +123,10 @@ NoteMessage* PianoRollNote::getNoteMessage() { return m_pNoteMessage; }
 
 bool PianoRollNote::ifInit() { return m_bInit; }
 
+void PianoRollNote::deleteFromPlayer() {
+    m_pPlayer->deleteNote(m_pPlayer->getMidiMessageSequence()->getIndexOf(m_pNoteOnEvent));
+}
+
 void PianoRollNote::paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
     g.setColour (Colours::limegreen);
@@ -194,8 +195,10 @@ void NoteList::deleteNote(int row, int idx)
     }
 }
 
-void NoteList::deleteNote(PianoRollNote *noteToBeRemoved)
+void NoteList::deleteNote(PianoRollNote *noteToBeRemoved, bool removeFromPlayer /*= false*/)
 {
+    if (removeFromPlayer)
+        noteToBeRemoved->deleteFromPlayer();
     int row = noteToBeRemoved->getRow();
     m_pNoteList[row].removeFirstMatchingValue(noteToBeRemoved);
     delete noteToBeRemoved;
@@ -231,6 +234,6 @@ void SelectedNoteList::removeSelectedNotes()
     while (!m_pSelected->isEmpty())
     {
         noteToBeRemoved = m_pSelected->removeAndReturn(0);
-        m_pNoteList->deleteNote(noteToBeRemoved);
+        m_pNoteList->deleteNote(noteToBeRemoved, true);
     }
 }
