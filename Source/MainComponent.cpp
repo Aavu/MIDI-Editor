@@ -169,14 +169,26 @@ void MainComponent::handleFileOpen() {
         
         int timeFormat = m_midiFile.getTimeFormat();
         m_pTrackView->setTimeFormat(timeFormat);
-        
-        const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
-        
+
+//        auto* sequence = m_midiFile.getTrack(0);
+        std::shared_ptr<MidiMessageSequence> sequence = std::make_shared<MidiMessageSequence>();
+        for (int i=0; i < m_midiFile.getNumTracks(); i++) {
+            sequence->addSequence(*m_midiFile.getTrack(i), 0);
+            sequence->updateMatchedPairs();
+        }
+
         int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(sequence->getEndTime()/timeFormat) + 10);
-        
-        m_pTrackView->setTrack(numTimeStampsForPianoRoll, sequence);
+        m_pTrackView->setTrack(numTimeStampsForPianoRoll, sequence.get());
         m_midiFile.convertTimestampTicksToSeconds();
-        m_pPlayer->setMidiMessageSequence(sequence);
+
+        // Doing this again is very unoptimistic. But given the time, this is the best solution.
+        sequence->clear();
+        for (int i=0; i < m_midiFile.getNumTracks(); i++) {
+            sequence->addSequence(*m_midiFile.getTrack(i), 0);
+            sequence->updateMatchedPairs();
+        }
+        m_pPlayer->setMidiMessageSequence(sequence.get());
+        toFront(true);
         delete stream;
     }
 }

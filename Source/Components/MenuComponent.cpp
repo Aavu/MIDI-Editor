@@ -21,7 +21,7 @@ MenuComponent::MenuComponent()
     setApplicationCommandManagerToWatch(&commandManager);
     commandManager.registerAllCommandsForTarget(this);
     addKeyListener(commandManager.getKeyMappings());
-    addAndMakeVisible(editCommandTarget);
+//    addAndMakeVisible(editCommandTarget);
     MenuBarModel::setMacMainMenu(this);
     commandManager.setFirstCommandTarget(this);
 }
@@ -36,7 +36,7 @@ void MenuComponent::paint (Graphics& g) {}
 void MenuComponent::resized() {}
 
 StringArray MenuComponent::getMenuBarNames() {
-    return {"File", "Edit", "Help"};
+    return {"File", "Help"};
 }
 
 PopupMenu MenuComponent::getMenuForIndex(int menuIndex, const String& name) {
@@ -47,20 +47,13 @@ PopupMenu MenuComponent::getMenuForIndex(int menuIndex, const String& name) {
         menu.addCommandItem(&commandManager, fileExportMIDI);
     }
     else if (menuIndex == 1) {
-        menu.addCommandItem(&commandManager, editUndo);
-        menu.addCommandItem(&commandManager, editRedo);
-        menu.addCommandItem(&commandManager, editCut);
-        menu.addCommandItem(&commandManager, editCopy);
-        menu.addCommandItem(&commandManager, editPaste);
-    }
-    else if (menuIndex == 2) {
         menu.addCommandItem(&commandManager, helpDocumentation);
     }
     return menu;
 }
 
 ApplicationCommandTarget* MenuComponent::getNextCommandTarget() {
-    return &editCommandTarget;
+    return &helpCommandTarget;
 }
 
 void MenuComponent::getAllCommands (Array<CommandID>& c) {

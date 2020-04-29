@@ -71,6 +71,7 @@ void TransportComponent::initDisplayComponents() {
     m_playBtn.setEnabled(false);
     m_stopBtn.setEnabled(false);
 
+    m_playBtn.addShortcut(KeyPress(KeyPress::spaceKey));
 }
 
 TransportComponent::~TransportComponent()
