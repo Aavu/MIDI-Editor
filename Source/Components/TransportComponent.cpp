@@ -21,14 +21,14 @@ TransportComponent::TransportComponent():
         m_bpmLabel("BPM Label", "BPM"),
         m_pPlayer(nullptr)
 {
-    m_playBtn.setImages(false, true, true, m_icons.playBtnNormal, 1, {}, {}, .8, {}, m_icons.playBtnDown, 1, {});
-    m_stopBtn.setImages(false, true, true, m_icons.stopBtnNormal, 1, {}, {}, .8, {}, m_icons.stopBtnDown, 1, {});
+    initDisplayComponents();
 
-    m_playBtn.onClick = [this] {playBtnClicked();};
-    m_stopBtn.onClick = [this] {stopBtnClicked();};
-    m_playBtn.setColour(TextButton::buttonColourId, Colours::blue);
-    m_stopBtn.setColour(TextButton::buttonColourId, Colours::red);
+    addAndMakeVisible(m_playBtn);
+    addAndMakeVisible(m_stopBtn);
+    addAndMakeVisible(m_timeDisplay);
+}
 
+void TransportComponent::initDisplayComponents() {
     m_timeDisplay.setFont (Font (24.0f, Font::bold));
     m_timeDisplay.setText ("00:00:00:00", dontSendNotification);
     m_timeDisplay.setJustificationType (Justification::centred);
@@ -60,12 +60,17 @@ TransportComponent::TransportComponent():
     m_bpmLabel.setColour (Label::textColourId, Colours::orange);
     m_bpmLabel.setColour (Label::outlineColourId, Colours::orange);
 
+    m_playBtn.setImages(false, true, true, m_icons.playBtnNormal, 1, {}, {}, .8, {}, m_icons.playBtnDown, 1, {});
+    m_stopBtn.setImages(false, true, true, m_icons.stopBtnNormal, 1, {}, {}, .8, {}, m_icons.stopBtnDown, 1, {});
+
+    m_playBtn.onClick = [this] {playBtnClicked();};
+    m_stopBtn.onClick = [this] {stopBtnClicked();};
+    m_playBtn.setColour(TextButton::buttonColourId, Colours::blue);
+    m_stopBtn.setColour(TextButton::buttonColourId, Colours::red);
+
     m_playBtn.setEnabled(false);
     m_stopBtn.setEnabled(false);
 
-    addAndMakeVisible(m_playBtn);
-    addAndMakeVisible(m_stopBtn);
-    addAndMakeVisible(m_timeDisplay);
 }
 
 TransportComponent::~TransportComponent()
@@ -129,8 +134,8 @@ void TransportComponent::stopBtnClicked()
 void TransportComponent::init(PlayerComponent* playerComponent) {
     m_pPlayer = playerComponent;
     m_pPlayer->addActionListener(this);
-    m_pPlayer->updateTimeDisplay = [this] {
-        updateTimeDisplay();
+    m_pPlayer->updateTransportDisplay = [this] {
+        updateDisplay();
     };
 }
 
@@ -159,9 +164,16 @@ void TransportComponent::convertToSMPTE(SMPTE& smpte, long iPositionInSamples) {
     smpte.ff    = (int)std::floor(time * Globals::GUI::fFramesPerSecond) % (int)Globals::GUI::fFramesPerSecond;
 }
 
-void TransportComponent::updateTimeDisplay() {
+void TransportComponent::updateDisplay() {
     SMPTE smpte;
     convertToSMPTE(smpte, m_pPlayer->getCurrentPosition());
+    updateTimeDisplay(smpte);
+
+    auto tempo = m_pPlayer->getTempo();
+    updateTempoDisplay(tempo);
+}
+
+void TransportComponent::updateTimeDisplay(const SMPTE& smpte) {
     char text[12];
     sprintf(text, "%02d:%02d:%02d:%02d", smpte.hh, smpte.mm, smpte.ss, smpte.ff);
     const MessageManagerLock mmLock;

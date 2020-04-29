@@ -32,7 +32,7 @@ void PlayerComponent::resized()
 }
 
 void PlayerComponent::initSynth() {
-    File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
+    File * soundFontFile = new File(CUtil::getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
     m_synth.initSynth(soundFontFile);
     m_synth.addActionListener(this);
 }
@@ -43,22 +43,39 @@ void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
     m_midiBuffer.addEvent(message, msgSampleNumber);
 }
 
+void PlayerComponent::addMessageToTempoBuffer(const MidiMessage& message) {
+    auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
+    //std::cout << message.getTimeStamp() << "\t" << msgSampleNumber << "\t" << message.getDescription() << std::endl;
+    m_tempoEventBuffer.addEvent(message, msgSampleNumber);
+}
+
 void PlayerComponent::addAllSequenceMessagesToBuffer() {
     auto numEvents = m_midiMessageSequence->getNumEvents();
     MidiMessageSequence::MidiEventHolder* const * eventHolder = m_midiMessageSequence->begin();
     MidiMessage msg;
+    bool firstTempo = true;
     for (int i=0; i<numEvents; i++) {
         msg = eventHolder[i]->message;
-        addMessageToBuffer(msg);
+        if (msg.isTempoMetaEvent()) {
+            addMessageToTempoBuffer(msg);
+            if (firstTempo) {
+                if (msg.getTempoSecondsPerQuarterNote() != 0)
+                    m_fCurrentTempo = 60 / msg.getTempoSecondsPerQuarterNote();
+                firstTempo = false;
+            }
+        } else {
+            addMessageToBuffer(msg);
+        }
     }
 
-    m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);
+    m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_tempoEventBuffer);
     m_iMaxBufferLength = m_midiBuffer.getLastEventTime();
 
 //    DBG("max length : " << m_iMaxBufferLength);
 }
 
 void PlayerComponent::setMidiMessageSequence(const MidiMessageSequence* midiMsgSeq) {
+    sendActionMessage(Globals::ActionMessage::Stop);
     m_midiMessageSequence = midiMsgSeq;
     m_midiBuffer.clear();
     addAllSequenceMessagesToBuffer();
@@ -75,6 +92,7 @@ void PlayerComponent::pause() {
 void PlayerComponent::stop() {
     m_playState = PlayState::Stopped;
     resetCurrentPosition();
+    allNotesOff();
 }
 
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
@@ -95,8 +113,11 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
             return;
         }
 
-        m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, numSamples, 0);
+        m_currentMidiBuffer.addEvents(m_midiBuffer, (int)m_iCurrentPosition, numSamples, 0);
         m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, numSamples);
+
+        // Tempo update
+        updateTempo();
 
         m_iCurrentPosition += numSamples;
 
@@ -106,6 +127,17 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
     }
 }
 
+void PlayerComponent::updateTempo() {
+    if (!m_pIterator)
+        return;
+    m_pIterator->setNextSamplePosition((int) m_iCurrentPosition);
+    MidiMessage result;
+    int samplePosition;
+    m_pIterator->getNextEvent(result, samplePosition);
+    if (result.getTempoSecondsPerQuarterNote() != 0)
+        m_fCurrentTempo = 60 / result.getTempoSecondsPerQuarterNote();
+}
+
 void PlayerComponent::allNotesOff() {
     for (int i=0; i<SoundFontGeneralMidiSynth::kiNumChannels; i++)
         m_synth.allNotesOff(0, true);
@@ -113,27 +145,15 @@ void PlayerComponent::allNotesOff() {
 
 void PlayerComponent::setCurrentPosition(long value) {
     m_iCurrentPosition = value;
-    if (m_pIterator)
-        m_pIterator->setNextSamplePosition(m_iCurrentPosition);
+    updateTempo();
 }
 
 void PlayerComponent::resetCurrentPosition() {
     setCurrentPosition(0);
 }
 
-String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {
-    File currentDir = File::getCurrentWorkingDirectory();
-
-    while (currentDir.getFileName() != projectFolderName) {
-        currentDir = currentDir.getParentDirectory();
-        if (currentDir.getFullPathName() == "/")
-            return String();
-    }
-    return currentDir.getFullPathName();
-}
-
 void PlayerComponent::timerCallback() {
-    updateTimeDisplay();
+    updateTransportDisplay();
 }
 
 void PlayerComponent::actionListenerCallback (const String& message) {

@@ -174,19 +174,9 @@ void MainComponent::handleFileOpen() {
         
         int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(sequence->getEndTime()/timeFormat) + 10);
         
-        m_pTrackView->addTrack(numTimeStampsForPianoRoll);
-        // pass the midiFile before timestampticks are converted to seconds
-        m_pTrackView->convertMidiMessageSequence(0, sequence);
-        
+        m_pTrackView->setTrack(numTimeStampsForPianoRoll, sequence);
         m_midiFile.convertTimestampTicksToSeconds();
-
         m_pPlayer->setMidiMessageSequence(sequence);
-
-        MidiMessageSequence tempos;
-        m_midiFile.findAllTempoEvents(tempos);
-        MidiMessageSequence::MidiEventHolder* const * eh = tempos.begin();
-        auto bpm = 60 / eh[0]->message.getTempoSecondsPerQuarterNote();
-        m_transportBar.updateTempoDisplay(bpm);
         delete stream;
     }
 }
