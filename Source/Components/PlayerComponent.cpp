@@ -122,6 +122,7 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
         // If not enough samples in m_midiBuffer for new block
         if ((m_iCurrentPosition + blockSize) > m_iLastRetrievedPosition) {
             fillMidiBuffer(blockSize);
+        }
 
         if (m_midiBuffer.isEmpty()) {
             m_iCurrentPosition += blockSize;
