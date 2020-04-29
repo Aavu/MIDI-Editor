@@ -16,11 +16,12 @@
 
 #include "../Synth/SfzMidiSynth.h"
 #include "Globals.h"
+#include "Util.h"
 
 //==============================================================================
 /*
 */
-class PlayerComponent : public Component, public ActionBroadcaster
+class PlayerComponent : public Component, public ActionBroadcaster, public ActionListener, public Timer
 {
 public:
     PlayerComponent();
@@ -33,6 +34,7 @@ public:
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill);
 
     void setMidiMessageSequence(MidiMessageSequence* midiMsgSeq);
+
     void play();
     void pause();
     void stop();
@@ -49,6 +51,7 @@ public:
     long getCurrentPosition() {return m_iCurrentPosition;}
     double getSampleRate() {return m_fSampleRate;}
     long getMaxBufferLength() {return m_iMaxBufferLength;}
+    double getTempo() {return m_fCurrentTempo;}
     
     MidiMessageSequence& getTempoEvents();
     MidiMessageSequence& getTempoEventsInSecs();
@@ -60,6 +63,7 @@ public:
     void setTimeFormat(int timeFormat);
 
     void setCurrentPosition(long value);
+
     void resetCurrentPosition();
 
     /*
@@ -71,21 +75,34 @@ public:
     // void addNote() // TODO: Define
     // void deleteNote(int iNoteOnEventIndex) // TODO: Define
 
-private:
-    static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
+    std::function<void()> updateTransportDisplay = nullptr;
 
+private:
     void initSynth();
+
     void fillMidiBuffer(int iNumSamples);
+    void addMessageToTempoBuffer(const MidiMessage& message);
+    void addAllTempoMessagesToBuffer();
+
+    void updateTempo();
+    
+    void timerCallback() override;
+    
+    void actionListenerCallback (const String& message) override;
 
     long m_iMaxBufferLength = 0;
 
     double m_fTempo = 120;
     int m_iTimeFormat;
+    // duplicate tempo events & tempoEventBuffer
     MidiMessageSequence m_TempoEvents;          // timestamp in ticks
     MidiMessageSequence m_TempoEventsInSec;     // timestamp in seconds
 
+    double m_fCurrentTempo = 120;
+    MidiBuffer m_tempoEventBuffer;
+
     MidiMessageSequence* m_midiMessageSequence = nullptr;
-    MidiMessageSequence::MidiEventHolder * const * m_midiEventHolder = nullptr;
+
     int m_iMidiEventReadIdx = 0;
     int m_iMaxMidiEvents = 0;
 
@@ -101,13 +118,7 @@ private:
     PlayState m_playState = PlayState::Stopped;
     long m_iCurrentPosition = 0;
 
-    SfzLoader m_sfzLoader;
-    SfzLoader m_sfzLoader1;
-    SfzSynth m_synth;
-
-    constexpr static int kiNumVoices = 24;
-    constexpr static int kiNumChannels = 16;
-
+    SoundFontGeneralMidiSynth m_synth;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlayerComponent)

@@ -11,7 +11,6 @@
 
 #include <JuceHeader.h>
 #include "SidebarComponent.h"
-#include "TrackParameters.h"
 #include "PlayHeadComponent.h"
 #include "PlayHeadScrollComponent.h"
 #include "PlayerComponent.h"
@@ -31,18 +30,15 @@ public:
     void paint(Graphics& g) override;
     void resized() override;
 
-    int getNumTracks() const;
-
+    int getNumTracks();
+    
     void addTrack(int numTimeStampsForPianoRoll);
     
     void setTimeFormat(int timeFormat);
     
     void convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message);
-    
-private:
 
-//    TextButton m_header;
-//    SidebarComponent m_sidebar;
+private:
     
     PianoRollListComponent *m_pianoRollListComp;
     

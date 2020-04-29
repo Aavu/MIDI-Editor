@@ -16,7 +16,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "../TrackParameters.h"
 #include "../PlayHeadComponent.h"
 #include "../PlayHeadScrollComponent.h"
 #include "../PlayerComponent.h"
@@ -25,7 +24,7 @@
 #include "ScrollablePianoRollComponent/ScrollablePianoRollComponent.h"
 #include "ScrollablePianoRollComponent/PianoRollNote.h"
 
-class PianoRollListComponent: public TrackParameters, public Component, public Timer {
+class PianoRollListComponent: public Component, public Timer {
 public:
     PianoRollListComponent();
     
@@ -53,6 +52,7 @@ private:
     std::vector<ScrollablePianoRollComponent*> m_tracks;
     
     int m_iTimeFormat;
+    int m_iNumTracks = 0;
     
     PlayerComponent* m_pPlayer = nullptr;
     PlayHeadScrollComponent m_playHeadScroll;

@@ -15,11 +15,12 @@
 PlayerComponent::PlayerComponent()
 {
     initSynth();
-
+    startTimer(Globals::GUI::iUpdateInterval_ms);
 }
 
 PlayerComponent::~PlayerComponent()
 {
+    stopTimer();
 }
 
 void PlayerComponent::paint (Graphics& g)
@@ -31,46 +32,47 @@ void PlayerComponent::resized()
 }
 
 void PlayerComponent::initSynth() {
-    m_synth.clearVoices();
-
-    for (int i=0; i < kiNumVoices; i++) {
-        m_synth.addVoice(new sfzero::Voice());
-    }
-
-    // Load sound from SoundFont file and add to synth.
-    File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
-
-    m_sfzLoader.setSfzFile(soundFontFile);
-    std::function<void()> addLoadedSoundCallback = [this] () {
-        auto sounds = m_sfzLoader.getLoadedSounds();
-        for (auto i=0; i<sounds.size(); i++) {
-            auto * sound = sounds.getUnchecked(i).get();
-            if (i == 10)
-                sound->useSubsound(247);
-            sound->setChannelNum(i);
-            m_synth.addSound(sound);
-        }
-        std::cout << sounds.size() << " sounds added." << std::endl;
-    };
-    m_sfzLoader.loadSounds(kiNumChannels, true, &addLoadedSoundCallback);
-
+    File * soundFontFile = new File(CUtil::getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
+    m_synth.initSynth(soundFontFile);
+    m_synth.addActionListener(this);
 }
 
+void PlayerComponent::addMessageToTempoBuffer(const MidiMessage& message) {
+    auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
+    //std::cout << message.getTimeStamp() << "\t" << msgSampleNumber << "\t" << message.getDescription() << std::endl;
+    m_tempoEventBuffer.addEvent(message, msgSampleNumber);
+}
+
+void PlayerComponent::addAllTempoMessagesToBuffer() {
+    auto numEvents = m_midiMessageSequence->getNumEvents();
+    MidiMessageSequence::MidiEventHolder* const * eventHolder = m_midiMessageSequence->begin();
+    MidiMessage msg;
+    bool firstTempo = true;
+    for (int i=0; i<numEvents; i++) {
+        msg = eventHolder[i]->message;
+        if (msg.isTempoMetaEvent()) {
+            addMessageToTempoBuffer(msg);
+            if (firstTempo && msg.getTempoSecondsPerQuarterNote() != 0) {
+                m_fCurrentTempo = 60 / msg.getTempoSecondsPerQuarterNote();
+                firstTempo = false;
+            }
+        }
+    }
+    m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_tempoEventBuffer);
+}
 
 void PlayerComponent::fillMidiBuffer(int iNumSamples) {
-    //DBG("----PlayerComponent::fillMidiBuffer--------------------------------");
     MidiMessage msg;
-    //DBG("Max midi events: " << m_iMaxMidiEvents);
+
     // Retrieve samples to fill at least one next block
     while(m_iLastRetrievedPosition < (m_iCurrentPosition + iNumSamples)) {
         if (m_iMidiEventReadIdx < m_iMaxMidiEvents) {
             DBG("--------------------------------");
             msg = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx)->message;
-            DBG("Msg timestamp" << msg.getTimeStamp());
+
             auto msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
-            DBG("Msg sample num: " << msgSampleNum);
-            DBG("ReadIdx: " << m_iMidiEventReadIdx);
-            m_midiBuffer.addEvent(msg, msgSampleNum);
+            m_midiBuffer.addEvent(msg, (int)msgSampleNum);
+
             m_iLastRetrievedPosition = msgSampleNum;
             m_iMidiEventReadIdx++;
             DBG("--------------------------------");
@@ -80,7 +82,6 @@ void PlayerComponent::fillMidiBuffer(int iNumSamples) {
     }
     DBG("iRetrievedSamples = " << m_iLastRetrievedPosition - m_iCurrentPosition);
     DBG("----------------------------------------------------");
-
 }
 
 MidiMessageSequence& PlayerComponent::getTempoEvents()
@@ -190,15 +191,17 @@ void PlayerComponent::setTimeFormat(int timeFormat)
 }
 
 void PlayerComponent::setMidiMessageSequence(MidiMessageSequence* midiMsgSeq) {
+    sendActionMessage(Globals::ActionMessage::Stop);
     m_midiMessageSequence = midiMsgSeq;
     m_midiMessageSequence->sort();
 
-    m_iMidiEventReadIdx = 0;
+    resetCurrentPosition();
     m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
 
     m_midiBuffer.clear();
     m_iMaxBufferLength = static_cast<long>(m_midiMessageSequence->getEndTime() * m_fSampleRate);
 
+    addAllTempoMessagesToBuffer();
 }
 
 void PlayerComponent::play() {
@@ -207,19 +210,14 @@ void PlayerComponent::play() {
 
 void PlayerComponent::pause() {
     m_playState = PlayState::Paused;
-    // TODO: Make sure to flush note ons.
 }
 
 void PlayerComponent::stop() {
     m_playState = PlayState::Stopped;
-    // TODO: Make sure to flush note ons.
-    //resetCurrentPosition();
     DBG("Stop");
-    setCurrentPositionByQuarterNotes(0);
-    m_iMidiEventReadIdx = 0;
-    m_iCurrentPosition = 0;
-    m_iLastRetrievedPosition = 0;
     m_midiBuffer.clear();
+    resetCurrentPosition();
+    allNotesOff();
 }
 
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
@@ -234,22 +232,25 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
     auto blockSize = bufferToFill.numSamples;
 
     if (m_playState == PlayState::Playing) {
-//        if (m_midiBuffer.isEmpty()) {
-//            m_iCurrentPosition += blockSize;
-//            return;
-//        }
 
         // If not enough samples in m_midiBuffer for new block
         if ((m_iCurrentPosition + blockSize) > m_iLastRetrievedPosition) {
-            DBG("----Need-more-samples-------------------------");
-            DBG(m_iCurrentPosition << "---" << m_iLastRetrievedPosition << "---" << m_iLastRetrievedPosition - (m_iCurrentPosition+blockSize));
             fillMidiBuffer(blockSize);
         } else {
             DBG("-----" << (m_iCurrentPosition + blockSize) << "-- " << m_iLastRetrievedPosition);
         }
 
-        m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, blockSize, 0);
+        if (m_midiBuffer.isEmpty()) {
+            m_iCurrentPosition += blockSize;
+            return;
+
+        }
+
+        m_currentMidiBuffer.addEvents(m_midiBuffer, (int)m_iCurrentPosition, blockSize, 0);
         m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, blockSize);
+
+        // Tempo update
+        updateTempo();
 
         m_iCurrentPosition += blockSize;
 
@@ -259,19 +260,31 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
     }
 }
 
+void PlayerComponent::updateTempo() {
+    if (!m_pIterator)
+        return;
+    m_pIterator->setNextSamplePosition((int) m_iCurrentPosition);
+    MidiMessage result;
+    int samplePosition;
+    m_pIterator->getNextEvent(result, samplePosition);
+    if (result.getTempoSecondsPerQuarterNote() != 0)
+        m_fCurrentTempo = 60 / result.getTempoSecondsPerQuarterNote();
+}
+
 void PlayerComponent::allNotesOff() {
-    for (int i=0; i<16; i++)
-        m_synth.allNotesOff(0, true);
+    for (int i=0; i<SoundFontGeneralMidiSynth::kiNumChannels; i++)
+        m_synth.allNotesOff(0, false);
 }
 
 void PlayerComponent::setCurrentPosition(long value) {
     m_iCurrentPosition = value;
-    if (m_pIterator)
-        m_pIterator->setNextSamplePosition(m_iCurrentPosition);
+    updateTempo();
 }
 
 void PlayerComponent::resetCurrentPosition() {
-    setCurrentPosition(0);
+    setCurrentPositionByQuarterNotes(0);
+    m_iMidiEventReadIdx = 0;
+    m_iLastRetrievedPosition = 0;
 }
 
 void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes /*= -1*/) {
@@ -316,13 +329,11 @@ void PlayerComponent::updateNotePitch(int iNoteOnEventIndex, int iNewNoteNumber)
 
 }
 
-String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {
-    File currentDir = File::getCurrentWorkingDirectory();
+void PlayerComponent::timerCallback() {
+    updateTransportDisplay();
+}
 
-    while (currentDir.getFileName() != projectFolderName) {
-        currentDir = currentDir.getParentDirectory();
-        if (currentDir.getFullPathName() == "/")
-            return String();
-    }
-    return currentDir.getFullPathName();
+void PlayerComponent::actionListenerCallback (const String& message) {
+    if (message == Globals::ActionMessage::EnableTransport) // Just relay message to Transport
+        sendActionMessage(message);
 }

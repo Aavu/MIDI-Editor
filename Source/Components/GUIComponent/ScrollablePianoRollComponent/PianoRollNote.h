@@ -28,7 +28,7 @@ class PianoRollBorderComponent;
 class PianoRollNote: public TextButton, public ComponentBoundsConstrainer
 {
 public:
-    PianoRollNote(PlayerComponent* player, int row_n, float offset_n, float length_n = 1, int velocity_n = Globals::PianoRoll::midiNoteNum, int orig_idx_on = -1, int orig_idx_off = -1, NoteMessage *noteMessage_n = 0);
+    PianoRollNote(int row_n, float offset_n, float length_n = 1, int velocity_n = Globals::PianoRoll::midiNoteNum, NoteMessage *noteMessage_n = 0);
     
     ~PianoRollNote();
     

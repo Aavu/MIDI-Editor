@@ -17,13 +17,6 @@ PianoRollListComponent::PianoRollListComponent() : m_pPlayHead(std::make_shared<
 void PianoRollListComponent::init(PlayerComponent* player) {
     m_pPlayer = player;
     
-    if (m_iNumTracks > 0) {
-        for(int i=0; i<m_iNumTracks; i++) {
-            m_tracks.push_back(new ScrollablePianoRollComponent());
-            addAndMakeVisible (m_tracks[i]);
-            m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
-        }
-    }
     
     addAndMakeVisible(m_playHeadScroll);
     
@@ -42,7 +35,7 @@ void PianoRollListComponent::init(PlayerComponent* player) {
 
 PianoRollListComponent::~PianoRollListComponent() {
     stopTimer();
-    for (int i=0; i<m_iNumTracks; i++) {
+    for (int i=0; i< m_iNumTracks; i++) {
         delete m_tracks[i];
     }
 }
@@ -77,7 +70,7 @@ void PianoRollListComponent::addTrack(int numTimeStampsForPianoRoll) {
     m_tracks.push_back(new ScrollablePianoRollComponent(numTimeStampsForPianoRoll));
     m_tracks[0]->m_syncScrollBars = [this] (int setViewPosition) { syncViewPositionX(setViewPosition); };
     addAndMakeVisible (m_tracks[m_iNumTracks], 0);
-    m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
+
     m_iNumTracks++;
     
     m_playHeadScroll.m_syncScrollBars = [this] (int setViewPosition) { syncViewPositionX(setViewPosition); };
@@ -147,7 +140,7 @@ void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const Midi
             
             //DBG(String(timeStamp/m_iTimeFormat) + "\t" + String((timeStampNoteOff-timeStamp+1)/m_iTimeFormat) + "\t" + String(noteNumber));
             
-            PianoRollNote *newNote = new PianoRollNote(m_pPlayer, Globals::PianoRoll::midiNoteNum-1-noteNumber, timeStamp/m_iTimeFormat, (timeStampNoteOff-timeStamp+1)/m_iTimeFormat, noteVelocity, i, idxNoteOff);
+            PianoRollNote *newNote = new PianoRollNote(Globals::PianoRoll::midiNoteNum-1-noteNumber, timeStamp/m_iTimeFormat, (timeStampNoteOff-timeStamp+1)/m_iTimeFormat, noteVelocity);
             
             m_tracks.at(trackIdx)->addNote(newNote);
         }

@@ -9,9 +9,9 @@
 */
 #include "TrackViewComponent.h"
 
-int TrackParameters::m_iNumTracks = 0;
-int TrackParameters::k_iDefaultTrackHeight = 300;
-std::vector<int> TrackParameters::m_aiTrackHeight {};
+//int TrackParameters::m_iNumTracks = 0;
+//int TrackParameters::k_iDefaultTrackHeight = 300;
+//std::vector<int> TrackParameters::m_aiTrackHeight {};
 
 TrackViewComponent::TrackViewComponent()
 {
@@ -53,13 +53,12 @@ void TrackViewComponent::resized() {
     m_pianoRollListComp->setBounds(area);
 }
 
-int TrackViewComponent::getNumTracks() const {
+int TrackViewComponent::getNumTracks() {
     return m_pianoRollListComp->getNumTracks();
 }
 
 void TrackViewComponent::addTrack(int numTimeStampsForPianoRoll) {
     m_pianoRollListComp->addTrack(numTimeStampsForPianoRoll);
-    
     resized();
 }
 

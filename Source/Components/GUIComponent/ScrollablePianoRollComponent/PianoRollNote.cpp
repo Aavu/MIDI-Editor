@@ -10,20 +10,18 @@
 
 #include "PianoRollNote.h"
 
-PianoRollNote::PianoRollNote(PlayerComponent* player, int row_n, float offset_n, float length_n, int velocity_n, int orig_idx_on, int orig_idx_off, NoteMessage *noteMessage_n):
-    m_pPlayer(player),
+PianoRollNote::PianoRollNote(int row_n, float offset_n, float length_n, int velocity_n, NoteMessage *noteMessage_n):
     m_iRow(row_n),
     m_fOffset(offset_n), m_fLength(length_n),
-    m_iVelocity(velocity_n),
-    m_iOrigIdxOn(orig_idx_on), m_iOrigIdxOff(orig_idx_off),
-    m_pNoteMessage(noteMessage_n),
+    m_iVelocity(velocity_n), m_pNoteMessage(noteMessage_n),
     m_pBorder(0)
 {
     m_bInit = true;
     m_iBoxWidth = Globals::PianoRoll::initNoteWidth;
     m_iBoxHeight = Globals::PianoRoll::initNoteHeight;
-    
+
     m_pBorder = new PianoRollBorderComponent(this, NULL);
+    
     addChildComponent(m_pBorder);
     m_pBorder->setBorderThickness (BorderSize<int> (0,1,0,1)); // allow draging from both sides
     m_pBorder->setBounds(this->getBounds());
@@ -32,7 +30,7 @@ PianoRollNote::PianoRollNote(PlayerComponent* player, int row_n, float offset_n,
     
     m_pConstrainer = new ComponentBoundsConstrainer();
     m_pConstrainer->setMaximumHeight(m_iBoxHeight);
-    //std::cout << "create " << m_iRow << ' ' << offset_n << std::endl;
+
 }
 
 PianoRollNote::~PianoRollNote()
@@ -43,11 +41,12 @@ PianoRollNote::~PianoRollNote()
         delete m_pBorder;
     if (m_pConstrainer)
         delete m_pConstrainer;
-    // std::cout << "delete " << m_iRow << ' ' << m_fOffset << std::endl;
+
 }
 
 void PianoRollNote::resized()
 {
+
     if (m_pBorder)
     {
         m_pBorder->setBounds(0,0,getWidth(),getHeight());
@@ -55,7 +54,7 @@ void PianoRollNote::resized()
         auto newBounds = getBoundsInParent();
         m_fOffset = 1.F * newBounds.getX() / m_iBoxWidth;
         m_fLength = 1.F*newBounds.getWidth() / m_iBoxWidth;
-        // std::cout << m_fOffset << ' ' << m_fLength << ' ' << 1.F*newBounds.getWidth() / m_iBoxWidth << std::endl;
+
         repaint();
     }
 }
@@ -71,7 +70,7 @@ void PianoRollNote::mouseDown (const MouseEvent& event)
 
 void PianoRollNote::mouseUp (const MouseEvent& event)
 {
-    m_pPlayer->updateNoteTimestamps(m_iOrigIdxOn, m_fOffset, m_fLength);
+    // m_pPlayer->updateNoteTimestamps(m_iOrigIdxOn, m_fOffset, m_fLength);
 }
 
 void PianoRollNote::mouseDrag (const MouseEvent& event)
@@ -84,10 +83,7 @@ void PianoRollNote::mouseDrag (const MouseEvent& event)
         setBounds (newBounds);
         m_fOffset = 1.F * newBounds.getX() / m_iBoxWidth;
         m_pConstrainer->setMinimumOnscreenAmounts (getHeight(), getWidth(), getHeight(), getWidth());
-        
-        // update player
-        //m_pPlayer->moveNote(m_iOrigIdxOn, m_fOffset);
-        //m_pPlayer->updateNoteTimestamp(m_iOrigIdxOff, m_fOffset + m_fLength);
+
     }
     if (event.getPosition().getY() < 0 && m_iRow > 0)
     {
@@ -97,7 +93,6 @@ void PianoRollNote::mouseDrag (const MouseEvent& event)
     }
     else if (event.getPosition().getY() > m_iBoxHeight && m_iRow < Globals::PianoRoll::midiNoteNum-1)
     {
-        //std::cout << "move down" << std::endl;
         changePitch(this, 1);
         m_iRow++;
     }
@@ -167,14 +162,11 @@ Array<PianoRollNote*> NoteList::getNotesByRow(int row)
 
 void NoteList::addNote(int row, PianoRollNote* pianoRollNote)
 {
-    // std::cout << "add Note to row: " << row << " offset: " << pianoRollNote->getOffset() << std::endl;
-
     m_pNoteList[row].add(pianoRollNote);
 }
 
 void NoteList::detachNote(int row, PianoRollNote* noteToMove)
 {
-    // std::cout << "remove Note from row: " << row << " offset: " << noteToMove->getOffset() << std::endl;
     m_pNoteList[row].removeFirstMatchingValue(noteToMove);
 }
 

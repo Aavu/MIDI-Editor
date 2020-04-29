@@ -41,7 +41,7 @@ public:
         for (int i = 0; i < m_iNumBox; i++) {
             if (i % 4 == 0) {
                 g.drawLine(1.F*i*m_iboxWidth, 0.F, 1.F*i*m_iboxWidth, 1.F*getHeight());
-                g.drawText(String(i/4+1), 1.F*i*m_iboxWidth+5, 0.5*getHeight(), 10, 10, Justification::centred, true);
+                g.drawText(String(i/4+1), 1.F*i*m_iboxWidth+5, 0.5*getHeight(), Globals::PianoRoll::initNoteWidth, 10, Justification::left, true);
             }
             else {
                 g.drawLine(1.F*i*m_iboxWidth, 0.6F*getHeight(), 1.F*i*m_iboxWidth, 1.F*getHeight());
