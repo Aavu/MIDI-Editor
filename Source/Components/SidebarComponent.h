@@ -21,9 +21,5 @@ public:
     void paint (Graphics& g) override {
         g.fillAll (Colours::grey);
     }
-//
-//    void resized() override {
-//
-//    }
 
 };

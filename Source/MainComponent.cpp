@@ -175,9 +175,9 @@ void MainComponent::handleFileOpen() {
         m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEvents());
 
         m_midiFile.convertTimestampTicksToSeconds();
-        
+
         m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
-        
+
         const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
         MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*sequence);
 
@@ -190,6 +190,12 @@ void MainComponent::handleFileOpen() {
 
         m_pPlayer->setMidiMessageSequence(sequenceCopy);
 
+
+        MidiMessageSequence tempos;
+        m_midiFile.findAllTempoEvents(tempos);
+        MidiMessageSequence::MidiEventHolder* const * eh = tempos.begin();
+        auto bpm = 60 / eh[0]->message.getTempoSecondsPerQuarterNote();
+        m_transportBar.updateTempoDisplay(bpm);
         delete stream;
     }
 }

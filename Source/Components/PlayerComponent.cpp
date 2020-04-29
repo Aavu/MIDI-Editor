@@ -18,40 +18,40 @@ static double convertTicksToSeconds (double time,
 {
     if (timeFormat < 0)
         return time / (-(timeFormat >> 8) * (timeFormat & 0xff));
-    
+
     double lastTime = 0, correctedTime = 0;
     auto tickLen = 1.0 / (timeFormat & 0x7fff);
     auto secsPerTick = 0.5 * tickLen;
     auto numEvents = tempoEvents.getNumEvents();
-    
+
     for (int i = 0; i < numEvents; ++i)
     {
         auto& m = tempoEvents.getEventPointer(i)->message;
         auto eventTime = m.getTimeStamp();
-        
+
         if (eventTime >= time)
             break;
-        
+
         correctedTime += (eventTime - lastTime) * secsPerTick;
         lastTime = eventTime;
-        
+
         if (m.isTempoMetaEvent())
             secsPerTick = tickLen * m.getTempoSecondsPerQuarterNote();
-        
+
         while (i + 1 < numEvents)
         {
             auto& m2 = tempoEvents.getEventPointer(i + 1)->message;
-            
+
             if (m2.getTimeStamp() != eventTime)
                 break;
-            
+
             if (m2.isTempoMetaEvent())
                 secsPerTick = tickLen * m2.getTempoSecondsPerQuarterNote();
-            
+
             ++i;
         }
     }
-    
+
     return correctedTime + (time - lastTime) * secsPerTick;
 }
 
@@ -59,11 +59,12 @@ static double convertTicksToSeconds (double time,
 PlayerComponent::PlayerComponent()
 {
     initSynth();
-
+    startTimer(Globals::GUI::iUpdateInterval_ms);
 }
 
 PlayerComponent::~PlayerComponent()
 {
+    stopTimer();
     delete m_midiMessageSequence;
 }
 
@@ -76,29 +77,9 @@ void PlayerComponent::resized()
 }
 
 void PlayerComponent::initSynth() {
-    m_synth.clearVoices();
-
-    for (int i=0; i < kiNumVoices; i++) {
-        m_synth.addVoice(new sfzero::Voice());
-    }
-
-    // Load sound from SoundFont file and add to synth.
     File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
-
-    m_sfzLoader.setSfzFile(soundFontFile);
-    std::function<void()> addLoadedSoundCallback = [this] () {
-        auto sounds = m_sfzLoader.getLoadedSounds();
-        for (auto i=0; i<sounds.size(); i++) {
-            auto * sound = sounds.getUnchecked(i).get();
-            if (i == 10)
-                sound->useSubsound(247);
-            sound->setChannelNum(i);
-            m_synth.addSound(sound);
-        }
-        std::cout << sounds.size() << " sounds added." << std::endl;
-    };
-    m_sfzLoader.loadSounds(kiNumChannels, true, &addLoadedSoundCallback);
-
+    m_synth.initSynth(soundFontFile);
+    m_synth.addActionListener(this);
 }
 
 
@@ -141,25 +122,25 @@ MidiMessageSequence& PlayerComponent::getTempoEventsInSecs()
 double PlayerComponent::convertQuarterNoteToSec(double positionInQuarterNotes)
 {
     double positionInSec = 0;
-    
+
     double target_tick = positionInQuarterNotes * m_iTimeFormat;
     double cur_tempo = 60.F / 120;
     int st_tick = 0;
     double st_sec = 0;
-    
+
     if (m_TempoEvents.getNumEvents() > 0)
     {
         cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
-        
+
         // m_TempoEvents is sorted by time
         // m_tempoEventsInSec has the same order as m_TempoEvents
         for (int i = 1; i < m_TempoEvents.getNumEvents(); i++)
         {
             MidiMessage c_message =m_TempoEventsInSec.getEventPointer(i)->message;
             double c_timeInTick = m_TempoEvents.getEventTime(i);
-            
-            // DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
-            
+
+            //    DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
+
             if (target_tick >= c_timeInTick)
             {
                 cur_tempo = c_message.getTempoSecondsPerQuarterNote();
@@ -180,25 +161,25 @@ double PlayerComponent::convertQuarterNoteToSec(double positionInQuarterNotes)
 double PlayerComponent::convertSecToQuarterNote(double positionInSec)
 {
     double positionInQuarterNotes = 0;
-    
+
     double target_sec = positionInSec;
     double cur_tempo = 60.F/120;
     int st_tick = 0;
     double st_sec = 0;
-    
+
     if (m_TempoEvents.getNumEvents() > 0)
     {
         cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
-        
+
         // m_TempoEvents is sorted by time
         // m_tempoEventsInSec has the same order as m_TempoEvents
         for (int i = 1; i < m_TempoEvents.getNumEvents(); i++)
         {
             MidiMessage c_message =m_TempoEvents.getEventPointer(i)->message;
             double c_timeInSec = m_TempoEventsInSec.getEventTime(i);
-            
+
             // DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
-            
+
             if (target_sec >= c_timeInSec)
             {
                 cur_tempo = c_message.getTempoSecondsPerQuarterNote();
@@ -258,7 +239,6 @@ void PlayerComponent::play() {
 
 void PlayerComponent::pause() {
     m_playState = PlayState::Paused;
-    // TODO: Make sure to flush note ons.
 }
 
 void PlayerComponent::stop() {
@@ -311,7 +291,7 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
 }
 
 void PlayerComponent::allNotesOff() {
-    for (int i=0; i<16; i++)
+    for (int i=0; i<SoundFontGeneralMidiSynth::kiNumChannels; i++)
         m_synth.allNotesOff(0, true);
 }
 
@@ -382,3 +362,11 @@ String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName
     return currentDir.getFullPathName();
 }
 
+void PlayerComponent::timerCallback() {
+    updateTimeDisplay();
+}
+
+void PlayerComponent::actionListenerCallback (const String& message) {
+    if (message == Globals::ActionMessage::EnableTransport) // Just relay message to Transport
+        sendActionMessage(message);
+}

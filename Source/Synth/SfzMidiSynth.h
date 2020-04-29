@@ -11,20 +11,33 @@
 #pragma once
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "../Components/Globals.h"
 
-class SfzSynth : public sfzero::Synth
+class SfzLoader;
+
+class SoundFontGeneralMidiSynth : public sfzero::Synth, public ActionBroadcaster
 {
 public:
-    SfzSynth();
+    SoundFontGeneralMidiSynth();
 
     void handleProgramChange (int iMidiChannel, int iProgram) override ;
 
-    void addSound(sfzero::Sound *pSound);
+    void initSynth(File * pSoundFontFile);
     int getProgramNumber(int iMidiChannel) const;
     juce::String getProgramName(int iProgram) const;
+    void setProgramNumber(int iProgramNum, int iMidiChannel);
+    void resetProgramSelection();
+
+    constexpr static int kiNumVoices = 24;
+    constexpr static int kiNumChannels = 16;
+    constexpr static int kiPercussionChannelNum = 10;
+    constexpr static int kiPercussionSubSoundNum = 247;
 
 private:
-    sfzero::Sound * getSound(int iMidiChannel) const;
+    void addSound(sfzero::Sound *pSound);
+    sfzero::Sound * getSoundForChannel(int iMidiChannel) const;
+
+    std::unique_ptr<SfzLoader> m_sfzLoader;
 };
 
 
@@ -45,14 +58,14 @@ private:
         explicit LoadThread(SfzLoader *pSfzLoader);
         void run() override;
     private:
-        SfzLoader *m_pSfzLoader;
+        SfzLoader * m_pSfzLoader;
     };
 
     File m_sfzFile;
     AudioFormatManager m_formatManager;
     LoadThread m_loadThread;
     ReferenceCountedArray<sfzero::Sound> m_sounds;
-    double m_fLoadProgress;
-    int m_iNumInstances;
-    std::function<void()> m_callback;
+    double m_fLoadProgress = 0.0;
+    int m_iNumInstances = 0;
+    std::function<void()> m_callback = nullptr;
 };

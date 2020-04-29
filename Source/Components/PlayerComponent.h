@@ -20,7 +20,7 @@
 //==============================================================================
 /*
 */
-class PlayerComponent : public Component, public ActionBroadcaster
+class PlayerComponent : public Component, public ActionBroadcaster, public ActionListener, public Timer
 {
 public:
     PlayerComponent();
@@ -50,13 +50,13 @@ public:
     long getCurrentPosition() {return m_iCurrentPosition;}
     double getSampleRate() {return m_fSampleRate;}
     long getMaxBufferLength() {return m_iMaxBufferLength;}
-    
+
     MidiMessageSequence& getTempoEvents();
     MidiMessageSequence& getTempoEventsInSecs();
     double getCurrentPositionInQuarterNotes();
     double convertQuarterNoteToSec(double positionInQuarterNotes);
     double convertSecToQuarterNote(double positionInSec);
-    
+
     void setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes);
     void setTimeFormat(int timeFormat);
 
@@ -71,11 +71,17 @@ public:
     // void addNote() // TODO: Define
     // void deleteNote(int iNoteOnEventIndex) // TODO: Define
 
+    std::function<void()> updateTimeDisplay = nullptr;
+
 private:
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
 
     void initSynth();
     void fillMidiBuffer(int iNumSamples);
+
+    void timerCallback() override;
+    void actionListenerCallback (const String& message) override;
+
 
     long m_iMaxBufferLength = 0;
 
@@ -101,13 +107,7 @@ private:
     PlayState m_playState = PlayState::Stopped;
     long m_iCurrentPosition = 0;
 
-    SfzLoader m_sfzLoader;
-    SfzLoader m_sfzLoader1;
-    SfzSynth m_synth;
-
-    constexpr static int kiNumVoices = 24;
-    constexpr static int kiNumChannels = 16;
-
+    SoundFontGeneralMidiSynth m_synth;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlayerComponent)

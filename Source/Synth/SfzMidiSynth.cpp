@@ -10,45 +10,89 @@
 
 #include "SfzMidiSynth.h"
 
-SfzSynth::SfzSynth()
+SoundFontGeneralMidiSynth::SoundFontGeneralMidiSynth() :
+    m_sfzLoader(new SfzLoader())
 {
-    for (auto i=0; i<4; ++i)
-        addVoice(new sfzero::Voice());
 }
 
-void SfzSynth::handleProgramChange(int iMidiChannel, int iProgram) {
-    DBG("SfzSynth::handleProgramChange--> midiChannel: " << iMidiChannel << " programNumber: " << iProgram);
-    for (int s=0; s<getNumSounds(); s++) {
-        auto *sound = getSound(s);
-        if (sound->appliesToChannel(iMidiChannel)) {
-            sound->useSubsound(iProgram);
-            return;
-        }
+void SoundFontGeneralMidiSynth::handleProgramChange(int iMidiChannel, int iProgram) {
+    auto *sound = getSoundForChannel(iMidiChannel);
+    if (sound) {
+        sound->useSubsound(iProgram);
+//        DBG("SoundFontGeneralMidiSynth::handleProgramChange-->  midiChannel: " << iMidiChannel << " set to programNumber: " << iProgram);
     }
 }
 
-int SfzSynth::getProgramNumber(int iMidiChannel) const {
-    return getSound(iMidiChannel)->selectedSubsound();
+void SoundFontGeneralMidiSynth::initSynth(File * pSoundFontFile) {
+    clearVoices();
+    for (int i=0; i < kiNumVoices; i++) {
+        addVoice(new sfzero::Voice());
+    }
+    // Load and add sounds
+    // Create callback that will assign a midi channel to each sound and set sound of channel 10 to percussion.
+    std::function<void()> addLoadedSoundCallback = [this] () {
+        auto sounds = m_sfzLoader->getLoadedSounds();
+        for (auto i=0; i<sounds.size(); i++) {
+            auto * sound = sounds.getUnchecked(i).get();
+            sound->setChannelNum(i);
+            if (i == kiPercussionChannelNum)
+                sound->useSubsound(kiPercussionSubSoundNum);
+            addSound(sound);
+        }
+        DBG( sounds.size() << " sounds added.");
+        sendActionMessage(Globals::ActionMessage::EnableTransport);
+    };
+    m_sfzLoader->setSfzFile(pSoundFontFile);
+    DBG( "Loading sounds...");
+    m_sfzLoader->loadSounds(kiNumChannels, true, &addLoadedSoundCallback);
 }
 
-juce::String SfzSynth::getProgramName(int iProgram) const {
-    return getSound(0)->subsoundName(iProgram);
+int SoundFontGeneralMidiSynth::getProgramNumber(int iMidiChannel) const {
+    sfzero::Sound * sound = getSoundForChannel(iMidiChannel);
+    if (sound)
+        return sound->selectedSubsound();
+    return -1;
 }
 
-sfzero::Sound * SfzSynth::getSound(int iMidiChannel) const {
-    return dynamic_cast<sfzero::Sound *>(sfzero::Synth::getSound(iMidiChannel).get());
+juce::String SoundFontGeneralMidiSynth::getProgramName(int iProgram) const {
+    sfzero::Sound * sound = getSoundForChannel(0);
+    if (sound)
+        return sound->subsoundName(iProgram);
+    return juce::String();
 }
 
-void SfzSynth::addSound(sfzero::Sound *pSound) {
+void SoundFontGeneralMidiSynth::setProgramNumber(int iProgramNum, int iMidiChannel) {
+    sfzero::Sound * sound = getSoundForChannel(iMidiChannel);
+    if (sound)
+        sound->useSubsound(iProgramNum);
+}
+
+void SoundFontGeneralMidiSynth::resetProgramSelection() {
+    for (auto i=0; i<getNumSounds(); i++) {
+        if (i == kiPercussionChannelNum)
+            getSoundForChannel(i)->useSubsound(kiPercussionSubSoundNum);
+        else
+            getSoundForChannel(i)->useSubsound(0);
+    }
+}
+
+sfzero::Sound * SoundFontGeneralMidiSynth::getSoundForChannel(int iMidiChannel) const {
+    for (int i=0; i<getNumSounds(); i++) {
+        auto *sound = dynamic_cast<sfzero::Sound *>(getSound(i).get());
+        if (sound->appliesToChannel(iMidiChannel)) {
+            return sound;
+        }
+    }
+    return nullptr;
+}
+
+void SoundFontGeneralMidiSynth::addSound(sfzero::Sound *pSound) {
     sfzero::Synth::addSound(pSound);
 }
 
 //============================================================================================================
 SfzLoader::SfzLoader() :
-        m_loadThread(this),
-        m_fLoadProgress(0.0),
-        m_iNumInstances(0),
-        m_callback(nullptr)
+        m_loadThread(this)
 {
 }
 

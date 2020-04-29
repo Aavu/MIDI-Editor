@@ -13,7 +13,6 @@
 #include "Components/GUIComponent/ScrollablePianoRollComponent/ScrollablePianoRollComponent.h"
 
 #include "MainComponent.h"
-#include "MainComponentK.h"
 
 //==============================================================================
 class MidiEditorApplication  : public JUCEApplication
