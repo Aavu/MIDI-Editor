@@ -12,15 +12,19 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "../../Globals.h"
+#include "../../PlayerComponent.h"
 
 // midi message associated with that note
 // TODO: add members and functions later
 class NoteMessage {
-  // empty now
+    // empty for now
+    //  maybe put noteOn and noteOff MidiMessage here
 };
 class SelectedNoteList;
+class NoteList;
+class PianoRollBorderComponent;
 
-// TODO: fix dragging behavior
+
 class PianoRollNote: public TextButton, public ComponentBoundsConstrainer
 {
 public:
@@ -31,7 +35,10 @@ public:
     void resized() override;
     
     void mouseDown (const MouseEvent& event) override;
-    
+
+    void mouseUp (const MouseEvent &event) override ;
+
+
     void mouseDrag (const MouseEvent& event) override;
     
     void mouseEnter(const MouseEvent& event) override;
@@ -48,10 +55,13 @@ public:
     void paintButton (Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
     
     std::function<void(PianoRollNote*, int)> changePitch;
+    std::function<void()> hightlightRow;
     
 private:
     
     bool                m_bInit = false;
+    int                 m_iOrigIdxOn;                    // index of noteOn in the MidiMessageSequence
+    int                 m_iOrigIdxOff;                   // index of noteOff in the MidiMessageSequence
     int                 m_iRow;                          // midi number (0~127)
     float               m_fOffset;
     float               m_fLength;                      // relative length (1 means 1 quarter note)
@@ -61,12 +71,29 @@ private:
     
     NoteMessage         *m_pNoteMessage;
     
+    // player
+    PlayerComponent     *m_pPlayer;
+    
     // dragger
     ComponentDragger                m_pMyDragger;
-    ResizableBorderComponent*       m_pBorder;
+    PianoRollBorderComponent*       m_pBorder;
     ComponentBoundsConstrainer*     m_pConstrainer;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PianoRollNote)
+};
+
+class PianoRollBorderComponent: public ResizableBorderComponent
+{
+public:
+    PianoRollBorderComponent(Component *componentToResize, ComponentBoundsConstrainer *constrainer):
+        ResizableBorderComponent(componentToResize, constrainer)
+    {
+    }
+    
+    void mouseUp (const MouseEvent &event) override
+    {
+        getParentComponent()->mouseUp(event);
+    }
 };
 
 class NoteList

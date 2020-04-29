@@ -18,8 +18,9 @@
 
 #include "GUIComponent/ScrollablePianoRollComponent/ScrollablePianoRollComponent.h"
 #include "GUIComponent/ScrollablePianoRollComponent/PianoRollNote.h"
+#include "GUIComponent/PianoRollListComponent.h"
 
-class TrackViewComponent : public Component, public Timer {
+class TrackViewComponent : public Component {
 public:
     TrackViewComponent();
 
@@ -28,29 +29,19 @@ public:
     void init(PlayerComponent* player);
     void paint(Graphics& g) override;
     void resized() override;
-
-    void setTrack(int numTimeStampsForPianoRoll, const MidiMessageSequence *message);
+    
+    int getNumTracks();
+    
+    void addTrack(int numTimeStampsForPianoRoll);
     
     void setTimeFormat(int timeFormat);
-
-private:
-    void timerCallback() override;
-    void updatePlayHeadPosition();
-    void handleScrollCallback(int newPositionX);
-
+    
     void convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message);
 
-    TextButton m_header;
-    SidebarComponent m_sidebar;
-
-    ScrollablePianoRollComponent* m_pTrack = nullptr;
+private:
     
-    int m_iTimeFormat;
-
-    PlayerComponent* m_pPlayer = nullptr;
-    PlayHeadScrollComponent m_playHeadScroll;
-    std::shared_ptr<PlayHeadComponent> m_pPlayHead = nullptr;
-
+    PianoRollListComponent *m_pianoRollListComp;
+    
     long m_iMaxBufferLength = 0;
     long m_iCurrentPlayHeadPosition = 0;
     int m_iTrackViewComponentWidth = 0;

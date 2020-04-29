@@ -76,6 +76,14 @@ bool NoteLayer::keyPressed(const KeyPress & key)
     }
 }
 
+void NoteLayer::mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel)
+{
+    Component::mouseWheelMove(e, wheel);
+    int viewPositionX = getViewPositionX();
+    if (m_syncScrollBars)
+        m_syncScrollBars(viewPositionX);
+}
+
 void NoteLayer::addNoteToRow(PianoRollNote *newNote)
 {
     int row = newNote->getRow();
@@ -91,10 +99,35 @@ void NoteLayer::addEmptyColumns(int numColumnsToAdd)
     oneColumnTable.getHeader().setColumnWidth(1, m_iInitNoteWidth * m_iCurTimeStamps);
 }
 
+void NoteLayer::highlightRow(int row)
+{
+    // call
+}
+
 void NoteLayer::setPreview(bool ifPreview)
 {
     m_bPreview = ifPreview;
     oneColumnTable.repaint();
+}
+
+int NoteLayer::getViewPositionX()
+{
+    return oneColumnTable.getViewport()->getViewPositionX();
+}
+
+int NoteLayer::getBoxWidth()
+{
+    return static_cast<int>(m_fFacNoteWidth*m_iInitNoteWidth);
+}
+
+int NoteLayer::getBoxHeight()
+{
+    return static_cast<int>(m_fFacNoteHeight*m_iInitNoteHeight);
+}
+
+int NoteLayer::getCanvasWidth()
+{
+    return m_fFacNoteWidth * m_iInitNoteWidth * m_iCurTimeStamps;
 }
 
 NoteLayer::RowComponent::RowComponent (NoteLayer& lb, int row_n, int col_n, int tickNum, int curNoteWidth, int curNoteHeight, bool preview_n) : m_Owner (lb), m_iRow(row_n)
@@ -142,13 +175,29 @@ void NoteLayer::RowComponent::mouseDown (const MouseEvent& event)
 {
     auto* existingNote = static_cast<PianoRollNote*> (event.originalComponent);
     
-//    std::cout << "mouseDown called: " << m_iRow << std::endl;
+    std::cout << "mouseDown called: " << m_iRow << std::endl;
+    
+    if (existingNote->ifInit() == false)   // create a new note
+    {
+        // do nothing
+    }
+    else    // add the existing note to selected list
+    {
+        m_Owner.selectOneNote(existingNote);
+    }
+}
+
+void NoteLayer::RowComponent::mouseDoubleClick (const MouseEvent& event)
+{
+    auto* existingNote = static_cast<PianoRollNote*> (event.originalComponent);
+    
+    std::cout << "mouseDown called: " << m_iRow << std::endl;
     
     if (existingNote->ifInit() == false)   // create a new note
     {
         float offset = 1.F*event.getMouseDownX() / m_iBoxWidth;
         offset = (static_cast<int> (offset*2))/2.F; // quantize
-        PianoRollNote* newNote = new PianoRollNote(m_iRow,offset);
+        PianoRollNote* newNote = new PianoRollNote(m_iRow,offset); // CHANGE
         
         addNote(newNote);
         m_Owner.selectOneNote(newNote);
@@ -162,6 +211,7 @@ void NoteLayer::RowComponent::mouseDown (const MouseEvent& event)
 void NoteLayer::RowComponent::addNote(PianoRollNote* newNote)
 {
     newNote->changePitch = [this] (PianoRollNote* note, int direction) { changePitch(note, direction); };
+    newNote->hightlightRow = [this] () { m_Owner.highlightRow(m_iRow); };
     
     m_Owner.addNote(m_iRow, newNote);
     
@@ -182,14 +232,14 @@ void NoteLayer::RowComponent::detachNote(PianoRollNote* noteToDetach)
 void NoteLayer::RowComponent::attachNote(PianoRollNote* noteToAttach)
 {
     addAndMakeVisible(noteToAttach);
-//    std::cout << "attachpitch rowcomp: " << m_iRow << std::endl;
+    std::cout << "attachpitch rowcomp: " << m_iRow << std::endl;
     noteToAttach->changePitch = [this] (PianoRollNote* note, int direction) { changePitch(note, direction); };
     repaint();
 }
 
 void NoteLayer::RowComponent::changePitch(PianoRollNote* noteToMove, int direction)
 {
-//    std::cout << "changepitch rowcomp: " << m_iRow << std::endl;
+    std::cout << "changepitch rowcomp: " << m_iRow << std::endl;
     detachNote(noteToMove);
     RowComponent* targetRow = static_cast<RowComponent*> (m_Owner.oneColumnTable.getCellComponent(1,m_iRow+direction));
     targetRow->attachNote(noteToMove);
@@ -216,13 +266,12 @@ void NoteLayer::RowComponent::mouseWheelMove (const MouseEvent& e, const MouseWh
     getParentComponent()->mouseWheelMove(e, wheel_h);
 }
 
+void NoteLayer::RowComponent::mouseEnter(const MouseEvent& event)
+{
+    m_Owner.highlightRow(m_iRow);
+}
+
 void NoteLayer::RowComponent::setPreview(bool ifPreview)
 {
     m_bPreview = ifPreview;
 }
-
-
-
-
-
-
