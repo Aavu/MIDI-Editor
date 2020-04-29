@@ -31,49 +31,9 @@ void PlayerComponent::resized()
 }
 
 void PlayerComponent::initSynth() {
-    m_synth.clearVoices();
-
-    for (int i=0; i < kiNumVoices; i++) {
-        m_synth.addVoice(new sfzero::Voice());
-    }
-
-    // Load sound from SoundFont file and add to synth.
     File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
-
-    m_sfzLoader.setSfzFile(soundFontFile);
-    std::function<void()> addLoadedSoundCallback = [this] () {
-        auto sounds = m_sfzLoader.getLoadedSounds();
-        for (auto i=0; i<sounds.size(); i++) {
-            auto * sound = sounds.getUnchecked(i).get();
-            if (i == 10)
-                sound->useSubsound(247);
-            sound->setChannelNum(i);
-            m_synth.addSound(sound);
-        }
-        std::cout << sounds.size() << " sounds added." << std::endl;
-    };
-    m_sfzLoader.loadSounds(kiNumChannels, true, &addLoadedSoundCallback);
-
+    m_synth.initSynth(soundFontFile);
 }
-
-//void PlayerComponent::addMessageToBuffer(const MidiMessage& message) {
-//    auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
-//    //std::cout << message.getTimeStamp() << "\t" << msgSampleNumber << "\t" << message.getDescription() << std::endl;
-//    m_midiBuffer.addEvent(message, msgSampleNumber);
-//}
-//
-//void PlayerComponent::addAllSequenceMessagesToBuffer() {
-//    auto numEvents = m_midiMessageSequence->getNumEvents();
-//    MidiMessageSequence::MidiEventHolder* const * eventHolder = m_midiMessageSequence->begin();
-//    MidiMessage msg;
-//    for (int i=0; i<numEvents; i++) {
-//        msg = eventHolder[i]->message;
-//        addMessageToBuffer(msg);
-//    }
-//    m_pIterator = std::make_unique<MidiBuffer::Iterator>(m_midiBuffer);
-//    m_iMaxBufferLength = m_midiBuffer.getLastEventTime();
-//    DBG("max length : " << m_iMaxBufferLength);
-//}
 
 void PlayerComponent::fillMidiBuffer(int iNumSamples) {
     DBG("----PlayerComponent::fillMidiBuffer--------------------------------");
@@ -165,7 +125,7 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
 }
 
 void PlayerComponent::allNotesOff() {
-    for (int i=0; i<16; i++)
+    for (int i=0; i<SoundFontGeneralMidiSynth::kiNumChannels; i++)
         m_synth.allNotesOff(0, true);
 }
 
@@ -177,17 +137,6 @@ void PlayerComponent::setCurrentPosition(long value) {
 
 void PlayerComponent::resetCurrentPosition() {
     setCurrentPosition(0);
-}
-
-void PlayerComponent::updateNoteTimestamp(int iEventIndex, double fNewTimestamp) {
-    auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx);
-    DBG("-------------updateNoteTimestamp--------------------");
-    DBG(pEventAtReadIdx->message.getDescription());
-    m_midiMessageSequence->getEventPointer(iEventIndex)->message.setTimeStamp(fNewTimestamp);
-    m_midiMessageSequence->sort();
-    DBG(pEventAtReadIdx->message.getDescription());
-    m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx);
-    DBG("----------------------------------------------------");
 }
 
 String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {

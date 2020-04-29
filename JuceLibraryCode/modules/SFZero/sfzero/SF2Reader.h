@@ -29,7 +29,8 @@ namespace sfzero
     private:
         SF2Sound& sf2Sound;
         //juce::FileInputStream *file_;
-        juce::ScopedPointer<juce::FileInputStream> fileInputStream;
+        std::unique_ptr<juce::FileInputStream> fileInputStream;
+//        juce::ScopedPointer<juce::FileInputStream> fileInputStream;
         
         void addGeneratorToRegion(word genOper, SF2::genAmountType *amount, Region *region);
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SF2Reader)

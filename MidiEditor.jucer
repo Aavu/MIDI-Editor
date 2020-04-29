@@ -3,10 +3,6 @@
 <JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.4">
   <MAINGROUP id="bseg78" name="MidiEditor">
     <GROUP id="{4D02D25C-6694-ABA1-B776-755A0F43BA73}" name="Source">
-      <FILE id="jSDrYV" name="MainComponentK.cpp" compile="1" resource="0"
-            file="Source/MainComponentK.cpp"/>
-      <FILE id="z7bqiJ" name="MainComponentK.h" compile="0" resource="0"
-            file="Source/MainComponentK.h"/>
       <GROUP id="{B3A1646D-D871-7097-4903-DFA0B16447B6}" name="Synth">
         <FILE id="J8O2hq" name="MidiSynth.cpp" compile="1" resource="0" file="Source/Synth/MidiSynth.cpp"
               xcodeResource="1"/>
@@ -18,9 +14,24 @@
               xcodeResource="1"/>
       </GROUP>
       <GROUP id="{B3A1646D-D871-7097-4903-DFA0B16447B6}" name="Components">
-        <FILE id="gvNBM8" name="PlayHeadComponent.h" compile="0" resource="0"
-              file="Source/Components/PlayHeadComponent.h"/>
         <GROUP id="{77481154-EF93-2B7F-98A4-DF82B1178180}" name="GUIComponent">
+          <FILE id="T4QACN" name="TransportComponent.cpp" compile="1" resource="0"
+                file="Source/Components/TransportComponent.cpp"/>
+          <FILE id="Evexho" name="TransportComponent.h" compile="0" resource="0"
+                file="Source/Components/TransportComponent.h"/>
+          <FILE id="bhPhQ7" name="TrackViewComponent.cpp" compile="1" resource="0"
+                file="Source/Components/TrackViewComponent.cpp"/>
+          <FILE id="sjiuHY" name="TrackViewComponent.h" compile="0" resource="0"
+                file="Source/Components/TrackViewComponent.h"/>
+          <FILE id="SIK8yb" name="MenuComponent.h" compile="0" resource="0" file="Source/Components/MenuComponent.h"/>
+          <FILE id="ddZtCU" name="MenuComponent.cpp" compile="1" resource="0"
+                file="Source/Components/MenuComponent.cpp"/>
+          <FILE id="phIXgK" name="SidebarComponent.h" compile="0" resource="0"
+                file="Source/Components/SidebarComponent.h"/>
+          <FILE id="Y7XVwc" name="PlayHeadScrollComponent.h" compile="0" resource="0"
+                file="Source/Components/PlayHeadScrollComponent.h"/>
+          <FILE id="gvNBM8" name="PlayHeadComponent.h" compile="0" resource="0"
+                file="Source/Components/PlayHeadComponent.h"/>
           <GROUP id="{0B0C2D8E-3F1C-7D67-67BB-27A9CB4E8AD1}" name="ScrollablePianoRollComponent">
             <FILE id="FwmUly" name="CustomKeyboardComponent.cpp" compile="1" resource="0"
                   file="Source/Components/GUIComponent/ScrollablePianoRollComponent/CustomKeyboardComponent.cpp"/>
@@ -40,29 +51,14 @@
                 file="Source/Components/GUIComponent/GUIComponent.cpp"/>
           <FILE id="JltN6Q" name="GUIComponent.h" compile="0" resource="0" file="Source/Components/GUIComponent/GUIComponent.h"/>
         </GROUP>
-        <FILE id="Y7XVwc" name="PlayHeadScrollComponent.h" compile="0" resource="0"
-              file="Source/Components/PlayHeadScrollComponent.h"/>
         <FILE id="cfxNXd" name="Track.h" compile="0" resource="0" file="Source/Components/Track.h"/>
         <FILE id="xIjdCC" name="TrackParameters.h" compile="0" resource="0"
               file="Source/Components/TrackParameters.h"/>
-        <FILE id="phIXgK" name="SidebarComponent.h" compile="0" resource="0"
-              file="Source/Components/SidebarComponent.h"/>
         <FILE id="TRFyKS" name="Globals.h" compile="0" resource="0" file="Source/Components/Globals.h"/>
-        <FILE id="ddZtCU" name="MenuComponent.cpp" compile="1" resource="0"
-              file="Source/Components/MenuComponent.cpp"/>
-        <FILE id="SIK8yb" name="MenuComponent.h" compile="0" resource="0" file="Source/Components/MenuComponent.h"/>
         <FILE id="bqau8k" name="PlayerComponent.cpp" compile="1" resource="0"
               file="Source/Components/PlayerComponent.cpp"/>
         <FILE id="xYNs8M" name="PlayerComponent.h" compile="0" resource="0"
               file="Source/Components/PlayerComponent.h"/>
-        <FILE id="T4QACN" name="TransportComponent.cpp" compile="1" resource="0"
-              file="Source/Components/TransportComponent.cpp"/>
-        <FILE id="Evexho" name="TransportComponent.h" compile="0" resource="0"
-              file="Source/Components/TransportComponent.h"/>
-        <FILE id="bhPhQ7" name="TrackViewComponent.cpp" compile="1" resource="0"
-              file="Source/Components/TrackViewComponent.cpp"/>
-        <FILE id="sjiuHY" name="TrackViewComponent.h" compile="0" resource="0"
-              file="Source/Components/TrackViewComponent.h"/>
       </GROUP>
       <FILE id="SGJ7oP" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="BOWg84" name="MainComponent.cpp" compile="1" resource="0"

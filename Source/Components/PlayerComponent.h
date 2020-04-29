@@ -68,15 +68,12 @@ public:
     void setCurrentPosition(long value);
     void resetCurrentPosition();
 
-    void updateNoteTimestamp(int iEventIndex, double fNewTimestamp);
 
 private:
     static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
 
     void initSynth();
 
-    //void addMessageToBuffer(const MidiMessage& message);
-    //void addAllSequenceMessagesToBuffer();
     void fillMidiBuffer(int iNumSamples);
 
     long m_iMaxBufferLength = 0;
@@ -100,13 +97,7 @@ private:
     PlayState m_playState = PlayState::Stopped;
     long m_iCurrentPosition = 0;
 
-    SfzLoader m_sfzLoader;
-    SfzLoader m_sfzLoader1;
-    SfzSynth m_synth;
-
-    constexpr static int kiNumVoices = 24;
-    constexpr static int kiNumChannels = 16;
-
+    SoundFontGeneralMidiSynth m_synth;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlayerComponent)
