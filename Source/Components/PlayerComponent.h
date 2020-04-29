@@ -16,6 +16,7 @@
 
 #include "../Synth/SfzMidiSynth.h"
 #include "Globals.h"
+#include "Util.h"
 
 //==============================================================================
 /*
@@ -33,6 +34,7 @@ public:
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill);
 
     void setMidiMessageSequence(MidiMessageSequence* midiMsgSeq);
+    void setTempoEventSequence(const MidiMessageSequence* midiMsgSeq);
     void play();
     void pause();
     void stop();
@@ -57,8 +59,8 @@ public:
         return m_fSampleRate;
     }
 
-    unsigned int getBPM() {
-        return BPM;
+    double getTempo() {
+        return m_fCurrentTempo;
     }
 
     long getMaxBufferLength() {
@@ -69,15 +71,18 @@ public:
 
     void resetCurrentPosition();
 
-    std::function<void()> updateTimeDisplay = nullptr;
+    std::function<void()> updateTransportDisplay = nullptr;
 
 
 private:
-    static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
-
     void initSynth();
 
     void fillMidiBuffer(int iNumSamples);
+    void addMessageToTempoBuffer(const MidiMessage& message);
+    void addAllTempoMessagesToBuffer();
+
+    void updateTempo();
+
 
     void timerCallback() override;
 
@@ -85,10 +90,11 @@ private:
 
     long m_iMaxBufferLength = 0;
 
-    unsigned int BPM = 120;
+    double m_fCurrentTempo = 120;
+    MidiBuffer m_tempoEventBuffer;
 
     MidiMessageSequence* m_midiMessageSequence = nullptr;
-    MidiMessageSequence::MidiEventHolder * const * m_midiEventHolder = nullptr;
+
     int m_iMidiEventReadIdx = 0;
     int m_iMaxMidiEvents = 0;
 

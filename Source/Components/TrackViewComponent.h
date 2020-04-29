@@ -11,7 +11,6 @@
 
 #include <JuceHeader.h>
 #include "SidebarComponent.h"
-#include "TrackParameters.h"
 #include "PlayHeadComponent.h"
 #include "PlayHeadScrollComponent.h"
 #include "PlayerComponent.h"
@@ -20,7 +19,7 @@
 #include "GUIComponent/ScrollablePianoRollComponent/ScrollablePianoRollComponent.h"
 #include "GUIComponent/ScrollablePianoRollComponent/PianoRollNote.h"
 
-class TrackViewComponent : public TrackParameters, public Component, public Timer {
+class TrackViewComponent : public Component, public Timer {
 public:
     TrackViewComponent();
 
@@ -30,22 +29,21 @@ public:
     void paint(Graphics& g) override;
     void resized() override;
 
-    int getNumTracks() const;
-
-    void addTrack(int numTimeStampsForPianoRoll);
+    void setTrack(int numTimeStampsForPianoRoll, const MidiMessageSequence *message);
     
     void setTimeFormat(int timeFormat);
-    
-    void convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message);
 
 private:
     void timerCallback() override;
     void updatePlayHeadPosition();
     void handleScrollCallback(int newPositionX);
 
+    void convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message);
+
     TextButton m_header;
     SidebarComponent m_sidebar;
-    std::vector<ScrollablePianoRollComponent*> m_tracks;
+
+    ScrollablePianoRollComponent* m_pTrack = nullptr;
     
     int m_iTimeFormat;
 
@@ -57,8 +55,5 @@ private:
     long m_iCurrentPlayHeadPosition = 0;
     int m_iTrackViewComponentWidth = 0;
 
-//    int m_iNumTracks = 0;
-//    std::vector<int> m_trackHeight;
-//    const int k_iDefaultTrackHeight = 128;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TrackViewComponent)
 };

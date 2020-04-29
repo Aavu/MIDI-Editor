@@ -63,6 +63,7 @@ m_pTrackView(std::make_unique<TrackViewComponent>())
 MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
+    delete m_pSequence;
     removeAllActionListeners();
     shutdownAudio();
 }
@@ -169,25 +170,26 @@ void MainComponent::handleFileOpen() {
         
         int timeFormat = m_midiFile.getTimeFormat();
         m_pTrackView->setTimeFormat(timeFormat);
-        
-        const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
-        
-        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(sequence->getEndTime()/timeFormat) + 10);
-        
-        m_pTrackView->addTrack(numTimeStampsForPianoRoll);
-        // pass the midiFile before timestampticks are converted to seconds
-        m_pTrackView->convertMidiMessageSequence(0, sequence);
-        
+
+        m_pSequence = new MidiMessageSequence();
+        for (int i=0; i < m_midiFile.getNumTracks(); i++) {
+            m_pSequence->addSequence(*m_midiFile.getTrack(i), 0);
+            m_pSequence->updateMatchedPairs();
+        }
+
+        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(m_pSequence->getEndTime()/timeFormat) + 10);
+        m_pTrackView->setTrack(numTimeStampsForPianoRoll, m_pSequence);
         m_midiFile.convertTimestampTicksToSeconds();
-        MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*sequence);
 
-        m_pPlayer->setMidiMessageSequence(sequenceCopy);
+        // Doing this again is very unoptimistic. But given the time, this is the best solution.
+        m_pSequence->clear();
+        for (int i=0; i < m_midiFile.getNumTracks(); i++) {
+            m_pSequence->addSequence(*m_midiFile.getTrack(i), 0);
+            m_pSequence->updateMatchedPairs();
+        }
+        m_pPlayer->setMidiMessageSequence(m_pSequence);
+        toFront(true);
 
-        MidiMessageSequence tempos;
-        m_midiFile.findAllTempoEvents(tempos);
-        MidiMessageSequence::MidiEventHolder* const * eh = tempos.begin();
-        auto bpm = 60 / eh[0]->message.getTempoSecondsPerQuarterNote();
-        m_transportBar.updateTempoDisplay(bpm);
         delete stream;
     }
 }

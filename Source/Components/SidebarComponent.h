@@ -10,12 +10,10 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "TrackParameters.h"
 
-class SidebarComponent: public TrackParameters, public juce::Component {
+class SidebarComponent: public juce::Component {
 public:
     SidebarComponent() {
-        m_iNumTracks = 0;
     }
 
     void paint (Graphics& g) override {

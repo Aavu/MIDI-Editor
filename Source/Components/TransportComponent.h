@@ -33,16 +33,18 @@ public:
         int hh = 0, mm = 0, ss = 0, ff = 0;
     };
 
-    void updateTempoDisplay(double bpm);
-
+    void updateDisplay();
 private:
     void playBtnClicked();
     void stopBtnClicked();
 
     void actionListenerCallback (const String& message) override;
 
-    void updateTimeDisplay();
+    void initDisplayComponents();
     void convertToSMPTE(SMPTE& smpte, long iPositionInSamples);
+
+    void updateTempoDisplay(double bpm);
+    void updateTimeDisplay(const SMPTE& smpte);
 
     struct Icons {
         const Image playBtnNormal  = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/playBtnNormal.png"));
