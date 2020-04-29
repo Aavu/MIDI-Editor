@@ -48,6 +48,8 @@ public:
     
     int getBoxHeight();
     
+    int getCanvasWidth();
+    
     class RowComponent  : public Component
     {
     public:

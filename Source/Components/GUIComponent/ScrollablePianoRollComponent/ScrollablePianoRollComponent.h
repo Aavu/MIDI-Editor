@@ -61,6 +61,8 @@ public:
     
     int getBoxHeight();
     
+    int getCanvasWidth();
+    
     // This little function avoids a bit of code-duplication by adding a component to
     // our list as well as calling addAndMakeVisible on it..
     template <typename ComponentType>
@@ -98,7 +100,14 @@ public:
     int getBoxWidth();
     
     int getBoxHeight();
+    
+    int getCanvasWidth();
 
+    void setViewPositionX(int setViewPosition)
+    {
+        
+    }
+    
 private:
 
     Viewport m_ViewPort;

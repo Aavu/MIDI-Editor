@@ -32,7 +32,7 @@ public:
     ~PianoRollListComponent() override;
     
     void init(PlayerComponent* player);
-    void paint(Graphics& g) override;
+    //void paint(Graphics& g) override;
     void resized() override;
     
     int getNumTracks() const;
@@ -42,6 +42,8 @@ public:
     void setTimeFormat(int timeFormat);
     
     void convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message);
+    
+    void setViewPositionX(int setViewPosition);
     
 private:
     void timerCallback() override;

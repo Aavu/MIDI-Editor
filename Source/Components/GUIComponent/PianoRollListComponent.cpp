@@ -27,7 +27,7 @@ void PianoRollListComponent::init(PlayerComponent* player) {
     
     addAndMakeVisible(m_playHeadScroll);
     
-    m_playHeadScroll.childClicked = [&](int data) {
+    m_playHeadScroll.m_TimeAxis.childClicked = [&](int data) {
         handleScrollCallback(data);
     };
     
@@ -46,10 +46,10 @@ PianoRollListComponent::~PianoRollListComponent() {
         delete m_tracks[i];
     }
 }
-
-void PianoRollListComponent::paint(Graphics &g) {
-    g.fillAll (Colours::lightgrey);
-}
+//
+//void PianoRollListComponent::paint(Graphics &g) {
+//    g.fillAll (Colours::lightgrey);
+//}
 
 void PianoRollListComponent::resized() {
     auto area = getLocalBounds();
@@ -78,6 +78,9 @@ void PianoRollListComponent::addTrack(int numTimeStampsForPianoRoll) {
     addAndMakeVisible (m_tracks[m_iNumTracks], 0);
     m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
     m_iNumTracks++;
+    
+    m_playHeadScroll.setBoxWidthAndNumBox(m_tracks[0]->getBoxWidth(), numTimeStampsForPianoRoll);
+    m_playHeadScroll.setSize(getWidth(), Globals::GUI::iHeaderHeight);
     
     m_pPlayHead->setVisible(true);
     m_playHeadScroll.setVisible(true);
@@ -117,7 +120,7 @@ void PianoRollListComponent::setTimeFormat(int timeFormat)
 {
     m_iTimeFormat = timeFormat;
     
-    DBG(m_iTimeFormat);
+    // DBG(m_iTimeFormat);
     
     // currently only allow time stamp ticks - see the documentation of Class MidiFile
     assert(m_iTimeFormat > 0);
@@ -147,4 +150,11 @@ void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const Midi
             m_tracks.at(trackIdx)->addNote(newNote);
         }
     }
+}
+
+void PianoRollListComponent::setViewPositionX(int setViewPosition)
+{
+    for (int i = 0; i < m_iNumTracks; i++)
+        m_tracks[i]->setViewPositionX(setViewPosition);
+    m_playHeadScroll.setViewPositionX(setViewPosition);
 }

@@ -32,7 +32,7 @@ PianoRollNote::PianoRollNote(PlayerComponent* player, int row_n, float offset_n,
     
     m_pConstrainer = new ComponentBoundsConstrainer();
     m_pConstrainer->setMaximumHeight(m_iBoxHeight);
-    std::cout << "create " << m_iRow << ' ' << offset_n << std::endl;
+    //std::cout << "create " << m_iRow << ' ' << offset_n << std::endl;
 }
 
 PianoRollNote::~PianoRollNote()
@@ -92,13 +92,13 @@ void PianoRollNote::mouseDrag (const MouseEvent& event)
     }
     if (event.getPosition().getY() < 0 && m_iRow > 0)
     {
-        std::cout << "move up" << std::endl;
+        //std::cout << "move up" << std::endl;
         changePitch(this, -1);
         m_iRow--;
     }
     else if (event.getPosition().getY() > m_iBoxHeight && m_iRow < Globals::PianoRoll::midiNoteNum-1)
     {
-        std::cout << "move down" << std::endl;
+        //std::cout << "move down" << std::endl;
         changePitch(this, 1);
         m_iRow++;
     }
@@ -110,7 +110,7 @@ void PianoRollNote::mouseDrag (const MouseEvent& event)
 
 void PianoRollNote::mouseEnter(const MouseEvent& event)
 {
-    std::cout << "mouse enter: " << m_iRow << std::endl;
+    //std::cout << "mouse enter: " << m_iRow << std::endl;
     hightlightRow();
 }
 
@@ -164,14 +164,14 @@ Array<PianoRollNote*> NoteList::getNotesByRow(int row)
 
 void NoteList::addNote(int row, PianoRollNote* pianoRollNote)
 {
-    std::cout << "add Note to row: " << row << " offset: " << pianoRollNote->getOffset() << std::endl;
+    // std::cout << "add Note to row: " << row << " offset: " << pianoRollNote->getOffset() << std::endl;
 
     m_pNoteList[row].add(pianoRollNote);
 }
 
 void NoteList::detachNote(int row, PianoRollNote* noteToMove)
 {
-    std::cout << "remove Note from row: " << row << " offset: " << noteToMove->getOffset() << std::endl;
+    // std::cout << "remove Note from row: " << row << " offset: " << noteToMove->getOffset() << std::endl;
     m_pNoteList[row].removeFirstMatchingValue(noteToMove);
 }
 

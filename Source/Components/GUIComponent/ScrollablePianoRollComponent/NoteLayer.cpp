@@ -117,6 +117,11 @@ int NoteLayer::getBoxHeight()
     return static_cast<int>(m_fFacNoteHeight*m_iInitNoteHeight);
 }
 
+int NoteLayer::getCanvasWidth()
+{
+    return m_fFacNoteWidth * m_iInitNoteWidth * m_iCurTimeStamps;
+}
+
 
 
 NoteLayer::RowComponent::RowComponent (NoteLayer& lb, int row_n, int col_n, int tickNum, int curNoteWidth, int curNoteHeight, bool preview_n) : m_Owner (lb), m_iRow(row_n)

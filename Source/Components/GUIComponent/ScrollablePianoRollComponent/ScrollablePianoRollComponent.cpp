@@ -92,6 +92,11 @@ int PianoRollComponent::getBoxHeight()
     return m_pNoteLayer->getBoxHeight();
 }
 
+int PianoRollComponent::getCanvasWidth()
+{
+    return m_pNoteLayer->getCanvasWidth();
+}
+
 template <typename ComponentType>
 ComponentType* PianoRollComponent::addToList (ComponentType* newComp)
 {
@@ -152,4 +157,9 @@ int ScrollablePianoRollComponent::getBoxWidth()
 int ScrollablePianoRollComponent::getBoxHeight()
 {
     return m_Cpn.getBoxHeight();
+}
+
+int ScrollablePianoRollComponent::getCanvasWidth()
+{
+    return m_Cpn.getCanvasWidth();
 }
