@@ -158,8 +158,10 @@ void TransportComponent::actionListenerCallback (const String& message) {
 
 void TransportComponent::convertToSMPTE(SMPTE& smpte, long iPositionInSamples) {
     auto fs     = m_pPlayer->getSampleRate();
+    if (fs <= 0)
+        return;
     double time = iPositionInSamples / fs;
-
+    time = std::fmax(time, 0);
     smpte.hh    = (int)(std::floor(time) / 3600) % 60;
     smpte.mm    = (int)(std::floor(time) / 60) % 60;
     smpte.ss    = (int)std::floor(time) % 60;

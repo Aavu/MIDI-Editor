@@ -182,7 +182,6 @@ void PlayerComponent::setCurrentPositionByQuarterNotes(double newPositionInQuart
 {
     double newPositionInSamples = convertQuarterNoteToSec(newPositionInQuarterNotes) * m_fSampleRate;
     m_iCurrentPosition = static_cast<long> (newPositionInSamples);
-    return;
 }
 
 void PlayerComponent::setTimeFormat(int timeFormat)
@@ -202,6 +201,9 @@ void PlayerComponent::setMidiMessageSequence(MidiMessageSequence* midiMsgSeq) {
     m_iMaxBufferLength = static_cast<long>(m_midiMessageSequence->getEndTime() * m_fSampleRate);
 
     addAllTempoMessagesToBuffer();
+
+    if (midiMsgSeq != nullptr)
+        sendActionMessage(Globals::ActionMessage::EnableTransport);
 }
 
 void PlayerComponent::play() {
