@@ -67,7 +67,7 @@ void PlayerComponent::fillMidiBuffer(int iNumSamples) {
     // Retrieve samples to fill at least one next block
     while(m_iLastRetrievedPosition < (m_iCurrentPosition + iNumSamples)) {
         if (m_iMidiEventReadIdx < m_iMaxMidiEvents) {
-            DBG("--------------------------------");
+//            DBG("--------------------------------");
             msg = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx)->message;
 
             auto msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
@@ -75,13 +75,13 @@ void PlayerComponent::fillMidiBuffer(int iNumSamples) {
 
             m_iLastRetrievedPosition = msgSampleNum;
             m_iMidiEventReadIdx++;
-            DBG("--------------------------------");
+//            DBG("--------------------------------");
         }
         else
             break;
     }
-    DBG("iRetrievedSamples = " << m_iLastRetrievedPosition - m_iCurrentPosition);
-    DBG("----------------------------------------------------");
+//    DBG("iRetrievedSamples = " << m_iLastRetrievedPosition - m_iCurrentPosition);
+//    DBG("----------------------------------------------------");
 }
 
 MidiMessageSequence& PlayerComponent::getTempoEvents()
@@ -214,7 +214,7 @@ void PlayerComponent::pause() {
 
 void PlayerComponent::stop() {
     m_playState = PlayState::Stopped;
-    DBG("Stop");
+//    DBG("Stop");
     m_midiBuffer.clear();
     resetCurrentPosition();
     allNotesOff();
@@ -236,9 +236,10 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
         // If not enough samples in m_midiBuffer for new block
         if ((m_iCurrentPosition + blockSize) > m_iLastRetrievedPosition) {
             fillMidiBuffer(blockSize);
-        } else {
-            DBG("-----" << (m_iCurrentPosition + blockSize) << "-- " << m_iLastRetrievedPosition);
         }
+//        else {
+//            DBG("-----" << (m_iCurrentPosition + blockSize) << "-- " << m_iLastRetrievedPosition);
+//        }
 
         if (m_midiBuffer.isEmpty()) {
             m_iCurrentPosition += blockSize;
@@ -288,10 +289,10 @@ void PlayerComponent::resetCurrentPosition() {
 }
 
 void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes /*= -1*/) {
-    DBG("-------------updateNoteTimestamps--------------------");
+//    DBG("-------------updateNoteTimestamps--------------------");
 
     auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx); // To maintain read index after sort
-    DBG("EventAtReadIndex: " << pEventAtReadIdx->message.getDescription() << " " <<pEventAtReadIdx->message.getTimeStamp());
+//    DBG("EventAtReadIndex: " << pEventAtReadIdx->message.getDescription() << " " <<pEventAtReadIdx->message.getTimeStamp());
 
     // Get noteOn and noteOff events
     auto * pNoteOnEvent = m_midiMessageSequence->getEventPointer(iNoteOnEventIndex);
@@ -312,20 +313,20 @@ void PlayerComponent::updateNoteTimestamps(int iNoteOnEventIndex, double fNewNot
     m_midiMessageSequence->sort();
 
     // Set read index back to correct position after re-ordering.
-    DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
+//    DBG(pEventAtReadIdx->message.getDescription() + String(pEventAtReadIdx->message.getTimeStamp()));
     m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx); // why do you change that?
 
-    DBG("----------------------------------------------------");
+//    DBG("----------------------------------------------------");
 }
 
 void PlayerComponent::updateNotePitch(int iNoteOnEventIndex, int iNewNoteNumber) {
-    DBG("-------------updateNotePitch--------------------");
+//    DBG("-------------updateNotePitch--------------------");
     auto * pNoteOnEvent = m_midiMessageSequence->getEventPointer(iNoteOnEventIndex);
     auto * pNoteOffEvent = m_midiMessageSequence->getEventPointer(m_midiMessageSequence->getIndexOfMatchingKeyUp(iNoteOnEventIndex));
     pNoteOnEvent->message.setNoteNumber(iNewNoteNumber);
     pNoteOffEvent->message.setNoteNumber(iNewNoteNumber);
     //TODO: is updateMatchedPairs required here?
-    DBG("----------------------------------------------------");
+//    DBG("----------------------------------------------------");
 
 }
 
