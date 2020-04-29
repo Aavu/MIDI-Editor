@@ -75,6 +75,7 @@ int PianoRollListComponent::getNumTracks() const {
 
 void PianoRollListComponent::addTrack(int numTimeStampsForPianoRoll) {
     m_tracks.push_back(new ScrollablePianoRollComponent(numTimeStampsForPianoRoll));
+    //m_tracks[0]->setSyncFunctionPointer(&(PianoRollListComponent::syncViewPositionX));
     addAndMakeVisible (m_tracks[m_iNumTracks], 0);
     m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
     m_iNumTracks++;
@@ -152,7 +153,7 @@ void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const Midi
     }
 }
 
-void PianoRollListComponent::setViewPositionX(int setViewPosition)
+void PianoRollListComponent::syncViewPositionX(int setViewPosition)
 {
     for (int i = 0; i < m_iNumTracks; i++)
         m_tracks[i]->setViewPositionX(setViewPosition);

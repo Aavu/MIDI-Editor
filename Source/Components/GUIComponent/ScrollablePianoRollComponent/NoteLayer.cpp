@@ -76,6 +76,14 @@ bool NoteLayer::keyPressed(const KeyPress & key)
     }
 }
 
+void NoteLayer::mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel)
+{
+    Component::mouseWheelMove(e, wheel);
+    int viewPositionX = getViewPositionX();
+    if (m_syncScrollBars)
+        m_syncScrollBars(viewPositionX);
+}
+
 void NoteLayer::addNoteToRow(PianoRollNote *newNote)
 {
     int row = newNote->getRow();
@@ -121,8 +129,6 @@ int NoteLayer::getCanvasWidth()
 {
     return m_fFacNoteWidth * m_iInitNoteWidth * m_iCurTimeStamps;
 }
-
-
 
 NoteLayer::RowComponent::RowComponent (NoteLayer& lb, int row_n, int col_n, int tickNum, int curNoteWidth, int curNoteHeight, bool preview_n) : m_Owner (lb), m_iRow(row_n)
 {

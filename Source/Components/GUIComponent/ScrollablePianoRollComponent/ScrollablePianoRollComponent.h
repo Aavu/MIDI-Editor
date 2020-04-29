@@ -43,6 +43,8 @@ public:
     ~PianoRollComponent();
     
     void init(int numTimeStampsForPianoRoll);
+    
+    void setSyncFunctionPointer(void(*syncScrollBars)(int));
 
     void paint (Graphics& g) override;
     
@@ -62,6 +64,11 @@ public:
     int getBoxHeight();
     
     int getCanvasWidth();
+    
+    void setViewPositionX(int viewPositionX)
+    {
+        m_pNoteLayer->setViewPositionX(viewPositionX);
+    }
     
     // This little function avoids a bit of code-duplication by adding a component to
     // our list as well as calling addAndMakeVisible on it..
@@ -89,6 +96,8 @@ public:
 
     ScrollablePianoRollComponent(int numTimeStampsForPianoRoll = 30);
 
+    void setSyncFunctionPointer(void(*syncScrollBars)(int));
+    
     void resized() override;
     
     void addNote(PianoRollNote *newNote);
@@ -103,9 +112,9 @@ public:
     
     int getCanvasWidth();
 
-    void setViewPositionX(int setViewPosition)
+    void setViewPositionX(int viewPositionX)
     {
-        
+        m_Cpn.setViewPositionX(viewPositionX);
     }
     
 private:

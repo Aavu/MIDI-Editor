@@ -43,7 +43,7 @@ public:
     
     void convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message);
     
-    void setViewPositionX(int setViewPosition);
+    void syncViewPositionX(int setViewPosition);
     
 private:
     void timerCallback() override;

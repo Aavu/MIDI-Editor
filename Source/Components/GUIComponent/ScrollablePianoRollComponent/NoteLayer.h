@@ -34,6 +34,8 @@ public:
     
     bool keyPressed(const KeyPress & key) override;
     
+    void mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel) override;
+    
     void addNoteToRow(PianoRollNote *newNote);
     
     void addEmptyColumns(int numColumnsToAdd);
@@ -44,11 +46,19 @@ public:
     
     int getViewPositionX();
     
+    void setViewPositionX(int viewPositionX)
+    {
+        int viewPositionY = oneColumnTable.getViewport()->getViewPositionY();
+        oneColumnTable.getViewport()->setViewPosition(viewPositionX, viewPositionY);
+    }
+    
     int getBoxWidth();
     
     int getBoxHeight();
     
     int getCanvasWidth();
+    
+    std::function<void(int)> m_syncScrollBars;
     
     class RowComponent  : public Component
     {
@@ -78,6 +88,7 @@ public:
         void mouseEnter(const MouseEvent& event) override;
         
         void setPreview(bool ifPreview);
+
     
         NoteLayer& m_Owner;
         int m_iRow = -1;

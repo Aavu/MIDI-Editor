@@ -42,6 +42,11 @@ void PianoRollComponent::init(int numTimeStampsForPianoRoll)
     
 }
 
+void PianoRollComponent::setSyncFunctionPointer(void(*syncScrollBars)(int))
+{
+    m_pNoteLayer->m_syncScrollBars = syncScrollBars;
+}
+
 PianoRollComponent::~PianoRollComponent()
 {
     setLookAndFeel (nullptr);
@@ -119,6 +124,11 @@ ScrollablePianoRollComponent::ScrollablePianoRollComponent(int numTimeStampsForP
     setSize (1000, 100);
     
     setPreview(false);
+}
+
+void ScrollablePianoRollComponent::setSyncFunctionPointer(void(*syncScrollBars)(int))
+{
+    m_Cpn.setSyncFunctionPointer(syncScrollBars);
 }
 
 void ScrollablePianoRollComponent::resized()
