@@ -9,9 +9,9 @@
 */
 #include "TrackViewComponent.h"
 
-int TrackParameters::m_iNumTracks = 0;
-int TrackParameters::k_iDefaultTrackHeight = 300;
-std::vector<int> TrackParameters::m_aiTrackHeight {};
+//int TrackParameters::m_iNumTracks = 0;
+//int TrackParameters::k_iDefaultTrackHeight = 300;
+//std::vector<int> TrackParameters::m_aiTrackHeight {};
 
 TrackViewComponent::TrackViewComponent() : m_pPlayHead(std::make_shared<PlayHeadComponent>())
 {
@@ -24,14 +24,6 @@ void TrackViewComponent::init(PlayerComponent* player) {
 
     m_sidebar.setColour (TextButton::buttonColourId, Colours::grey);
     addAndMakeVisible (m_sidebar);
-
-//    if (m_iNumTracks > 0) {
-//        for(int i=0; i<m_iNumTracks; i++) {
-//            m_tracks.push_back(new ScrollablePianoRollComponent());
-//            addAndMakeVisible (m_tracks[i]);
-//            m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
-//        }
-//    }
 
     addAndMakeVisible(m_playHeadScroll);
 
@@ -52,9 +44,6 @@ void TrackViewComponent::init(PlayerComponent* player) {
 TrackViewComponent::~TrackViewComponent() {
     stopTimer();
     delete m_pTrack;
-//    for (int i=0; i<m_iNumTracks; i++) {
-//        delete m_tracks[i];
-//    }
 }
 
 void TrackViewComponent::paint(Graphics &g) {
@@ -76,28 +65,9 @@ void TrackViewComponent::resized() {
     m_iTrackViewComponentWidth = area.getWidth() - sidebarWidth;
     updatePlayHeadPosition();
 
-//    for(int i=0; i< m_iNumTracks; i++) {
-//        m_tracks.at(i)->setBounds(area.removeFromTop(m_aiTrackHeight.at(i)));
-//    }
-    DBG(int(m_pTrack == nullptr));
     if (m_pTrack)
         m_pTrack->setBounds(area);
 }
-
-//int TrackViewComponent::getNumTracks() const {
-//    return m_iNumTracks;
-//}
-
-//void TrackViewComponent::addTrack(int numTimeStampsForPianoRoll) {
-//    m_tracks.push_back(new ScrollablePianoRollComponent(numTimeStampsForPianoRoll));
-//    addAndMakeVisible (m_tracks[m_iNumTracks], 0);
-//    m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
-//    m_iNumTracks++;
-//
-//    m_pPlayHead->setVisible(true);
-//
-//    resized();
-//}
 
 void TrackViewComponent::setTrack(int numTimeStampsForPianoRoll, const MidiMessageSequence *message) {
     delete m_pTrack;
@@ -138,7 +108,7 @@ void TrackViewComponent::setTimeFormat(int timeFormat)
 {
     m_iTimeFormat = timeFormat;
     
-    DBG(m_iTimeFormat);
+//    DBG(m_iTimeFormat);
     
     // currently only allow time stamp ticks - see the documentation of Class MidiFile
     assert(m_iTimeFormat > 0);
@@ -162,7 +132,6 @@ void TrackViewComponent::convertMidiMessageSequence(int trackIdx, const MidiMess
             
             //DBG(String(timeStamp/m_iTimeFormat) + "\t" + String((timeStampNoteOff-timeStamp+1)/m_iTimeFormat) + "\t" + String(noteNumber));
             PianoRollNote *newNote = new PianoRollNote(Globals::PianoRoll::midiNoteNum-1-noteNumber, timeStamp/m_iTimeFormat, (timeStampNoteOff-timeStamp+1)/m_iTimeFormat, noteVelocity);
-//            m_tracks.at(trackIdx)->addNote(newNote);
             m_pTrack[0].addNote(newNote);
         }
     }
