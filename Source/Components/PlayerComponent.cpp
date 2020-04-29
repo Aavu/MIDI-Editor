@@ -229,7 +229,7 @@ void PlayerComponent::setMidiMessageSequence(MidiMessageSequence* midiMsgSeq) {
     m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
     // TODO: position var set ??
     m_midiBuffer.clear();
-    m_iMaxBufferLength = static_cast<long>(m_midiMessageSequence->getEndTime() * m_fSampleRate);
+    m_iMaxBufferLength = static_cast<long>((m_midiMessageSequence->getEndTime() + m_fMinBufferLengthInSec) * m_fSampleRate);
 
 }
 
@@ -246,7 +246,7 @@ void PlayerComponent::stop() {
     // TODO: Make sure to flush note ons.
     //resetCurrentPosition();
     DBG("Stop");
-    setCurrentPositionByQuarterNotes(0);
+    //setCurrentPositionByQuarterNotes(0);
     m_iMidiEventReadIdx = 0;
     m_iCurrentPosition = 0;
     m_iLastRetrievedPosition = 0;
@@ -297,8 +297,6 @@ void PlayerComponent::allNotesOff() {
 
 void PlayerComponent::setCurrentPosition(long value) {
     m_iCurrentPosition = value;
-    if (m_pIterator)
-        m_pIterator->setNextSamplePosition(m_iCurrentPosition);
 }
 
 void PlayerComponent::resetCurrentPosition() {
@@ -346,7 +344,7 @@ void PlayerComponent::updateNote(int iNoteOnEventIndex, double fNewNoteOnTimesta
     DBG( "New Note Off: " << pNoteOffEvent->message.getDescription() << " " << pNoteOffEvent->message.getTimeStamp());
     DBG( "New Note Length: " << pNoteOffEvent->message.getTimeStamp() - pNoteOnEvent->message.getTimeStamp());
     // Reset buffer length if length of midi has changed (i.e. if last note moved)
-    m_iMaxBufferLength = static_cast<long>(m_midiMessageSequence->getEndTime() * m_fSampleRate);
+    m_iMaxBufferLength = static_cast<long>((m_midiMessageSequence->getEndTime() + m_fMinBufferLengthInSec) * m_fSampleRate);
 
     DBG("----------------------------------------------------");
 }
