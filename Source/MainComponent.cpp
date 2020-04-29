@@ -201,8 +201,9 @@ void MainComponent::handleFileOpen() {
             m_pSequence->updateMatchedPairs();
         }
 
-        MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*m_pSequence);
-        m_pPlayer->setMidiMessageSequence(sequenceCopy);
+        // MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*m_pSequence);
+        // m_pPlayer->setMidiMessageSequence(sequenceCopy);
+        m_pPlayer->setMidiMessageSequence(m_pSequence);
         
         toFront(true);
 
