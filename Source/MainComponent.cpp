@@ -65,6 +65,7 @@ MainComponent::~MainComponent()
     // This shuts down the audio device and clears the audio source.
     removeAllActionListeners();
     shutdownAudio();
+    delete sequenceCopy;
 }
 
 //==============================================================================
@@ -179,7 +180,7 @@ void MainComponent::handleFileOpen() {
         m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
 
         const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
-        MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*sequence);
+        sequenceCopy = new MidiMessageSequence(*sequence);
 
         int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(sequenceCopy->getEndTime()/timeFormat) + 10);
         m_pTrackView->addTrack(numTimeStampsForPianoRoll);
@@ -194,7 +195,11 @@ void MainComponent::handleFileOpen() {
         MidiMessageSequence tempos;
         m_midiFile.findAllTempoEvents(tempos);
         MidiMessageSequence::MidiEventHolder* const * eh = tempos.begin();
-        auto bpm = 60 / eh[0]->message.getTempoSecondsPerQuarterNote();
+        auto bpm = 0.5;
+        
+        if (eh)
+            bpm = 60 / eh[0]->message.getTempoSecondsPerQuarterNote();
+        
         m_transportBar.updateTempoDisplay(bpm);
         delete stream;
     }
