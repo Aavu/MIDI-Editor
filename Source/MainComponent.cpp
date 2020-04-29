@@ -188,6 +188,7 @@ void MainComponent::handleFileOpen() {
             sequence->updateMatchedPairs();
         }
         m_pPlayer->setMidiMessageSequence(sequence.get());
+        toFront(true);
         delete stream;
     }
 }
