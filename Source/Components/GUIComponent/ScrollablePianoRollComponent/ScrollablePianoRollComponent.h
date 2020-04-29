@@ -44,7 +44,7 @@ public:
     
     void init(int numTimeStampsForPianoRoll);
     
-    void setSyncFunctionPointer(void(*syncScrollBars)(int));
+    void setSyncFunctionPointer();
 
     void paint (Graphics& g) override;
     
@@ -75,6 +75,8 @@ public:
     template <typename ComponentType>
     ComponentType* addToList (ComponentType* newComp);
     
+    std::function<void(int)> m_syncScrollBars = nullptr;
+    
 private:
     OwnedArray<Component> components;
     
@@ -96,7 +98,7 @@ public:
 
     ScrollablePianoRollComponent(int numTimeStampsForPianoRoll = 30);
 
-    void setSyncFunctionPointer(void(*syncScrollBars)(int));
+    void setSyncFunctionPointer();
     
     void resized() override;
     
@@ -116,6 +118,8 @@ public:
     {
         m_Cpn.setViewPositionX(viewPositionX);
     }
+    
+    std::function<void(int)> m_syncScrollBars = nullptr;
     
 private:
 

@@ -40,11 +40,13 @@ void PianoRollComponent::init(int numTimeStampsForPianoRoll)
     m_pNoteLayer = addToList(new NoteLayer(numTimeStampsForPianoRoll));
     m_pNoteLayer->setColour (TextButton::buttonColourId, Colours::grey);
     
+    setSyncFunctionPointer();
 }
 
-void PianoRollComponent::setSyncFunctionPointer(void(*syncScrollBars)(int))
+void PianoRollComponent::setSyncFunctionPointer()
 {
-    m_pNoteLayer->m_syncScrollBars = syncScrollBars;
+    // m_pNoteLayer->m_syncScrollBars = syncScrollBars;
+    m_pNoteLayer->m_syncScrollBars = [this] (int setViewPosition) { m_syncScrollBars(setViewPosition); };
 }
 
 PianoRollComponent::~PianoRollComponent()
@@ -115,6 +117,7 @@ ComponentType* PianoRollComponent::addToList (ComponentType* newComp)
 ScrollablePianoRollComponent::ScrollablePianoRollComponent(int numTimeStampsForPianoRoll)
 {
     m_Cpn.init(numTimeStampsForPianoRoll);
+    setSyncFunctionPointer();
     m_Cpn.setSize(1000,Globals::PianoRoll::midiNoteNum*Globals::PianoRoll::initNoteHeight);
     m_ViewPort.setScrollBarsShown(false, false, true, false);
     m_ViewPort.setViewedComponent(&m_Cpn, false);
@@ -126,9 +129,9 @@ ScrollablePianoRollComponent::ScrollablePianoRollComponent(int numTimeStampsForP
     setPreview(false);
 }
 
-void ScrollablePianoRollComponent::setSyncFunctionPointer(void(*syncScrollBars)(int))
+void ScrollablePianoRollComponent::setSyncFunctionPointer()
 {
-    m_Cpn.setSyncFunctionPointer(syncScrollBars);
+    m_Cpn.m_syncScrollBars = [this] (int setViewPosition) { m_syncScrollBars(setViewPosition); };
 }
 
 void ScrollablePianoRollComponent::resized()

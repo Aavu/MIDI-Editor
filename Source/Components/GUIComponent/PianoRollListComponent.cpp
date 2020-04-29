@@ -75,11 +75,12 @@ int PianoRollListComponent::getNumTracks() const {
 
 void PianoRollListComponent::addTrack(int numTimeStampsForPianoRoll) {
     m_tracks.push_back(new ScrollablePianoRollComponent(numTimeStampsForPianoRoll));
-    //m_tracks[0]->setSyncFunctionPointer(&(PianoRollListComponent::syncViewPositionX));
+    m_tracks[0]->m_syncScrollBars = [this] (int setViewPosition) { syncViewPositionX(setViewPosition); };
     addAndMakeVisible (m_tracks[m_iNumTracks], 0);
     m_aiTrackHeight.push_back(k_iDefaultTrackHeight);
     m_iNumTracks++;
     
+    m_playHeadScroll.m_syncScrollBars = [this] (int setViewPosition) { syncViewPositionX(setViewPosition); };
     m_playHeadScroll.setBoxWidthAndNumBox(m_tracks[0]->getBoxWidth(), numTimeStampsForPianoRoll);
     m_playHeadScroll.setSize(getWidth(), Globals::GUI::iHeaderHeight);
     
