@@ -165,62 +165,62 @@ private:
 //
 //    };
 
-    struct HelpCommandTarget    : public Component,
-                                  public ApplicationCommandTarget
-    {
-        HelpCommandTarget (ApplicationCommandManager& m)
-                : commandManager (m)
-        {
-            commandManager.registerAllCommandsForTarget (this);
-        }
-
-        void paint (Graphics& g) override {}
-
-        //==============================================================================
-        ApplicationCommandTarget* getNextCommandTarget() override
-        {
-            // this will return the next parent component that is an ApplicationCommandTarget
-            return findFirstTargetParentComponent();
-        }
-
-        void getAllCommands (Array<CommandID>& c) override
-        {
-            Array<CommandID> commands { helpDocumentation };
-
-            c.addArray (commands);
-        }
-
-        void getCommandInfo (CommandID commandID, ApplicationCommandInfo& result) override
-        {
-            switch (commandID)
-            {
-                case helpDocumentation:
-                    result.setInfo ("Documentation", "Open documentation", "Help", 0);
-                    result.addDefaultKeypress ('h', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        bool perform (const InvocationInfo& info) override
-        {
-            switch (info.commandID)
-            {
-                case helpDocumentation:
-                    std::cout << "documentation" << std::endl;
-                    break;
-
-                default:
-                    return false;
-            }
-            return true;
-        }
-
-        ApplicationCommandManager& commandManager;
-    };
-    HelpCommandTarget helpCommandTarget {commandManager};
+//    struct HelpCommandTarget    : public Component,
+//                                  public ApplicationCommandTarget
+//    {
+//        HelpCommandTarget (ApplicationCommandManager& m)
+//                : commandManager (m)
+//        {
+//            commandManager.registerAllCommandsForTarget (this);
+//        }
+//
+//        void paint (Graphics& g) override {}
+//
+//        //==============================================================================
+//        ApplicationCommandTarget* getNextCommandTarget() override
+//        {
+//            // this will return the next parent component that is an ApplicationCommandTarget
+//            return findFirstTargetParentComponent();
+//        }
+//
+//        void getAllCommands (Array<CommandID>& c) override
+//        {
+//            Array<CommandID> commands { helpDocumentation };
+//
+//            c.addArray (commands);
+//        }
+//
+//        void getCommandInfo (CommandID commandID, ApplicationCommandInfo& result) override
+//        {
+//            switch (commandID)
+//            {
+//                case helpDocumentation:
+//                    result.setInfo ("Documentation", "Open documentation", "Help", 0);
+//                    result.addDefaultKeypress ('h', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
+//                    break;
+//
+//                default:
+//                    break;
+//            }
+//        }
+//
+//        bool perform (const InvocationInfo& info) override
+//        {
+//            switch (info.commandID)
+//            {
+//                case helpDocumentation:
+//                    std::cout << "documentation" << std::endl;
+//                    break;
+//
+//                default:
+//                    return false;
+//            }
+//            return true;
+//        }
+//
+//        ApplicationCommandManager& commandManager;
+//    };
+//    HelpCommandTarget helpCommandTarget {commandManager};
 //    EditCommandTarget editCommandTarget {commandManager};
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MenuComponent)
 };

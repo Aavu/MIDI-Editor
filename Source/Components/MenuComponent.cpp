@@ -40,7 +40,7 @@ void MenuComponent::paint (Graphics& g) {}
 void MenuComponent::resized() {}
 
 StringArray MenuComponent::getMenuBarNames() {
-    return {"File", "Help"};
+    return {"File"};
 }
 
 PopupMenu MenuComponent::getMenuForIndex(int menuIndex, const String& name) {
@@ -50,14 +50,14 @@ PopupMenu MenuComponent::getMenuForIndex(int menuIndex, const String& name) {
         menu.addCommandItem(&commandManager, fileExportAudio);
 //        menu.addCommandItem(&commandManager, fileExportMIDI);
     }
-    else if (menuIndex == 1) {
-        menu.addCommandItem(&commandManager, helpDocumentation);
-    }
+//    else if (menuIndex == 1) {
+//        menu.addCommandItem(&commandManager, helpDocumentation);
+//    }
     return menu;
 }
 
 ApplicationCommandTarget* MenuComponent::getNextCommandTarget() {
-    return &helpCommandTarget;
+    return nullptr;
 }
 
 void MenuComponent::getAllCommands (Array<CommandID>& c) {
