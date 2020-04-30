@@ -130,7 +130,7 @@ void TransportComponent::stopBtnClicked()
 //            break;
 //    }
     m_playBtn.setImages(false, true, true, m_icons.playBtnNormal, 1, {}, {}, .8, {}, m_icons.playBtnDown, 1, {});
-
+    m_playBtn.setEnabled(true);
 }
 
 void TransportComponent::init(PlayerComponent* playerComponent) {
@@ -146,10 +146,12 @@ void TransportComponent::actionListenerCallback (const String& message) {
     if (message == Stop) {
         stopBtnClicked(); // pause
         stopBtnClicked(); // stop
+        m_playBtn.setEnabled(true);
     } else if (message == PlayForExport) {
         stopBtnClicked(); // pause
         stopBtnClicked(); // stop
         playBtnClicked();
+        m_playBtn.setEnabled(false);
     } else if (message == EnableTransport) {
         m_playBtn.setEnabled(true);
         m_stopBtn.setEnabled(true);
