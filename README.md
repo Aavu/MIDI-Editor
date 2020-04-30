@@ -8,9 +8,6 @@ The current build supports all of the player functionality. MIDI editing is in d
 
 ## Usage:
 
-### How to run:
-Run the build that is placed inside `Builds/`.
-
 ### How to use:
 
 - **Open MIDI file:** Using the menubar go to:`File>Open` and then select a MIDI file. 
