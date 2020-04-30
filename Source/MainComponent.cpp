@@ -18,6 +18,8 @@ m_pTrackView(std::make_unique<TrackViewComponent>())
     addAndMakeVisible(m_transportBar);
     addAndMakeVisible(m_menu);
     m_menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
+    m_menu.setPlayer(m_pPlayer.get());
+    addActionListener(&m_menu);
 
     // Create Player
     m_transportBar.init(m_pPlayer.get());
@@ -256,5 +258,9 @@ void MainComponent::actionListenerCallback (const String& message) {
     if ((message == Globals::ActionMessage::Stop) && m_bExporting) {
         m_pAudioExporter->finish();
         m_bExporting = false;
+    }
+
+    if ((message == Globals::ActionMessage::EnableTransport)) {
+        sendActionMessage(message);
     }
 }
