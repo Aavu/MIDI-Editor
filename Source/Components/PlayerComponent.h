@@ -51,6 +51,7 @@ public:
     long getCurrentPosition() {return m_iCurrentPosition;}
     double getSampleRate() {return m_fSampleRate;}
     long getMaxBufferLength() {return m_iMaxBufferLength;}
+    bool isSequenceLoaded() {return m_bSequenceLoaded;}
     
     double getTempo() {
         updateTempo();
@@ -121,6 +122,8 @@ private:
     int m_iSamplesPerBlockExpected = 0;
     PlayState m_playState = PlayState::Stopped;
     long m_iCurrentPosition = 0;
+
+    bool m_bSequenceLoaded = false;
 
     SoundFontGeneralMidiSynth m_synth;
 

@@ -12,6 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Globals.h"
+#include "PlayerComponent.h"
 #include <functional>
 
 //==============================================================================
@@ -20,7 +21,8 @@
 
 class MenuComponent    : public Component,
                          public ApplicationCommandTarget,
-                         public MenuBarModel
+                         public MenuBarModel,
+                         public ActionListener
 {
 public:
     MenuComponent();
@@ -29,7 +31,7 @@ public:
     enum CommandIDs {
         fileOpen = 1,
         fileExportAudio,
-//        fileExportMIDI,
+        fileExportMIDI,
         editUndo,
         editRedo,
         editCut,
@@ -52,12 +54,17 @@ public:
     
     void setCallback(cbfunc func);
 
+    void setPlayer(PlayerComponent* player);
+
 private:
     ApplicationCommandManager commandManager;
     std::unique_ptr<MenuBarComponent> menuBar;
-    
+    PlayerComponent* m_pPlayer = nullptr;
+
     cbfunc callbackFunc = 0;
-    
+
+    void actionListenerCallback (const String& message) override;
+
 //    class EditCommandTarget    : public Component,
 //                                  public ApplicationCommandTarget
 //    {

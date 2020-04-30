@@ -202,8 +202,10 @@ void PlayerComponent::setMidiMessageSequence(MidiMessageSequence* midiMsgSeq) {
 
     addAllTempoMessagesToBuffer();
 
-    if (midiMsgSeq != nullptr)
+    if (midiMsgSeq != nullptr) {
         sendActionMessage(Globals::ActionMessage::EnableTransport);
+        m_bSequenceLoaded = true;
+    }
 }
 
 void PlayerComponent::play() {

@@ -31,6 +31,10 @@ MenuComponent::~MenuComponent()
     MenuBarModel::setMacMainMenu(nullptr);
 }
 
+void MenuComponent::setPlayer(PlayerComponent* player) {
+    m_pPlayer = player;
+}
+
 void MenuComponent::paint (Graphics& g) {}
 
 void MenuComponent::resized() {}
@@ -72,6 +76,10 @@ void MenuComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo&
         case fileExportAudio:
             result.setInfo ("Export Audio", "Export Audio", "File", 0);
             result.addDefaultKeypress ('b', ModifierKeys::commandModifier);
+            if (m_pPlayer)
+                result.setActive(m_pPlayer->isSequenceLoaded());
+            else
+                result.setActive(false);
             break;
 //        case fileExportMIDI:
 //            result.setInfo ("Export MIDI", "Export MIDI", "File", 0);
@@ -91,4 +99,10 @@ bool MenuComponent::perform (const InvocationInfo& info)
 
 void MenuComponent::setCallback(cbfunc func) {
     callbackFunc = func;
+}
+
+void MenuComponent::actionListenerCallback (const String& message) {
+    if (message == Globals::ActionMessage::EnableTransport) {
+        commandManager.commandStatusChanged();
+    }
 }
