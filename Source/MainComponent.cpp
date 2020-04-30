@@ -63,7 +63,8 @@ m_pTrackView(std::make_unique<TrackViewComponent>())
 MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
-    delete m_pSequence;
+    delete m_pSequence1;
+    delete m_pSequence2;
     removeAllActionListeners();
     shutdownAudio();
 }
@@ -173,17 +174,24 @@ void MainComponent::handleFileOpen() {
 
         m_pPlayer->setTimeFormat(timeFormat);
         
-        m_pSequence = new MidiMessageSequence();
+        // clean stuff in the last track
+        if (m_pSequence1)
+            delete m_pSequence1;
+        if (m_pSequence2)
+            delete m_pSequence2;
+        m_pPlayer->clearTempoEvents();
+        
+        m_pSequence1 = new MidiMessageSequence();
         for (int i=0; i < m_midiFile.getNumTracks(); i++) {
-            m_pSequence->addSequence(*m_midiFile.getTrack(i), 0);
-            m_pSequence->updateMatchedPairs();
+            m_pSequence1->addSequence(*m_midiFile.getTrack(i), 0);
+            m_pSequence1->updateMatchedPairs();
         }
 
-        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(m_pSequence->getEndTime()/timeFormat) + 10);
+        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(m_pSequence1->getEndTime()/timeFormat) + 10);
         
         m_pTrackView->addTrack(numTimeStampsForPianoRoll);
         // pass the midiFile before timestampticks are converted to seconds
-        m_pTrackView->convertMidiMessageSequence(0, m_pSequence);
+        m_pTrackView->convertMidiMessageSequence(0, m_pSequence1);
         
         // init m_TempoEvents in PlayerComponent
         m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEvents());
@@ -195,15 +203,15 @@ void MainComponent::handleFileOpen() {
         m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
 
         // Doing this again is very unoptimistic. But given the time, this is the best solution.
-        m_pSequence->clear();
+        m_pSequence2 = new MidiMessageSequence();
         for (int i=0; i < m_midiFile.getNumTracks(); i++) {
-            m_pSequence->addSequence(*m_midiFile.getTrack(i), 0);
-            m_pSequence->updateMatchedPairs();
+            m_pSequence2->addSequence(*m_midiFile.getTrack(i), 0);
+            m_pSequence2->updateMatchedPairs();
         }
 
         // MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*m_pSequence);
         // m_pPlayer->setMidiMessageSequence(sequenceCopy);
-        m_pPlayer->setMidiMessageSequence(m_pSequence);
+        m_pPlayer->setMidiMessageSequence(m_pSequence2);
         
         toFront(true);
 

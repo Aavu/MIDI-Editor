@@ -31,6 +31,12 @@ void PlayerComponent::resized()
 {
 }
 
+void PlayerComponent::clearTempoEvents()
+{
+    m_TempoEvents.clear();
+    m_TempoEventsInSec.clear();
+}
+
 void PlayerComponent::initSynth() {
     File * soundFontFile = new File(CUtil::getResourcePath() + "/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
     m_synth.initSynth(soundFontFile);

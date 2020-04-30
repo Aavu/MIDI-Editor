@@ -65,6 +65,7 @@ public:
     
     void setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes);
     void setTimeFormat(int timeFormat);
+    void clearTempoEvents();
 
     void setCurrentPosition(long value);
 
