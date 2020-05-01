@@ -6,7 +6,8 @@ MIDI Editor is an open-source project with the aim of building a simple lightwei
 Only Mac OSX is currently supported.
 
 ## Requirements
-Juce
+- GCC 7
+- Juce 5.4.7
 
 ## Building the App
 - Use the Projucer application to build the app from source.
