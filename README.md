@@ -14,7 +14,7 @@ The current build supports all of the player functionality. MIDI editing is in d
 - **Playback:** Use the controls on the bottom left of the interface.
 
 ### Interface:
-![](https://github.com/Aavu/MIDI-Editor/blob/master/Documentation/images/MidiEditorInterface.png)
+<img align="center" src="https://github.com/Aavu/MIDI-Editor/blob/master/Documentation/images/MidiEditorInterface.png" width=96>
 
 
 
