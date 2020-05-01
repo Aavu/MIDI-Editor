@@ -10,7 +10,7 @@ Juce
 
 ## Building the App
 - Use the Projucer application to build the app from source.
-- After building the binary, copy the Resources folder and paste it onto <your build folder>/MidiEditor.app/Contents/
+- After building the binary, copy the Resources folder and paste it onto `<your build folder>/MidiEditor.app/Contents/`
 - Double click on the MidiEditor.app to use it.
 
 ## Usage:
