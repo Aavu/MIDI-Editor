@@ -341,15 +341,16 @@ void PlayerComponent::updateNote(int iNoteOnEventIndex, double fNewNoteOnTimesta
 
     // Re-order MidiMessageSequence
     m_midiMessageSequence->sort();
-    m_midiMessageSequence->updateMatchedPairs();
+    // m_midiMessageSequence->updateMatchedPairs();
 
     // Set read index back to correct position after re-ordering.
     if (pEventAtReadIdx)
         m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx);
+    if (m_iMidiEventReadIdx == -1)
+        m_iMidiEventReadIdx = m_iMaxMidiEvents;
 
     if (pEventAtReadIdx)
         DBG("New EventAtReadIndex: " << pEventAtReadIdx->message.getDescription() << " " <<pEventAtReadIdx->message.getTimeStamp());
-
     DBG( "New Note On: " << pNoteOnEvent->message.getDescription() << " " << pNoteOnEvent->message.getTimeStamp());
     DBG( "New Note Off: " << pNoteOffEvent->message.getDescription() << " " << pNoteOffEvent->message.getTimeStamp());
     DBG( "New Note Length: " << pNoteOffEvent->message.getTimeStamp() - pNoteOnEvent->message.getTimeStamp());
@@ -362,26 +363,49 @@ void PlayerComponent::updateNote(int iNoteOnEventIndex, double fNewNoteOnTimesta
 void PlayerComponent::addNote(PianoRollNote * pPianoRollNote) {
     // Create midi messages
     auto noteOnMsg = MidiMessage::noteOn (1, pPianoRollNote->getNoteNumber(), (uint8) 120);
-    double a = convertQuarterNoteToSec(pPianoRollNote->getOffset());
-    noteOnMsg.setTimeStamp(convertQuarterNoteToSec(pPianoRollNote->getOffset()));
+    double noteOnTime = convertQuarterNoteToSec(pPianoRollNote->getOffset());
+    noteOnMsg.setTimeStamp(noteOnTime);
 
     auto noteOffMsg = MidiMessage::noteOff (1, pPianoRollNote->getNoteNumber(), (uint8) 120);
-    double d = convertQuarterNoteToSec(pPianoRollNote->getOffset() + pPianoRollNote->getLength());
-    noteOffMsg.setTimeStamp(d);
+    double noteOffTime = convertQuarterNoteToSec(pPianoRollNote->getOffset() + pPianoRollNote->getLength());
+    noteOffMsg.setTimeStamp(noteOffTime);
+
+    auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx);
 
     // Add to midiMessageSequence
     auto * e1 = m_midiMessageSequence->addEvent(noteOnMsg);
     pPianoRollNote->setNoteOnEventPtr(e1);
     auto * e2 = m_midiMessageSequence->addEvent(noteOffMsg);
     pPianoRollNote->setNoteOffEventPtr(e2);
+    e1->noteOffObject = e2;
 
-    m_midiMessageSequence->updateMatchedPairs();
+    auto readIdxTime = m_midiMessageSequence->getEndTime();
+    if (pEventAtReadIdx)
+        readIdxTime = pEventAtReadIdx->message.getTimeStamp();
+
+    if (noteOnTime <= readIdxTime)
+        m_iMidiEventReadIdx++;
+    if (noteOffTime <= readIdxTime)
+        m_iMidiEventReadIdx++;
+
     m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
 }
 
 void PlayerComponent::deleteNote(int iNoteOnEventIndex) {
+
+    auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx);
+
     m_midiMessageSequence->deleteEvent(iNoteOnEventIndex, true);
-    m_midiMessageSequence->updateMatchedPairs();
+    m_midiMessageSequence->sort();
+
+    if (m_iMidiEventReadIdx == iNoteOnEventIndex)
+        m_iMidiEventReadIdx++;
+    else
+    {
+        if (pEventAtReadIdx)
+            m_iMidiEventReadIdx = m_midiMessageSequence->getIndexOf(pEventAtReadIdx);
+    }
+
     m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
 }
 
