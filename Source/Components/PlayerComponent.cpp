@@ -90,26 +90,30 @@ void PlayerComponent::initSynth() {
 
 
 void PlayerComponent::fillMidiBuffer(int iNumSamples) {
-    //DBG("----PlayerComponent::fillMidiBuffer--------------------------------");
+    DBG("----PlayerComponent::fillMidiBuffer-----------------");
+    // Retrieve messages upto block end position (sample num)
+    MidiMessageSequence::MidiEventHolder *pEventAtReadIdx;
     MidiMessage msg;
-    // Retrieve samples to fill at least one next block
-    while(m_iLastRetrievedPosition < (m_iCurrentPosition + iNumSamples)) {
-        if (m_iMidiEventReadIdx < m_iMaxMidiEvents) {
-            DBG("--------------------------------");
-            msg = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx)->message;
-            DBG("Msg timestamp: " << msg.getTimeStamp());
-            auto msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
+    long msgSampleNum;
+    auto iBlockEndPosition = m_iCurrentPosition + iNumSamples;
+
+    while ((m_iLastRetrievedPosition < iBlockEndPosition) && (m_iMidiEventReadIdx < m_iMaxMidiEvents)) {
+            pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx);
+            msg = pEventAtReadIdx->message;
+            msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
+            if (msgSampleNum > iBlockEndPosition) {
+                DBG("Msg not retrieved");
+                break;
+            }
+            DBG("--Retrieved-msg------------------");
+            DBG("At ReadIdx: " << m_iMidiEventReadIdx);
             DBG("Msg sample num: " << msgSampleNum);
-            DBG("ReadIdx: " << m_iMidiEventReadIdx);
-            m_midiBuffer.addEvent(msg, msgSampleNum);
+            m_midiBuffer.addEvent(msg, msgSampleNum);  //TODO: Might be able to get rid of m_midiBuffer and directly use m_currentMidiBuffer.
             m_iLastRetrievedPosition = msgSampleNum;
             m_iMidiEventReadIdx++;
             DBG("--------------------------------");
-        }
-        else
-            break;
     }
-    DBG("iRetrievedSamples = " << m_iLastRetrievedPosition - m_iCurrentPosition);
+    DBG("m_iCurrentPosition: " << m_iCurrentPosition << "\n" << "m_iLastRetrievedPosition: " << m_iLastRetrievedPosition);
     DBG("----------------------------------------------------");
 
 }
@@ -268,7 +272,7 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
         // If not enough samples in m_midiBuffer for new block
         if ((m_iCurrentPosition + blockSize) > m_iLastRetrievedPosition) {
             DBG("----Need-more-samples-------------------------");
-            DBG(m_iCurrentPosition << "---" << m_iLastRetrievedPosition << "---" << m_iLastRetrievedPosition - (m_iCurrentPosition+blockSize));
+            DBG("m_iCurrentPosition: " << m_iCurrentPosition << "\n" << "m_iLastRetrievedPosition: " << m_iLastRetrievedPosition << "\n" << "Need msgs upto sample num: "<< (m_iCurrentPosition+blockSize) - m_iLastRetrievedPosition);
             fillMidiBuffer(blockSize);
         } else {
 //            DBG("-----" << (m_iCurrentPosition + blockSize) << "-- " << m_iLastRetrievedPosition);
