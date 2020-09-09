@@ -16,7 +16,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "../TrackParameters.h"
 #include "../PlayHeadComponent.h"
 #include "../PlayHeadScrollComponent.h"
 #include "../PlayerComponent.h"
@@ -25,24 +24,26 @@
 #include "ScrollablePianoRollComponent/ScrollablePianoRollComponent.h"
 #include "ScrollablePianoRollComponent/PianoRollNote.h"
 
-class PianoRollListComponent: public TrackParameters, public Component, public Timer {
+class PianoRollListComponent: public Component, public Timer {
 public:
     PianoRollListComponent();
     
     ~PianoRollListComponent() override;
     
     void init(std::shared_ptr<PlayerComponent> player);
-    void paint(Graphics& g) override;
+    //void paint(Graphics& g) override;
     void resized() override;
     
     int getNumTracks() const;
     
-    void addTrack(int numTimeStampsForPianoRoll);
+    void setTrack(int numTimeStampsForPianoRoll);
     
     void setTimeFormat(int timeFormat);
     
     void convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message);
     
+    void syncViewPositionX(int setViewPosition);
+
 private:
     void timerCallback() override;
     void updatePlayHeadPosition();
@@ -51,7 +52,8 @@ private:
     std::vector<ScrollablePianoRollComponent*> m_tracks;
     
     int m_iTimeFormat;
-    
+    int m_iNumTracks = 0;
+
     std::shared_ptr<PlayerComponent> m_pPlayer;
     PlayHeadScrollComponent m_playHeadScroll;
     std::shared_ptr<PlayHeadComponent> m_pPlayHead = nullptr;

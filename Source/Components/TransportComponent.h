@@ -33,30 +33,36 @@ public:
         int hh = 0, mm = 0, ss = 0, ff = 0;
     };
 
-    void updateTempoDisplay(double bpm);
-
+    void updateDisplay();
 private:
     void playBtnClicked();
     void stopBtnClicked();
 
     void actionListenerCallback (const String& message) override;
 
-    void updateTimeDisplay();
+    void initDisplayComponents();
     void convertToSMPTE(SMPTE& smpte, long iPositionInSamples);
 
+    void updateTempoDisplay(double bpm);
+    void updateTimeDisplay(const SMPTE& smpte);
+
     struct Icons {
-        const Image playBtnNormal  = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/playBtnNormal.png"));
-        const Image playBtnDown    = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/playBtnDown.png"));
-        const Image pauseBtnNormal = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/pauseBtnNormal.png"));
-        const Image pauseBtnDown   = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/pauseBtnDown.png"));
-        const Image stopBtnNormal  = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/stopBtnNormal.png"));
-        const Image stopBtnDown    = ImageCache::getFromFile(File(CUtil::getAbsolutePathOfProject() + "/Resources/icons/stopBtnDown.png"));
+        const Image playBtnNormal  = ImageCache::getFromFile(File(
+                CUtil::getResourcePath() + "/icons/playBtnNormal.png"));
+        const Image playBtnDown    = ImageCache::getFromFile(File(
+                CUtil::getResourcePath() + "/icons/playBtnDown.png"));
+        const Image pauseBtnNormal = ImageCache::getFromFile(File(
+                CUtil::getResourcePath() + "/icons/pauseBtnNormal.png"));
+        const Image pauseBtnDown   = ImageCache::getFromFile(File(
+                CUtil::getResourcePath() + "/icons/pauseBtnDown.png"));
+        const Image stopBtnNormal  = ImageCache::getFromFile(File(
+                CUtil::getResourcePath() + "/icons/stopBtnNormal.png"));
+        const Image stopBtnDown    = ImageCache::getFromFile(File(
+                CUtil::getResourcePath() + "/icons/stopBtnDown.png"));
     };
 
     Icons m_icons;
 
-//    TextButton m_playBtn;
-//    TextButton m_stopBtn;
     ImageButton m_playBtn;
     ImageButton m_stopBtn;
 
@@ -67,8 +73,6 @@ private:
     Label m_bpmLabel;
 
     std::shared_ptr<PlayerComponent> m_pPlayer = nullptr;
-
-    unsigned int m_bpm = 120;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TransportComponent)
 };

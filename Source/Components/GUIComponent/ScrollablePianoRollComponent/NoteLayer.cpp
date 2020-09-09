@@ -76,6 +76,14 @@ bool NoteLayer::keyPressed(const KeyPress & key)
     }
 }
 
+void NoteLayer::mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel)
+{
+    Component::mouseWheelMove(e, wheel);
+    int viewPositionX = getViewPositionX();
+    if (m_syncScrollBars)
+        m_syncScrollBars(viewPositionX);
+}
+
 void NoteLayer::addNoteToRow(PianoRollNote *newNote)
 {
     int row = newNote->getRow();
@@ -117,7 +125,10 @@ int NoteLayer::getBoxHeight()
     return static_cast<int>(m_fFacNoteHeight*m_iInitNoteHeight);
 }
 
-
+int NoteLayer::getCanvasWidth()
+{
+    return m_fFacNoteWidth * m_iInitNoteWidth * m_iCurTimeStamps;
+}
 
 NoteLayer::RowComponent::RowComponent (NoteLayer& lb, int row_n, int col_n, int tickNum, int curNoteWidth, int curNoteHeight, bool preview_n) : m_Owner (lb), m_iRow(row_n)
 {
@@ -182,7 +193,7 @@ void NoteLayer::RowComponent::mouseDoubleClick (const MouseEvent& event)
     
     std::cout << "mouseDown called: " << m_iRow << std::endl;
     
-    if (existingNote->ifInit() == false)   // create a new note
+    if (!existingNote->ifInit())   // create a new note
     {
         float offset = 1.F*event.getMouseDownX() / m_iBoxWidth;
         offset = (static_cast<int> (offset*2))/2.F; // quantize

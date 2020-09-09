@@ -40,6 +40,13 @@ void PianoRollComponent::init(int numTimeStampsForPianoRoll)
     m_pNoteLayer = addToList(new NoteLayer(numTimeStampsForPianoRoll));
     m_pNoteLayer->setColour (TextButton::buttonColourId, Colours::grey);
     
+    setSyncFunctionPointer();
+}
+
+void PianoRollComponent::setSyncFunctionPointer()
+{
+    // m_pNoteLayer->m_syncScrollBars = syncScrollBars;
+    m_pNoteLayer->m_syncScrollBars = [this] (int setViewPosition) { m_syncScrollBars(setViewPosition); };
 }
 
 PianoRollComponent::~PianoRollComponent()
@@ -55,8 +62,6 @@ void PianoRollComponent::paint (Graphics& g)
 void PianoRollComponent::resized()
 {
     auto area = getLocalBounds();
-    
-    auto area_parent = getBoundsInParent();
     
     auto sidebarWidth = Globals::PianoRoll::keyboardWidth;
     m_pKeyboardComponent->setBounds (area.removeFromLeft (sidebarWidth));
@@ -92,6 +97,11 @@ int PianoRollComponent::getBoxHeight()
     return m_pNoteLayer->getBoxHeight();
 }
 
+int PianoRollComponent::getCanvasWidth()
+{
+    return m_pNoteLayer->getCanvasWidth();
+}
+
 template <typename ComponentType>
 ComponentType* PianoRollComponent::addToList (ComponentType* newComp)
 {
@@ -105,6 +115,7 @@ ComponentType* PianoRollComponent::addToList (ComponentType* newComp)
 ScrollablePianoRollComponent::ScrollablePianoRollComponent(int numTimeStampsForPianoRoll)
 {
     m_Cpn.init(numTimeStampsForPianoRoll);
+    setSyncFunctionPointer();
     m_Cpn.setSize(1000,Globals::PianoRoll::midiNoteNum*Globals::PianoRoll::initNoteHeight);
     m_ViewPort.setScrollBarsShown(false, false, true, false);
     m_ViewPort.setViewedComponent(&m_Cpn, false);
@@ -114,6 +125,11 @@ ScrollablePianoRollComponent::ScrollablePianoRollComponent(int numTimeStampsForP
     setSize (1000, 100);
     
     setPreview(false);
+}
+
+void ScrollablePianoRollComponent::setSyncFunctionPointer()
+{
+    m_Cpn.m_syncScrollBars = [this] (int setViewPosition) { m_syncScrollBars(setViewPosition); };
 }
 
 void ScrollablePianoRollComponent::resized()
@@ -152,4 +168,9 @@ int ScrollablePianoRollComponent::getBoxWidth()
 int ScrollablePianoRollComponent::getBoxHeight()
 {
     return m_Cpn.getBoxHeight();
+}
+
+int ScrollablePianoRollComponent::getCanvasWidth()
+{
+    return m_Cpn.getCanvasWidth();
 }

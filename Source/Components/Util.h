@@ -8,14 +8,9 @@
 
 class CUtil {
 public:
-    static String getAbsolutePathOfProject(const String &projectFolderName = "MIDI-Editor") {
-        File currentDir = File::getCurrentWorkingDirectory();
-
-        while (currentDir.getFileName() != projectFolderName) {
-            currentDir = currentDir.getParentDirectory();
-            if (currentDir.getFullPathName() == "/")
-                return String();
-        }
-        return currentDir.getFullPathName();
+    static String getResourcePath() {
+        File app = File::getSpecialLocation(File::currentApplicationFile);
+        auto resourcesDir = app.getChildFile("Contents").getChildFile("Resources");
+        return resourcesDir.getFullPathName();
     }
 };

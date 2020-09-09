@@ -10,21 +10,23 @@
 
 #include "PianoRollNote.h"
 
+#include <utility>
+
 PianoRollNote::PianoRollNote(std::shared_ptr<PlayerComponent> player, int row_n, float offset_n, float length_n /*= 1*/, int velocity_n /*= 120*/, MidiMessageSequence::MidiEventHolder* pNoteOnEvent /*= nullptr*/, MidiMessageSequence::MidiEventHolder* pNoteOffEvent /*= nullptr*/, NoteMessage *noteMessage_n /*= nullptr*/):
-    m_pPlayer(player),
+    m_pPlayer(std::move(player)),
+    m_pNoteOnEvent(pNoteOnEvent),
+    m_pNoteOffEvent(pNoteOffEvent),
     m_iRow(row_n),
     m_fOffset(offset_n),
     m_fLength(length_n),
-    m_pNoteOnEvent(pNoteOnEvent),
-    m_pNoteOffEvent(pNoteOffEvent),
     m_iVelocity(velocity_n),
     m_pNoteMessage(noteMessage_n),
-    m_pBorder(0)
+    m_pBorder(nullptr)
 {
     m_bInit = true;
     m_iBoxWidth = Globals::PianoRoll::initNoteWidth;
     m_iBoxHeight = Globals::PianoRoll::initNoteHeight;
-    
+
     m_pBorder = new PianoRollBorderComponent(this, NULL);
     addChildComponent(m_pBorder);
     m_pBorder->setBorderThickness (BorderSize<int> (0,1,0,1)); // allow draging from both sides
@@ -34,7 +36,6 @@ PianoRollNote::PianoRollNote(std::shared_ptr<PlayerComponent> player, int row_n,
     
     m_pConstrainer = new ComponentBoundsConstrainer();
     m_pConstrainer->setMaximumHeight(m_iBoxHeight);
-    std::cout << "create " << m_iRow << ' ' << offset_n << std::endl;
 }
 
 PianoRollNote::~PianoRollNote()
@@ -42,21 +43,17 @@ PianoRollNote::~PianoRollNote()
     delete m_pNoteMessage;
     delete m_pBorder;
     delete m_pConstrainer;
-    std::cout << "delete " << m_iRow << ' ' << m_fOffset << std::endl;
 }
 
 void PianoRollNote::resized()
 {
-    // TODO: not working now
     if (m_pBorder)
     {
         m_pBorder->setBounds(0,0,getWidth(),getHeight());
         // m_fLength = 1.F*getWidth() / m_iBoxWidth;
         auto newBounds = getBoundsInParent();
         m_fOffset = 1.F * newBounds.getX() / m_iBoxWidth;
-        m_fLength = 1.F*newBounds.getWidth() / m_iBoxWidth;
-        // TODO: update offset
-        // std::cout << m_fOffset << ' ' << m_fLength << ' ' << 1.F*newBounds.getWidth() / m_iBoxWidth << std::endl;
+        m_fLength = 1.F * newBounds.getWidth() / m_iBoxWidth;
         repaint();
     }
 }
@@ -66,6 +63,8 @@ void PianoRollNote::mouseDown (const MouseEvent& event)
     // add to selectedNoteList
     getParentComponent()->mouseDown(event);
     m_pMyDragger.startDraggingComponent (this, event);
+
+    repaint();
 }
 
 void PianoRollNote::mouseUp (const MouseEvent& event)
@@ -88,17 +87,14 @@ void PianoRollNote::mouseDrag (const MouseEvent& event)
         setBounds (newBounds);
         m_fOffset = 1.F * newBounds.getX() / m_iBoxWidth;
         m_pConstrainer->setMinimumOnscreenAmounts (getHeight(), getWidth(), getHeight(), getWidth());
-        
     }
     if (event.getPosition().getY() < 0 && m_iRow > 0)
     {
-        std::cout << "move up" << std::endl;
         changePitch(this, -1);
         m_iRow--;
     }
     else if (event.getPosition().getY() > m_iBoxHeight && m_iRow < Globals::PianoRoll::midiNoteNum-1)
     {
-        std::cout << "move down" << std::endl;
         changePitch(this, 1);
         m_iRow++;
     }
@@ -106,11 +102,14 @@ void PianoRollNote::mouseDrag (const MouseEvent& event)
     {
         //std::cout << "stay" << std::endl;
     }
+
+    repaint();
 }
 
 void PianoRollNote::mouseEnter(const MouseEvent& event)
 {
-    std::cout << "mouse enter: " << m_iRow << std::endl;
+    // std::cout << "mouse enter: " << m_iRow << std::endl;
+    repaint();
     hightlightRow();
 }
 
@@ -182,14 +181,11 @@ Array<PianoRollNote*> NoteList::getNotesByRow(int row)
 
 void NoteList::addNote(int row, PianoRollNote* pianoRollNote)
 {
-    std::cout << "add Note to row: " << row << " offset: " << pianoRollNote->getOffset() << std::endl;
-
     m_pNoteList[row].add(pianoRollNote);
 }
 
 void NoteList::detachNote(int row, PianoRollNote* noteToMove)
 {
-    std::cout << "remove Note from row: " << row << " offset: " << noteToMove->getOffset() << std::endl;
     m_pNoteList[row].removeFirstMatchingValue(noteToMove);
 }
 

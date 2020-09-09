@@ -21,7 +21,7 @@ MenuComponent::MenuComponent()
     setApplicationCommandManagerToWatch(&commandManager);
     commandManager.registerAllCommandsForTarget(this);
     addKeyListener(commandManager.getKeyMappings());
-    addAndMakeVisible(editCommandTarget);
+//    addAndMakeVisible(editCommandTarget);
     MenuBarModel::setMacMainMenu(this);
     commandManager.setFirstCommandTarget(this);
 }
@@ -31,12 +31,16 @@ MenuComponent::~MenuComponent()
     MenuBarModel::setMacMainMenu(nullptr);
 }
 
+void MenuComponent::setPlayer(PlayerComponent* player) {
+    m_pPlayer = player;
+}
+
 void MenuComponent::paint (Graphics& g) {}
 
 void MenuComponent::resized() {}
 
 StringArray MenuComponent::getMenuBarNames() {
-    return {"File", "Edit", "Help"};
+    return {"File"};
 }
 
 PopupMenu MenuComponent::getMenuForIndex(int menuIndex, const String& name) {
@@ -44,27 +48,20 @@ PopupMenu MenuComponent::getMenuForIndex(int menuIndex, const String& name) {
     if (menuIndex == 0) {
         menu.addCommandItem(&commandManager, fileOpen);
         menu.addCommandItem(&commandManager, fileExportAudio);
-        menu.addCommandItem(&commandManager, fileExportMIDI);
+//        menu.addCommandItem(&commandManager, fileExportMIDI);
     }
-    else if (menuIndex == 1) {
-        menu.addCommandItem(&commandManager, editUndo);
-        menu.addCommandItem(&commandManager, editRedo);
-        menu.addCommandItem(&commandManager, editCut);
-        menu.addCommandItem(&commandManager, editCopy);
-        menu.addCommandItem(&commandManager, editPaste);
-    }
-    else if (menuIndex == 2) {
-        menu.addCommandItem(&commandManager, helpDocumentation);
-    }
+//    else if (menuIndex == 1) {
+//        menu.addCommandItem(&commandManager, helpDocumentation);
+//    }
     return menu;
 }
 
 ApplicationCommandTarget* MenuComponent::getNextCommandTarget() {
-    return &editCommandTarget;
+    return nullptr;
 }
 
 void MenuComponent::getAllCommands (Array<CommandID>& c) {
-    Array<CommandID> commands { fileOpen, fileExportAudio, fileExportMIDI };
+    Array<CommandID> commands { fileOpen, fileExportAudio };
     c.addArray (commands);
 }
 
@@ -79,11 +76,15 @@ void MenuComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo&
         case fileExportAudio:
             result.setInfo ("Export Audio", "Export Audio", "File", 0);
             result.addDefaultKeypress ('b', ModifierKeys::commandModifier);
+            if (m_pPlayer)
+                result.setActive(m_pPlayer->isSequenceLoaded());
+            else
+                result.setActive(false);
             break;
-        case fileExportMIDI:
-            result.setInfo ("Export MIDI", "Export MIDI", "File", 0);
-            result.addDefaultKeypress ('b', ModifierKeys::shiftModifier | ModifierKeys::commandModifier);
-            break;
+//        case fileExportMIDI:
+//            result.setInfo ("Export MIDI", "Export MIDI", "File", 0);
+//            result.addDefaultKeypress ('b', ModifierKeys::shiftModifier | ModifierKeys::commandModifier);
+//            break;
         default:
             break;
     }
@@ -98,4 +99,10 @@ bool MenuComponent::perform (const InvocationInfo& info)
 
 void MenuComponent::setCallback(cbfunc func) {
     callbackFunc = func;
+}
+
+void MenuComponent::actionListenerCallback (const String& message) {
+    if (message == Globals::ActionMessage::EnableTransport) {
+        commandManager.commandStatusChanged();
+    }
 }

@@ -82,25 +82,52 @@ void PlayerComponent::resized()
 {
 }
 
+void PlayerComponent::clearTempoEvents()
+{
+    m_TempoEvents.clear();
+    m_TempoEventsInSec.clear();
+}
+
 void PlayerComponent::initSynth() {
     File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
+    //File * soundFontFile = new File(CUtil::getResourcePath() + "/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
     m_synth.initSynth(soundFontFile);
     m_synth.addActionListener(this);
 }
 
+void PlayerComponent::addMessageToTempoBuffer(const MidiMessage& message) {
+    auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
+    //std::cout << message.getTimeStamp() << "\t" << msgSampleNumber << "\t" << message.getDescription() << std::endl;
+    m_tempoEventBuffer.addEvent(message, msgSampleNumber);
+}
+
+void PlayerComponent::addAllTempoMessagesToBuffer() {
+    auto numEvents = m_midiMessageSequence->getNumEvents();
+    MidiMessageSequence::MidiEventHolder* const * eventHolder = m_midiMessageSequence->begin();
+    MidiMessage msg;
+    bool firstTempo = true;
+    for (int i=0; i<numEvents; i++) {
+        msg = eventHolder[i]->message;
+        if (msg.isTempoMetaEvent()) {
+            addMessageToTempoBuffer(msg);
+            if (firstTempo && msg.getTempoSecondsPerQuarterNote() != 0) {
+                m_fCurrentTempo = 60 / msg.getTempoSecondsPerQuarterNote();
+                firstTempo = false;
+            }
+        }
+    }
+    m_pTempoIterator = std::make_unique<MidiBuffer::Iterator>(m_tempoEventBuffer);
+}
 
 void PlayerComponent::fillMidiBuffer(int iNumSamples) {
     DBG("----PlayerComponent::fillMidiBuffer-----------------");
     // Retrieve messages upto block end position (sample num)
-    MidiMessageSequence::MidiEventHolder *pEventAtReadIdx;
-    MidiMessage msg;
-    long msgSampleNum;
     auto iBlockEndPosition = m_iCurrentPosition + iNumSamples;
 
     while ((m_iLastRetrievedPosition < iBlockEndPosition) && (m_iMidiEventReadIdx < m_iMaxMidiEvents)) {
-            pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx);
-            msg = pEventAtReadIdx->message;
-            msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
+            auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx);
+            auto msg = pEventAtReadIdx->message;
+            auto msgSampleNum = static_cast<long> (msg.getTimeStamp() * m_fSampleRate);
             if (msgSampleNum > iBlockEndPosition) {
                 DBG("Msg not retrieved");
                 break;
@@ -108,7 +135,7 @@ void PlayerComponent::fillMidiBuffer(int iNumSamples) {
             DBG("--Retrieved-msg------------------");
             DBG("At ReadIdx: " << m_iMidiEventReadIdx);
             DBG("Msg sample num: " << msgSampleNum);
-            m_midiBuffer.addEvent(msg, msgSampleNum);  //TODO: Might be able to get rid of m_midiBuffer and directly use m_currentMidiBuffer.
+            m_midiBuffer.addEvent(msg, static_cast<int>(msgSampleNum));  //TODO: Might be able to get rid of m_midiBuffer and directly use m_currentMidiBuffer.
             m_iLastRetrievedPosition = msgSampleNum;
             m_iMidiEventReadIdx++;
             DBG("--------------------------------");
@@ -131,25 +158,24 @@ MidiMessageSequence& PlayerComponent::getTempoEventsInSecs()
 double PlayerComponent::convertQuarterNoteToSec(double positionInQuarterNotes)
 {
     double positionInSec = 0;
-
     double target_tick = positionInQuarterNotes * m_iTimeFormat;
     double cur_tempo = 60.F / 120;
     int st_tick = 0;
     double st_sec = 0;
-
+    
     if (m_TempoEvents.getNumEvents() > 0)
     {
         cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
-
+        
         // m_TempoEvents is sorted by time
         // m_tempoEventsInSec has the same order as m_TempoEvents
         for (int i = 1; i < m_TempoEvents.getNumEvents(); i++)
         {
             MidiMessage c_message =m_TempoEventsInSec.getEventPointer(i)->message;
             double c_timeInTick = m_TempoEvents.getEventTime(i);
-
-            //    DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
-
+            
+            // DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
+            
             if (target_tick >= c_timeInTick)
             {
                 cur_tempo = c_message.getTempoSecondsPerQuarterNote();
@@ -170,25 +196,25 @@ double PlayerComponent::convertQuarterNoteToSec(double positionInQuarterNotes)
 double PlayerComponent::convertSecToQuarterNote(double positionInSec)
 {
     double positionInQuarterNotes = 0;
-
+    
     double target_sec = positionInSec;
     double cur_tempo = 60.F/120;
     int st_tick = 0;
     double st_sec = 0;
-
+    
     if (m_TempoEvents.getNumEvents() > 0)
     {
         cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
-
+        
         // m_TempoEvents is sorted by time
         // m_tempoEventsInSec has the same order as m_TempoEvents
         for (int i = 1; i < m_TempoEvents.getNumEvents(); i++)
         {
             MidiMessage c_message =m_TempoEvents.getEventPointer(i)->message;
             double c_timeInSec = m_TempoEventsInSec.getEventTime(i);
-
+            
             // DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
-
+            
             if (target_sec >= c_timeInSec)
             {
                 cur_tempo = c_message.getTempoSecondsPerQuarterNote();
@@ -236,11 +262,24 @@ MidiMessageSequence *PlayerComponent::getMidiMessageSequence() const {
 }
 
 void PlayerComponent::setMidiMessageSequence(MidiMessageSequence* midiMsgSeq) {
+    sendActionMessage(Globals::ActionMessage::Stop);
     m_midiMessageSequence = midiMsgSeq;
     m_midiMessageSequence->sort();
+
+    resetCurrentPosition();
     m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
     m_iMaxBufferLength = static_cast<long>((m_midiMessageSequence->getEndTime() + m_fMinBufferLengthInSec) * m_fSampleRate);
     resetPlayer();
+
+    m_midiBuffer.clear();
+    m_iMaxBufferLength = static_cast<long>(m_midiMessageSequence->getEndTime() * m_fSampleRate);
+    // TODO: Merge Fuckup
+    addAllTempoMessagesToBuffer();
+
+    if (midiMsgSeq != nullptr) {
+        sendActionMessage(Globals::ActionMessage::EnableTransport);
+        m_bSequenceLoaded = true;
+    }
 }
 
 void PlayerComponent::play() {
@@ -255,6 +294,11 @@ void PlayerComponent::stop() {
     m_playState = PlayState::Stopped;
     DBG("Stop");
     resetPlayer();
+    //TODO: Merge Fuckup
+    //    DBG("Stop");
+    m_midiBuffer.clear();
+    resetCurrentPosition();
+    allNotesOff();
 }
 
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
@@ -277,8 +321,18 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
         } else {
 //            DBG("-----" << (m_iCurrentPosition + blockSize) << "-- " << m_iLastRetrievedPosition);
         }
-        m_currentMidiBuffer.addEvents(m_midiBuffer, m_iCurrentPosition, blockSize, 0);
+
+        if (m_midiBuffer.isEmpty()) {
+            m_iCurrentPosition += blockSize;
+            return;
+        }
+
+        m_currentMidiBuffer.addEvents(m_midiBuffer, (int)m_iCurrentPosition, blockSize, 0);
         m_synth.renderNextBlock (*bufferToFill.buffer, m_currentMidiBuffer, 0, blockSize);
+
+        // Tempo update
+        updateTempo();
+
         m_iCurrentPosition += blockSize;
 
         if (m_iCurrentPosition > m_iMaxBufferLength) {
@@ -295,17 +349,32 @@ long PlayerComponent::getMaxBufferLength() const {return m_iMaxBufferLength;}
 
 long PlayerComponent::getCurrentPosition() const {return m_iCurrentPosition;}
 
+void PlayerComponent::updateTempo() {
+    if (!m_pTempoIterator)
+        return;
+    m_pTempoIterator->setNextSamplePosition((int) m_iCurrentPosition);
+    MidiMessage result;
+    int samplePosition;
+    m_pTempoIterator->getNextEvent(result, samplePosition);
+    if (result.getTempoSecondsPerQuarterNote() != 0)
+        m_fCurrentTempo = 60 / result.getTempoSecondsPerQuarterNote();
+}
+
 void PlayerComponent::allNotesOff() {
     for (int i=0; i<SoundFontGeneralMidiSynth::kiNumChannels; i++)
-        m_synth.allNotesOff(0, true);
+        m_synth.allNotesOff(0, false);
 }
 
 void PlayerComponent::setCurrentPosition(long value) {
     m_iCurrentPosition = value;
+    updateTempo();
 }
 
 void PlayerComponent::resetCurrentPosition() {
-    setCurrentPosition(0);
+    setCurrentPositionByQuarterNotes(0);
+    m_iMidiEventReadIdx = 0;
+    m_iLastRetrievedPosition = 0;
+    //TODO:Merge Fuckup
 }
 
 void PlayerComponent::updateNote(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes /*= -1*/, int iNewNoteNumber /*= -1*/) {
@@ -388,6 +457,26 @@ void PlayerComponent::deleteNote(int iNoteOnEventIndex) {
     m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
 }
 
+
+void PlayerComponent::timerCallback() {
+    updateTransportDisplay();
+}
+
+void PlayerComponent::actionListenerCallback (const String& message) {
+    if (message == Globals::ActionMessage::EnableTransport) // Just relay message to Transport
+        sendActionMessage(message);
+}
+
+bool PlayerComponent::isSequenceLoaded() {
+    return m_bSequenceLoaded;
+}
+
+double PlayerComponent::getTempo() {
+    updateTempo();
+    return m_fCurrentTempo;
+}
+
+// TODO: Remove later. Use function from CUtil instead.
 String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName) {
     File currentDir = File::getCurrentWorkingDirectory();
 
@@ -397,13 +486,4 @@ String PlayerComponent::getAbsolutePathOfProject(const String &projectFolderName
             return String();
     }
     return currentDir.getFullPathName();
-}
-
-void PlayerComponent::timerCallback() {
-    updateTimeDisplay();
-}
-
-void PlayerComponent::actionListenerCallback (const String& message) {
-    if (message == Globals::ActionMessage::EnableTransport) // Just relay message to Transport
-        sendActionMessage(message);
 }

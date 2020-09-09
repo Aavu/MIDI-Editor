@@ -18,6 +18,8 @@ MainComponent::MainComponent() :
     addAndMakeVisible(m_transportBar);
     addAndMakeVisible(m_menu);
     m_menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
+    m_menu.setPlayer(m_pPlayer.get());
+    addActionListener(&m_menu);
 
     // Create Player
     m_transportBar.init(m_pPlayer);
@@ -63,9 +65,10 @@ MainComponent::MainComponent() :
 MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
+    delete m_pSequence1;
+    delete m_pSequence2;
     removeAllActionListeners();
     shutdownAudio();
-    delete sequenceCopy;
 }
 
 //==============================================================================
@@ -147,8 +150,8 @@ bool MainComponent::fileCallback(CommandID commandID) {
             handleExportAudio();
             break;
 
-        case MenuComponent::fileExportMIDI:
-            break;
+//        case MenuComponent::fileExportMIDI:
+//            break;
 
         default:
             return false;
@@ -170,37 +173,50 @@ void MainComponent::handleFileOpen() {
         
         int timeFormat = m_midiFile.getTimeFormat();
         m_pTrackView->setTimeFormat(timeFormat);
+
         m_pPlayer->setTimeFormat(timeFormat);
+        
+        // clean stuff in the last track
+        if (m_pSequence1)
+            delete m_pSequence1;
+        if (m_pSequence2)
+            delete m_pSequence2;
+        m_pPlayer->clearTempoEvents();
 
-        // init m_TempoEvents in PlayerComponent
-        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEvents());
+        m_pSequence1 = new MidiMessageSequence();
+        for (int i=0; i < m_midiFile.getNumTracks(); i++) {
+            m_pSequence1->addSequence(*m_midiFile.getTrack(i), 0);
+            m_pSequence1->updateMatchedPairs();
+        }
 
-        m_midiFile.convertTimestampTicksToSeconds();
+        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(m_pSequence1->getEndTime()/timeFormat) + 10);
 
-        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
-
-        const MidiMessageSequence* sequence = m_midiFile.getTrack(0);
-        sequenceCopy = new MidiMessageSequence(*sequence);
-
-        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(sequenceCopy->getEndTime()/timeFormat) + 10);
         m_pTrackView->addTrack(numTimeStampsForPianoRoll);
         // pass the midiFile before timestampticks are converted to seconds
-        m_pTrackView->convertMidiMessageSequence(0, sequenceCopy);
-
+        m_pTrackView->convertMidiMessageSequence(0, m_pSequence1);
+        
+        // init m_TempoEvents in PlayerComponent
+        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEvents());
+        
         m_pPlayer->getCurrentPositionInQuarterNotes();
-
-        m_pPlayer->setMidiMessageSequence(sequenceCopy);
-
-
-        MidiMessageSequence tempos;
-        m_midiFile.findAllTempoEvents(tempos);
-        MidiMessageSequence::MidiEventHolder* const * eh = tempos.begin();
-        auto bpm = 0.5;
         
-        if (eh)
-            bpm = 60 / eh[0]->message.getTempoSecondsPerQuarterNote();
-        
-        m_transportBar.updateTempoDisplay(bpm);
+        // The functions before use ticks as timestamp, not seconds
+        m_midiFile.convertTimestampTicksToSeconds();
+        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
+
+        // Doing this again is very unoptimistic. But given the time, this is the best solution.
+        m_pSequence2 = new MidiMessageSequence();
+        for (int i=0; i < m_midiFile.getNumTracks(); i++) {
+            m_pSequence2->addSequence(*m_midiFile.getTrack(i), 0);
+            m_pSequence2->updateMatchedPairs();
+        }
+
+        // MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*m_pSequence);
+        // m_pPlayer->setMidiMessageSequence(sequenceCopy);
+        m_pPlayer->setMidiMessageSequence(m_pSequence2);
+
+        toFront(true);
+
         delete stream;
     }
 }
@@ -227,7 +243,7 @@ void MainComponent::handleExportMidi() {
     if (chooser.browseForFileToSave(true)) {
         auto file = chooser.getResult();
         if (auto* stream = file.createOutputStream()) {
-
+        // TODO
         }
     }
 
@@ -237,5 +253,14 @@ void MainComponent::actionListenerCallback (const String& message) {
     if ((message == Globals::ActionMessage::PlayForExport) && m_bExporting) {
         m_pAudioExporter->finish();
         m_bExporting = false;
+    }
+
+    if ((message == Globals::ActionMessage::Stop) && m_bExporting) {
+        m_pAudioExporter->finish();
+        m_bExporting = false;
+    }
+
+    if ((message == Globals::ActionMessage::EnableTransport)) {
+        sendActionMessage(message);
     }
 }

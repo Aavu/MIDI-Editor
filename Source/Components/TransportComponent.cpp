@@ -23,14 +23,14 @@ TransportComponent::TransportComponent():
         m_bpmLabel("BPM Label", "BPM"),
         m_pPlayer(nullptr)
 {
-    m_playBtn.setImages(false, true, true, m_icons.playBtnNormal, 1, {}, {}, .8, {}, m_icons.playBtnDown, 1, {});
-    m_stopBtn.setImages(false, true, true, m_icons.stopBtnNormal, 1, {}, {}, .8, {}, m_icons.stopBtnDown, 1, {});
+    initDisplayComponents();
 
-    m_playBtn.onClick = [this] {playBtnClicked();};
-    m_stopBtn.onClick = [this] {stopBtnClicked();};
-    m_playBtn.setColour(TextButton::buttonColourId, Colours::blue);
-    m_stopBtn.setColour(TextButton::buttonColourId, Colours::red);
+    addAndMakeVisible(m_playBtn);
+    addAndMakeVisible(m_stopBtn);
+    addAndMakeVisible(m_timeDisplay);
+}
 
+void TransportComponent::initDisplayComponents() {
     m_timeDisplay.setFont (Font (24.0f, Font::bold));
     m_timeDisplay.setText ("00:00:00:00", dontSendNotification);
     m_timeDisplay.setJustificationType (Justification::centred);
@@ -62,12 +62,18 @@ TransportComponent::TransportComponent():
     m_bpmLabel.setColour (Label::textColourId, Colours::orange);
     m_bpmLabel.setColour (Label::outlineColourId, Colours::orange);
 
+    m_playBtn.setImages(false, true, true, m_icons.playBtnNormal, 1, {}, {}, .8, {}, m_icons.playBtnDown, 1, {});
+    m_stopBtn.setImages(false, true, true, m_icons.stopBtnNormal, 1, {}, {}, .8, {}, m_icons.stopBtnDown, 1, {});
+
+    m_playBtn.onClick = [this] {playBtnClicked();};
+    m_stopBtn.onClick = [this] {stopBtnClicked();};
+    m_playBtn.setColour(TextButton::buttonColourId, Colours::blue);
+    m_stopBtn.setColour(TextButton::buttonColourId, Colours::red);
+
     m_playBtn.setEnabled(false);
     m_stopBtn.setEnabled(false);
 
-    addAndMakeVisible(m_playBtn);
-    addAndMakeVisible(m_stopBtn);
-    addAndMakeVisible(m_timeDisplay);
+    m_playBtn.addShortcut(KeyPress(KeyPress::spaceKey));
 }
 
 TransportComponent::~TransportComponent()
@@ -112,27 +118,28 @@ void TransportComponent::playBtnClicked()
 
 void TransportComponent::stopBtnClicked()
 {
-    auto state = m_pPlayer->getPlayState();
+//    auto state = m_pPlayer->getPlayState();
+    m_pPlayer->stop();
 
-    switch (state) {
-        case PlayerComponent::PlayState::Playing:
-            m_pPlayer->pause();
-            break;
-
-        case PlayerComponent::PlayState::Paused:
-        case PlayerComponent::PlayState::Stopped:
-            m_pPlayer->stop();
-            break;
-    }
+//    switch (state) {
+//        case PlayerComponent::PlayState::Playing:
+//            m_pPlayer->pause();
+//            break;
+//
+//        case PlayerComponent::PlayState::Paused:
+//        case PlayerComponent::PlayState::Stopped:
+//
+//            break;
+//    }
     m_playBtn.setImages(false, true, true, m_icons.playBtnNormal, 1, {}, {}, .8, {}, m_icons.playBtnDown, 1, {});
-
+    m_playBtn.setEnabled(true);
 }
 
 void TransportComponent::init(std::shared_ptr<PlayerComponent> playerComponent) {
     m_pPlayer = std::move(playerComponent);
     m_pPlayer->addActionListener(this);
-    m_pPlayer->updateTimeDisplay = [this] {
-        updateTimeDisplay();
+    m_pPlayer->updateTransportDisplay = [this] {
+        updateDisplay();
     };
 }
 
@@ -141,10 +148,12 @@ void TransportComponent::actionListenerCallback (const String& message) {
     if (message == Stop) {
         stopBtnClicked(); // pause
         stopBtnClicked(); // stop
+        m_playBtn.setEnabled(true);
     } else if (message == PlayForExport) {
         stopBtnClicked(); // pause
         stopBtnClicked(); // stop
         playBtnClicked();
+        m_playBtn.setEnabled(false);
     } else if (message == EnableTransport) {
         m_playBtn.setEnabled(true);
         m_stopBtn.setEnabled(true);
@@ -153,17 +162,26 @@ void TransportComponent::actionListenerCallback (const String& message) {
 
 void TransportComponent::convertToSMPTE(SMPTE& smpte, long iPositionInSamples) {
     auto fs     = m_pPlayer->getSampleRate();
+    if (fs <= 0)
+        return;
     double time = iPositionInSamples / fs;
-
+    time = std::fmax(time, 0);
     smpte.hh    = (int)(std::floor(time) / 3600) % 60;
     smpte.mm    = (int)(std::floor(time) / 60) % 60;
     smpte.ss    = (int)std::floor(time) % 60;
     smpte.ff    = (int)std::floor(time * Globals::GUI::fFramesPerSecond) % (int)Globals::GUI::fFramesPerSecond;
 }
 
-void TransportComponent::updateTimeDisplay() {
+void TransportComponent::updateDisplay() {
     SMPTE smpte;
     convertToSMPTE(smpte, m_pPlayer->getCurrentPosition());
+    updateTimeDisplay(smpte);
+
+    auto tempo = m_pPlayer->getTempo();
+    updateTempoDisplay(tempo);
+}
+
+void TransportComponent::updateTimeDisplay(const SMPTE& smpte) {
     char text[12];
     sprintf(text, "%02d:%02d:%02d:%02d", smpte.hh, smpte.mm, smpte.ss, smpte.ff);
     const MessageManagerLock mmLock;

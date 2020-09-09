@@ -38,6 +38,7 @@ public:
 
     void mouseUp (const MouseEvent &event) override ;
 
+
     void mouseDrag (const MouseEvent& event) override;
     
     void mouseEnter(const MouseEvent& event) override;
@@ -62,6 +63,8 @@ public:
     
 private:
 
+    std::shared_ptr<PlayerComponent>            m_pPlayer;
+
     bool                                        m_bInit = false;
     MidiMessageSequence::MidiEventHolder       *m_pNoteOnEvent  = nullptr; // index of noteOn in the MidiMessageSequence
     MidiMessageSequence::MidiEventHolder       *m_pNoteOffEvent = nullptr; // index of noteOff in the MidiMessageSequence
@@ -73,10 +76,7 @@ private:
     int                                         m_iBoxHeight;
     
     NoteMessage                                *m_pNoteMessage = nullptr;
-    
-    // player
-    std::shared_ptr<PlayerComponent>            m_pPlayer;
-    
+
     // dragger
     ComponentDragger                            m_pMyDragger;
     PianoRollBorderComponent*                   m_pBorder = nullptr;

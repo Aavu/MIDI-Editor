@@ -43,6 +43,8 @@ public:
     ~PianoRollComponent();
     
     void init(int numTimeStampsForPianoRoll);
+    
+    void setSyncFunctionPointer();
 
     void paint (Graphics& g) override;
     
@@ -61,10 +63,19 @@ public:
     
     int getBoxHeight();
     
+    int getCanvasWidth();
+    
+    void setViewPositionX(int viewPositionX)
+    {
+        m_pNoteLayer->setViewPositionX(viewPositionX);
+    }
+    
     // This little function avoids a bit of code-duplication by adding a component to
     // our list as well as calling addAndMakeVisible on it..
     template <typename ComponentType>
     ComponentType* addToList (ComponentType* newComp);
+    
+    std::function<void(int)> m_syncScrollBars = nullptr;
     
 private:
     OwnedArray<Component> components;
@@ -87,6 +98,8 @@ public:
 
     ScrollablePianoRollComponent(int numTimeStampsForPianoRoll = 30);
 
+    void setSyncFunctionPointer();
+    
     void resized() override;
     
     void addNote(PianoRollNote *newNote);
@@ -98,7 +111,16 @@ public:
     int getBoxWidth();
     
     int getBoxHeight();
+    
+    int getCanvasWidth();
 
+    void setViewPositionX(int viewPositionX)
+    {
+        m_Cpn.setViewPositionX(viewPositionX);
+    }
+    
+    std::function<void(int)> m_syncScrollBars = nullptr;
+    
 private:
 
     Viewport m_ViewPort;

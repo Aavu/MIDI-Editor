@@ -17,6 +17,7 @@
 #include "../Synth/SfzMidiSynth.h"
 #include "Globals.h"
 #include "GUIComponent/ScrollablePianoRollComponent/PianoRollNote.h"
+#include "Util.h"
 
 class PianoRollNote;
 //==============================================================================
@@ -53,10 +54,13 @@ public:
     double getCurrentPositionInQuarterNotes();
     void setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes);
     void resetCurrentPosition();
-    //------------------------------------------------------------------------------
     void setTimeFormat(int timeFormat);
+    double getTempo();
     MidiMessageSequence& getTempoEvents();
     MidiMessageSequence& getTempoEventsInSecs();
+    void clearTempoEvents();
+    //------------------------------------------------------------------------------
+    bool isSequenceLoaded();
     double convertQuarterNoteToSec(double positionInQuarterNotes);
     double convertSecToQuarterNote(double positionInSec);
     //------------------------------------------------------------------------------
@@ -64,10 +68,9 @@ public:
     void pause();
     void stop();
     void allNotesOff();
-    //------------------------------------------------------Midi-note-operations----
+    //------------------------------------------------------------------------------
     void addNote(PianoRollNote * pPianoRollNote); // TODO: Define
     void deleteNote(int iNoteOnEventIndex);
-
     /*
      * Changes noteOn and noteOff timestamps.
      * Duration is set to fNoteDurationInQuarterNote if provided, else it is kept the same.
@@ -75,30 +78,39 @@ public:
     void updateNote(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes = -1, int iNewNoteNumber = -1);
     //==============================================================================
 
-    std::function<void()> updateTimeDisplay = nullptr;
+    std::function<void()> updateTransportDisplay = nullptr;
 
 private:
     static std::shared_ptr<PlayerComponent> m_pInstance;
 
-    static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor");
-    //------------------------------------------------------------------------------
-    void timerCallback() override;
-    void actionListenerCallback (const String& message) override;
+    static String getAbsolutePathOfProject(const String& projectFolderName = "MIDI-Editor"); // TODO: Remove later. Use function from CUtil instead.
     //------------------------------------------------------------------------------
     void initSynth();
+
     void fillMidiBuffer(int iNumSamples);
 
+    void addMessageToTempoBuffer(const MidiMessage& message);
+    void addAllTempoMessagesToBuffer();
+    void updateTempo();
     /*
      * Resets all m_midiBuffer and m_midiMessageSequence indices and clears the buffer.
      */
     void resetPlayer();
+
+    void timerCallback() override;
+    void actionListenerCallback (const String& message) override;
+
     //==============================================================================
 
     MidiMessageSequence m_TempoEvents;          // timestamp in ticks
     MidiMessageSequence m_TempoEventsInSec;     // timestamp in seconds
+    std::unique_ptr<MidiBuffer::Iterator> m_pTempoIterator;
     double m_fTempo = 120;
     int m_iTimeFormat;
     double m_fSampleRate = 0;
+
+    double m_fCurrentTempo = 120;
+    MidiBuffer m_tempoEventBuffer;
 
     MidiMessageSequence* m_midiMessageSequence = nullptr;
     int m_iMidiEventReadIdx = 0;
@@ -113,6 +125,8 @@ private:
     const double m_fMinBufferLengthInSec = 10.0;
 
     PlayState m_playState = PlayState::Stopped;
+    bool m_bSequenceLoaded = false;
+
     SoundFontGeneralMidiSynth m_synth;
 
     CriticalSection m_criticalSection;

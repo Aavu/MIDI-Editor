@@ -34,13 +34,14 @@ void SoundFontGeneralMidiSynth::initSynth(File * pSoundFontFile) {
         auto sounds = m_sfzLoader->getLoadedSounds();
         for (auto i=0; i<sounds.size(); i++) {
             auto * sound = sounds.getUnchecked(i).get();
-            sound->setChannelNum(i);
-            if (i == kiPercussionChannelNum)
+            auto channelNum = i+1;
+            sound->setChannelNum(channelNum);
+            if (channelNum == kiPercussionChannelNum)
                 sound->useSubsound(kiPercussionSubSoundNum);
             addSound(sound);
         }
         DBG( sounds.size() << " sounds added.");
-        sendActionMessage(Globals::ActionMessage::EnableTransport);
+//        sendActionMessage(Globals::ActionMessage::EnableTransport);
     };
     m_sfzLoader->setSfzFile(pSoundFontFile);
     DBG( "Loading sounds...");
