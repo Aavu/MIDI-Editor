@@ -173,11 +173,11 @@ void NoteLayer::RowComponent::paint (Graphics& g)
 
 void NoteLayer::RowComponent::mouseDown (const MouseEvent& event)
 {
-    auto* existingNote = static_cast<PianoRollNote*> (event.originalComponent);
+    auto* existingNote = dynamic_cast<PianoRollNote*> (event.originalComponent);
     
     std::cout << "mouseDown called: " << m_iRow << std::endl;
     
-    if (existingNote->ifInit() == false)   // create a new note
+    if (!existingNote)   // create a new note
     {
         // do nothing
     }
@@ -189,11 +189,11 @@ void NoteLayer::RowComponent::mouseDown (const MouseEvent& event)
 
 void NoteLayer::RowComponent::mouseDoubleClick (const MouseEvent& event)
 {
-    auto* existingNote = static_cast<PianoRollNote*> (event.originalComponent);
+    auto* existingNote = dynamic_cast<PianoRollNote*> (event.originalComponent);
     
     std::cout << "mouseDown called: " << m_iRow << std::endl;
     
-    if (!existingNote->ifInit())   // create a new note
+    if (!existingNote)   // create a new note
     {
         float offset = 1.F*event.getMouseDownX() / m_iBoxWidth;
         offset = (static_cast<int> (offset*2))/2.F; // quantize

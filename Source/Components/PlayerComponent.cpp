@@ -241,6 +241,7 @@ void PlayerComponent::setCurrentPositionByQuarterNotes(double newPositionInQuart
 {
     double newPositionInSamples = convertQuarterNoteToSec(newPositionInQuarterNotes) * m_fSampleRate;
     m_iCurrentPosition = static_cast<long> (newPositionInSamples);
+    //TODO: updateTempo() required here?
 }
 
 void PlayerComponent::setTimeFormat(int timeFormat)
@@ -253,6 +254,7 @@ void PlayerComponent::resetPlayer() {
     m_iCurrentPosition = 0;
     m_iLastRetrievedPosition = 0;
     m_midiBuffer.clear();
+    //TODO: update tempo required here?
 }
 
 MidiMessageSequence *PlayerComponent::getMidiMessageSequence() const {
@@ -262,24 +264,19 @@ MidiMessageSequence *PlayerComponent::getMidiMessageSequence() const {
 }
 
 void PlayerComponent::setMidiMessageSequence(MidiMessageSequence* midiMsgSeq) {
+    if (!midiMsgSeq) {
+        //TODO: handle
+        return;
+    }
     sendActionMessage(Globals::ActionMessage::Stop);
     m_midiMessageSequence = midiMsgSeq;
-    m_midiMessageSequence->sort();
-
-    resetCurrentPosition();
+    m_midiMessageSequence->sort();  // TODO: Not sure if this is required
     m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
     m_iMaxBufferLength = static_cast<long>((m_midiMessageSequence->getEndTime() + m_fMinBufferLengthInSec) * m_fSampleRate);
     resetPlayer();
-
-    m_midiBuffer.clear();
-    m_iMaxBufferLength = static_cast<long>(m_midiMessageSequence->getEndTime() * m_fSampleRate);
-    // TODO: Merge Fuckup
     addAllTempoMessagesToBuffer();
-
-    if (midiMsgSeq != nullptr) {
-        sendActionMessage(Globals::ActionMessage::EnableTransport);
-        m_bSequenceLoaded = true;
-    }
+    m_bSequenceLoaded = true;
+    sendActionMessage(Globals::ActionMessage::EnableTransport);
 }
 
 void PlayerComponent::play() {
@@ -294,10 +291,6 @@ void PlayerComponent::stop() {
     m_playState = PlayState::Stopped;
     DBG("Stop");
     resetPlayer();
-    //TODO: Merge Fuckup
-    //    DBG("Stop");
-    m_midiBuffer.clear();
-    resetCurrentPosition();
     allNotesOff();
 }
 
@@ -362,32 +355,35 @@ void PlayerComponent::updateTempo() {
 
 void PlayerComponent::allNotesOff() {
     for (int i=0; i<SoundFontGeneralMidiSynth::kiNumChannels; i++)
-        m_synth.allNotesOff(0, false);
+        m_synth.allNotesOff(i, false);
 }
 
 void PlayerComponent::setCurrentPosition(long value) {
     m_iCurrentPosition = value;
-    updateTempo();
+    updateTempo();  //TODO: why required? For scrubbing??
 }
 
-void PlayerComponent::resetCurrentPosition() {
-    setCurrentPositionByQuarterNotes(0);
+void PlayerComponent::resetCurrentPosition() {  // TODO: Delete this method? resetPlayer does this
+    setCurrentPosition(0);
     m_iMidiEventReadIdx = 0;
     m_iLastRetrievedPosition = 0;
-    //TODO:Merge Fuckup
 }
 
-void PlayerComponent::updateNote(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes /*= -1*/, int iNewNoteNumber /*= -1*/) {
+void PlayerComponent::updateNote(MidiMessageSequence::MidiEventHolder *pNoteOnEvent, MidiMessageSequence::MidiEventHolder *pNoteOffEvent, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes /*= -1*/, int iNewNoteNumber /*= -1*/) {
     DBG("-------------updateNoteTimestamps--------------------");
     const ScopedLock scopedLock(m_criticalSection);
+
+    if (!pNoteOnEvent || !pNoteOffEvent) {
+        DBG("Unable to update note. noteOn or noteOff event pointer is null");
+        return;
+    }
+
+    //TODO: Send note off (in case note on has already been triggered).
 
     auto * pEventAtReadIdx = m_midiMessageSequence->getEventPointer(m_iMidiEventReadIdx); // To maintain read index after sort
     if (pEventAtReadIdx)
         DBG("Old EventAtReadIndex: " << pEventAtReadIdx->message.getDescription() << " " <<pEventAtReadIdx->message.getTimeStamp());
 
-    // Get noteOn and noteOff events
-    auto * pNoteOnEvent = m_midiMessageSequence->getEventPointer(iNoteOnEventIndex);
-    auto * pNoteOffEvent = m_midiMessageSequence->getEventPointer(m_midiMessageSequence->getIndexOfMatchingKeyUp(iNoteOnEventIndex));
     DBG( "Old Note On: " << pNoteOnEvent->message.getDescription() << " " << pNoteOnEvent->message.getTimeStamp());
     DBG( "Old Note Off: " << pNoteOffEvent->message.getDescription() << " " << pNoteOffEvent->message.getTimeStamp());
     DBG( "Old Note Length: " << pNoteOffEvent->message.getTimeStamp() - pNoteOnEvent->message.getTimeStamp());
@@ -402,7 +398,7 @@ void PlayerComponent::updateNote(int iNoteOnEventIndex, double fNewNoteOnTimesta
     pNoteOnEvent->message.setTimeStamp(fNewNoteOnTimestamp);
     pNoteOffEvent->message.setTimeStamp(fNewNoteOnTimestamp + fNoteDuration);
 
-    // Update pitch of both noteOn abd noteOff events
+    // Update pitch of both noteOn and noteOff events
     if (iNewNoteNumber != -1) {
         pNoteOnEvent->message.setNoteNumber(iNewNoteNumber);
         pNoteOffEvent->message.setNoteNumber(iNewNoteNumber);

@@ -23,7 +23,7 @@ PianoRollNote::PianoRollNote(std::shared_ptr<PlayerComponent> player, int row_n,
     m_pNoteMessage(noteMessage_n),
     m_pBorder(nullptr)
 {
-    m_bInit = true;
+    m_bInit = true; //TODO: This is not really needed if it'll be set to true when object is constructed
     m_iBoxWidth = Globals::PianoRoll::initNoteWidth;
     m_iBoxHeight = Globals::PianoRoll::initNoteHeight;
 
@@ -70,7 +70,7 @@ void PianoRollNote::mouseDown (const MouseEvent& event)
 void PianoRollNote::mouseUp (const MouseEvent& event)
 {
     auto * pSequence = m_pPlayer->getMidiMessageSequence();
-    m_pPlayer->updateNote(pSequence->getIndexOf(m_pNoteOnEvent), m_fOffset, m_fLength, getNoteNumber());
+    m_pPlayer->updateNote(m_pNoteOnEvent, m_pNoteOffEvent, m_fOffset, m_fLength, getNoteNumber());
 //    DBG( "GUI Note On: " << m_pNoteOnEvent->message.getDescription() << " " << m_pNoteOnEvent->message.getTimeStamp());
 //    DBG( "GUI Note Off: " << m_pNoteOffEvent->message.getDescription() << " " << m_pNoteOffEvent->message.getTimeStamp());
 //    DBG( "GUI Note Length: " << m_pNoteOffEvent->message.getTimeStamp() - m_pNoteOnEvent->message.getTimeStamp());

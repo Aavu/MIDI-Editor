@@ -75,7 +75,7 @@ public:
      * Changes noteOn and noteOff timestamps.
      * Duration is set to fNoteDurationInQuarterNote if provided, else it is kept the same.
      */
-    void updateNote(int iNoteOnEventIndex, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes = -1, int iNewNoteNumber = -1);
+    void updateNote(MidiMessageSequence::MidiEventHolder *pNoteOnEvent, MidiMessageSequence::MidiEventHolder *pNoteOffEvent, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes = -1, int iNewNoteNumber = -1);
     //==============================================================================
 
     std::function<void()> updateTransportDisplay = nullptr;
