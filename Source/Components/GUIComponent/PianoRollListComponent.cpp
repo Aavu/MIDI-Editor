@@ -134,8 +134,7 @@ void PianoRollListComponent::setTimeFormat(int timeFormat)
  */
 void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *sequenceInTicks)
 {
-    if (!m_pPlayer->isSequenceLoaded())
-        return;
+    assert(m_pPlayer->isSequenceLoaded());
 
     auto playerSequence = m_pPlayer->getMidiMessageSequence();
     MidiMessageSequence::MidiEventHolder* const * iteratorSeqInTicks = sequenceInTicks->begin();
