@@ -177,10 +177,10 @@ void MainComponent::handleFileOpen() {
         m_pPlayer->setTimeFormat(timeFormat);
         
         // clean stuff in the last track
-        if (m_pSequence1)
-            delete m_pSequence1;
-        if (m_pSequence2)
-            delete m_pSequence2;
+
+        delete m_pSequence1;
+        delete m_pSequence2;
+
         m_pPlayer->clearTempoEvents();
 
         m_pSequence1 = new MidiMessageSequence();
@@ -197,11 +197,12 @@ void MainComponent::handleFileOpen() {
         
         // init m_TempoEvents in PlayerComponent
         m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEvents());
-        
-        m_pPlayer->getCurrentPositionInQuarterNotes();
+
         
         // The functions before use ticks as timestamp, not seconds
         m_midiFile.convertTimestampTicksToSeconds();
+
+        // init m_TempoEventsInSecs in PlayerComponent
         m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
 
         // Doing this again is very unoptimistic. But given the time, this is the best solution.

@@ -129,24 +129,24 @@ void PianoRollListComponent::setTimeFormat(int timeFormat)
     assert(m_iTimeFormat > 0);
 }
 
-void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message)
+void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *sequence)
 {
-    // convert message to the format that the pianoroll component uses
-    auto numEvents = message->getNumEvents();
-    MidiMessageSequence::MidiEventHolder* const * eventHolder = message->begin();
+    // convert sequence to the format that the pianoroll component uses
+    auto numEvents = sequence->getNumEvents();
+    MidiMessageSequence::MidiEventHolder* const * eventHolder = sequence->begin();
     MidiMessage msg;
     
     for (int i = 0; i < numEvents; i++) {
         msg = eventHolder[i]->message;
         // convert to Class PianoRollNote and send to NoteLayer
         if (msg.isNoteOn()) {
-            int idxNoteOff = message->getIndexOfMatchingKeyUp(i);
+            int idxNoteOff = sequence->getIndexOfMatchingKeyUp(i);
 
             auto * pNoteOnEvent = eventHolder[i];
             auto * pNoteOffEvent = eventHolder[idxNoteOff];
 
             double timeStamp = msg.getTimeStamp();
-            double timeStampNoteOff = message->getEventTime(idxNoteOff);
+            double timeStampNoteOff = sequence->getEventTime(idxNoteOff);
             int noteNumber = msg.getNoteNumber();
             uint8 noteVelocity = msg.getVelocity();
             

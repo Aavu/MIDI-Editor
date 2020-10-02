@@ -143,7 +143,8 @@ double PlayerComponent::convertQuarterNoteToSec(double positionInQuarterNotes)
             }
         }
     }
-    positionInSec = st_sec + (target_tick-st_tick) * cur_tempo / m_iTimeFormat;
+    auto secondsPerTick = cur_tempo / m_iTimeFormat;
+    positionInSec = st_sec + (target_tick-st_tick) * secondsPerTick;
     //DBG("quarter to sec: " + String(positionInSec));
     return positionInSec;
 }
