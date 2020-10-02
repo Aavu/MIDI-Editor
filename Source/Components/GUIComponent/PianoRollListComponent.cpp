@@ -129,29 +129,39 @@ void PianoRollListComponent::setTimeFormat(int timeFormat)
     assert(m_iTimeFormat > 0);
 }
 
-void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *sequence)
+/*
+ * Converts sequence to the format that the pianoroll component uses
+ */
+void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *sequenceInTicks)
 {
-    // convert sequence to the format that the pianoroll component uses
-    auto numEvents = sequence->getNumEvents();
-    MidiMessageSequence::MidiEventHolder* const * eventHolder = sequence->begin();
-    MidiMessage msg;
-    
+    if (!m_pPlayer->isSequenceLoaded())
+        return;
+
+    auto playerSequence = m_pPlayer->getMidiMessageSequence();
+    MidiMessageSequence::MidiEventHolder* const * iteratorSeqInTicks = sequenceInTicks->begin();
+
+    MidiMessage msgInTicks;
+    auto numEvents = sequenceInTicks->getNumEvents();
+
     for (int i = 0; i < numEvents; i++) {
-        msg = eventHolder[i]->message;
-        // convert to Class PianoRollNote and send to NoteLayer
-        if (msg.isNoteOn()) {
-            int idxNoteOff = sequence->getIndexOfMatchingKeyUp(i);
+        msgInTicks = iteratorSeqInTicks[i]->message;
 
-            auto * pNoteOnEvent = eventHolder[i];
-            auto * pNoteOffEvent = eventHolder[idxNoteOff];
+        // Convert to Class PianoRollNote and send to NoteLayer
+        if (msgInTicks.isNoteOn()) {
+            int idxNoteOff = sequenceInTicks->getIndexOfMatchingKeyUp(i);
 
-            double timeStamp = msg.getTimeStamp();
-            double timeStampNoteOff = sequence->getEventTime(idxNoteOff);
-            int noteNumber = msg.getNoteNumber();
-            uint8 noteVelocity = msg.getVelocity();
-            
-            //DBG(String(timeStamp/m_iTimeFormat) + "\t" + String((timeStampNoteOff-timeStamp+1)/m_iTimeFormat) + "\t" + String(noteNumber));
-            
+            // Initialize noteOn and noteOff pointers to msgs in the sequence in PlayerComponent
+            auto * pNoteOnEvent = playerSequence->getEventPointer(i);
+            auto * pNoteOffEvent = playerSequence->getEventPointer(idxNoteOff);
+
+            // Use timestamps in ticks
+            double timeStamp = msgInTicks.getTimeStamp();
+            double timeStampNoteOff = sequenceInTicks->getEventTime(idxNoteOff);
+            int noteNumber = msgInTicks.getNoteNumber();
+            uint8 noteVelocity = msgInTicks.getVelocity();
+
+            DBG(String(timeStamp/m_iTimeFormat) + "\t" + String((timeStampNoteOff-timeStamp+1)/m_iTimeFormat) + "\t" + String(noteNumber));
+
             PianoRollNote *newNote = new PianoRollNote(
                     m_pPlayer,
                     Globals::PianoRoll::midiNoteNum-1-noteNumber,
