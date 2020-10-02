@@ -12,51 +12,6 @@
 #include "PlayerComponent.h"
 
 
-static double convertTicksToSeconds (double time,
-                                     const MidiMessageSequence& tempoEvents,
-                                     int timeFormat)
-{
-    if (timeFormat < 0)
-        return time / (-(timeFormat >> 8) * (timeFormat & 0xff));
-
-    double lastTime = 0, correctedTime = 0;
-    auto tickLen = 1.0 / (timeFormat & 0x7fff);
-    auto secsPerTick = 0.5 * tickLen;
-    auto numEvents = tempoEvents.getNumEvents();
-
-    for (int i = 0; i < numEvents; ++i)
-    {
-        auto& m = tempoEvents.getEventPointer(i)->message;
-        auto eventTime = m.getTimeStamp();
-
-        if (eventTime >= time)
-            break;
-
-        correctedTime += (eventTime - lastTime) * secsPerTick;
-        lastTime = eventTime;
-
-        if (m.isTempoMetaEvent())
-            secsPerTick = tickLen * m.getTempoSecondsPerQuarterNote();
-
-        while (i + 1 < numEvents)
-        {
-            auto& m2 = tempoEvents.getEventPointer(i + 1)->message;
-
-            if (m2.getTimeStamp() != eventTime)
-                break;
-
-            if (m2.isTempoMetaEvent())
-                secsPerTick = tickLen * m2.getTempoSecondsPerQuarterNote();
-
-            ++i;
-        }
-    }
-
-    return correctedTime + (time - lastTime) * secsPerTick;
-}
-
-//==============================================================================
-
 std::shared_ptr<PlayerComponent> PlayerComponent::getInstance() {
     static std::shared_ptr<PlayerComponent> m_pInstance(new PlayerComponent());
     return m_pInstance;
@@ -240,8 +195,7 @@ double PlayerComponent::getCurrentPositionInQuarterNotes()
 void PlayerComponent::setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes)
 {
     double newPositionInSamples = convertQuarterNoteToSec(newPositionInQuarterNotes) * m_fSampleRate;
-    m_iCurrentPosition = static_cast<long> (newPositionInSamples);
-    //TODO: updateTempo() required here?
+    setCurrentPosition(static_cast<long> (newPositionInSamples));
 }
 
 void PlayerComponent::setTimeFormat(int timeFormat)
@@ -251,10 +205,9 @@ void PlayerComponent::setTimeFormat(int timeFormat)
 
 void PlayerComponent::resetPlayer() {
     m_iMidiEventReadIdx = 0;
-    m_iCurrentPosition = 0;
+    setCurrentPosition(0);
     m_iLastRetrievedPosition = 0;
     m_midiBuffer.clear();
-    //TODO: update tempo required here?
 }
 
 MidiMessageSequence *PlayerComponent::getMidiMessageSequence() const {
@@ -273,8 +226,8 @@ void PlayerComponent::setMidiMessageSequence(MidiMessageSequence* midiMsgSeq) {
     m_midiMessageSequence->sort();  // TODO: Not sure if this is required
     m_iMaxMidiEvents = m_midiMessageSequence->getNumEvents();
     m_iMaxBufferLength = static_cast<long>((m_midiMessageSequence->getEndTime() + m_fMinBufferLengthInSec) * m_fSampleRate);
-    resetPlayer();
     addAllTempoMessagesToBuffer();
+    resetPlayer();
     m_bSequenceLoaded = true;
     sendActionMessage(Globals::ActionMessage::EnableTransport);
 }
@@ -334,13 +287,26 @@ void PlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFi
     }
 }
 
-PlayerComponent::PlayState PlayerComponent::getPlayState() const {return m_playState;}
+PlayerComponent::PlayState PlayerComponent::getPlayState() const {
+    return m_playState;
+}
 
-double PlayerComponent::getSampleRate() const {return m_fSampleRate;}
+double PlayerComponent::getSampleRate() const {
+    return m_fSampleRate;
+}
 
-long PlayerComponent::getMaxBufferLength() const {return m_iMaxBufferLength;}
+long PlayerComponent::getMaxBufferLength() const {
+    return m_iMaxBufferLength;
+}
 
-long PlayerComponent::getCurrentPosition() const {return m_iCurrentPosition;}
+long PlayerComponent::getCurrentPosition() const {
+    return m_iCurrentPosition;
+}
+
+void PlayerComponent::setCurrentPosition(long value) {
+    m_iCurrentPosition = value;
+    updateTempo();
+}
 
 void PlayerComponent::updateTempo() {
     if (!m_pTempoIterator)
@@ -358,16 +324,6 @@ void PlayerComponent::allNotesOff() {
         m_synth.allNotesOff(i, false);
 }
 
-void PlayerComponent::setCurrentPosition(long value) {
-    m_iCurrentPosition = value;
-    updateTempo();  //TODO: why required? For scrubbing??
-}
-
-void PlayerComponent::resetCurrentPosition() {  // TODO: Delete this method? resetPlayer does this
-    setCurrentPosition(0);
-    m_iMidiEventReadIdx = 0;
-    m_iLastRetrievedPosition = 0;
-}
 
 void PlayerComponent::updateNote(MidiMessageSequence::MidiEventHolder *pNoteOnEvent, MidiMessageSequence::MidiEventHolder *pNoteOffEvent, double fNewNoteOnTimestampInQuarterNotes, double fNoteDurationInQuarterNotes /*= -1*/, int iNewNoteNumber /*= -1*/) {
     DBG("-------------updateNoteTimestamps--------------------");
@@ -406,7 +362,7 @@ void PlayerComponent::updateNote(MidiMessageSequence::MidiEventHolder *pNoteOnEv
 
     // Re-order MidiMessageSequence
     m_midiMessageSequence->sort();
-    m_midiMessageSequence->updateMatchedPairs();
+    //m_midiMessageSequence->updateMatchedPairs();
 
     // Set read index back to correct position after re-ordering.
     if (pEventAtReadIdx)

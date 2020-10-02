@@ -53,7 +53,6 @@ public:
     void setCurrentPosition(long value);
     double getCurrentPositionInQuarterNotes();
     void setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes);
-    void resetCurrentPosition();
     void setTimeFormat(int timeFormat);
     double getTempo();
     MidiMessageSequence& getTempoEvents();
