@@ -39,7 +39,7 @@ void PlayerComponent::resized()
 
 void PlayerComponent::clearTempoEvents()
 {
-    m_TempoEvents.clear();
+    m_TempoEventsInTicks.clear();
     m_TempoEventsInSec.clear();
 }
 
@@ -50,13 +50,12 @@ void PlayerComponent::initSynth() {
     m_synth.addActionListener(this);
 }
 
-void PlayerComponent::addMessageToTempoBuffer(const MidiMessage& message) {
+void PlayerComponent::addMessageToTempoBuffer(const MidiMessage& message) { //TODO: What does m_tempoEventBuffer do ??
     auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
-    //std::cout << message.getTimeStamp() << "\t" << msgSampleNumber << "\t" << message.getDescription() << std::endl;
     m_tempoEventBuffer.addEvent(message, msgSampleNumber);
 }
 
-void PlayerComponent::addAllTempoMessagesToBuffer() {
+void PlayerComponent::addAllTempoMessagesToBuffer() { //TODO: is this needed ???
     auto numEvents = m_midiMessageSequence->getNumEvents();
     MidiMessageSequence::MidiEventHolder* const * eventHolder = m_midiMessageSequence->begin();
     MidiMessage msg;
@@ -100,9 +99,9 @@ void PlayerComponent::fillMidiBuffer(int iNumSamples) {
 
 }
 
-MidiMessageSequence& PlayerComponent::getTempoEvents()
+MidiMessageSequence& PlayerComponent::getTempoEventsInTicks()
 {
-    return m_TempoEvents;
+    return m_TempoEventsInTicks;
 }
 
 MidiMessageSequence& PlayerComponent::getTempoEventsInSecs()
@@ -118,16 +117,16 @@ double PlayerComponent::convertQuarterNoteToSec(double positionInQuarterNotes)
     int st_tick = 0;
     double st_sec = 0;
     
-    if (m_TempoEvents.getNumEvents() > 0)
+    if (m_TempoEventsInTicks.getNumEvents() > 0)
     {
-        cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
+        cur_tempo = m_TempoEventsInTicks.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
         
-        // m_TempoEvents is sorted by time
-        // m_tempoEventsInSec has the same order as m_TempoEvents
-        for (int i = 1; i < m_TempoEvents.getNumEvents(); i++)
+        // m_TempoEventsInTicks is sorted by time
+        // m_tempoEventsInSec has the same order as m_TempoEventsInTicks
+        for (int i = 1; i < m_TempoEventsInTicks.getNumEvents(); i++)
         {
             MidiMessage c_message =m_TempoEventsInSec.getEventPointer(i)->message;
-            double c_timeInTick = m_TempoEvents.getEventTime(i);
+            double c_timeInTick = m_TempoEventsInTicks.getEventTime(i);
             
             // DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));
             
@@ -158,15 +157,15 @@ double PlayerComponent::convertSecToQuarterNote(double positionInSec)
     int st_tick = 0;
     double st_sec = 0;
     
-    if (m_TempoEvents.getNumEvents() > 0)
+    if (m_TempoEventsInTicks.getNumEvents() > 0)
     {
-        cur_tempo = m_TempoEvents.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
+        cur_tempo = m_TempoEventsInTicks.getEventPointer(0)->message.getTempoSecondsPerQuarterNote();
         
-        // m_TempoEvents is sorted by time
-        // m_tempoEventsInSec has the same order as m_TempoEvents
-        for (int i = 1; i < m_TempoEvents.getNumEvents(); i++)
+        // m_TempoEventsInTicks is sorted by time
+        // m_tempoEventsInSec has the same order as m_TempoEventsInTicks
+        for (int i = 1; i < m_TempoEventsInTicks.getNumEvents(); i++)
         {
-            MidiMessage c_message =m_TempoEvents.getEventPointer(i)->message;
+            MidiMessage c_message =m_TempoEventsInTicks.getEventPointer(i)->message;
             double c_timeInSec = m_TempoEventsInSec.getEventTime(i);
             
             // DBG(String(c_timeInSec) + " " + String(c_message.getTimeStamp()) + " " + String(60/c_tempo));

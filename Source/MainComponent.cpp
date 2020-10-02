@@ -170,16 +170,18 @@ void MainComponent::handleFileOpen() {
             std::cerr << "Error readFrom MidiFile" << std::endl;
             return;
         }
-        
-        int timeFormat = m_midiFile.getTimeFormat();
-        m_pTrackView->setTimeFormat(timeFormat);
-        m_pPlayer->setTimeFormat(timeFormat);
-        
+
         // clean stuff in the last track
         delete m_pSequence1;
         delete m_pSequence2;
         m_pPlayer->clearTempoEvents();
 
+        // Set time format (ticks per quarter note if +ve)
+        int timeFormat = m_midiFile.getTimeFormat();
+        m_pTrackView->setTimeFormat(timeFormat);
+        m_pPlayer->setTimeFormat(timeFormat);
+
+        // Create sequence with timestamps in ticks
         m_pSequence1 = new MidiMessageSequence();
         for (int i=0; i < m_midiFile.getNumTracks(); i++) {
             m_pSequence1->addSequence(*m_midiFile.getTrack(i), 0);
@@ -191,30 +193,31 @@ void MainComponent::handleFileOpen() {
 
 
         // init m_TempoEvents in PlayerComponent
-        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEvents());
+        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInTicks());
 
 
-        // The functions before use ticks as timestamp, not seconds
+        // ----------Timestamp conversion----------
         m_midiFile.convertTimestampTicksToSeconds();
 
 
         // init m_TempoEventsInSecs in PlayerComponent
         m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
 
-        // Doing this again is very unoptimistic. But given the time, this is the best solution.
+        // Create sequence with timestamps in seconds
         m_pSequence2 = new MidiMessageSequence();
         for (int i=0; i < m_midiFile.getNumTracks(); i++) {
             m_pSequence2->addSequence(*m_midiFile.getTrack(i), 0);
             m_pSequence2->updateMatchedPairs();
         }
 
+        // Pass sequence in Seconds to Player
         m_pPlayer->setMidiMessageSequence(m_pSequence2);
-        // pass the midiFile before timestampticks are converted to seconds
 
+        // Pass sequence in Ticks to TrackView
         m_pTrackView->convertMidiMessageSequence(0, m_pSequence1);
 
-        toFront(true);
 
+        toFront(true);
         delete stream;
     }
 }

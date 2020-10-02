@@ -55,7 +55,7 @@ public:
     void setCurrentPositionByQuarterNotes(double newPositionInQuarterNotes);
     void setTimeFormat(int timeFormat);
     double getTempo();
-    MidiMessageSequence& getTempoEvents();
+    MidiMessageSequence& getTempoEventsInTicks();
     MidiMessageSequence& getTempoEventsInSecs();
     void clearTempoEvents();
     //------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ private:
 
     //==============================================================================
 
-    MidiMessageSequence m_TempoEvents;          // timestamp in ticks
+    MidiMessageSequence m_TempoEventsInTicks;          // timestamp in ticks
     MidiMessageSequence m_TempoEventsInSec;     // timestamp in seconds
     std::unique_ptr<MidiBuffer::Iterator> m_pTempoIterator;
     double m_fTempo = 120;
