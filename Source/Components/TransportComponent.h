@@ -47,18 +47,18 @@ private:
     void updateTimeDisplay(const SMPTE& smpte);
 
     struct Icons {
-        const Image playBtnNormal  = ImageCache::getFromFile(File(
-                CUtil::getResourcePath() + "/icons/playBtnNormal.png"));
-        const Image playBtnDown    = ImageCache::getFromFile(File(
-                CUtil::getResourcePath() + "/icons/playBtnDown.png"));
-        const Image pauseBtnNormal = ImageCache::getFromFile(File(
-                CUtil::getResourcePath() + "/icons/pauseBtnNormal.png"));
-        const Image pauseBtnDown   = ImageCache::getFromFile(File(
-                CUtil::getResourcePath() + "/icons/pauseBtnDown.png"));
-        const Image stopBtnNormal  = ImageCache::getFromFile(File(
-                CUtil::getResourcePath() + "/icons/stopBtnNormal.png"));
-        const Image stopBtnDown    = ImageCache::getFromFile(File(
-                CUtil::getResourcePath() + "/icons/stopBtnDown.png"));
+        const Image playBtnNormal  = ImageCache::getFromMemory(
+                BinaryData::playBtnNormal_png, BinaryData::playBtnNormal_pngSize);
+        const Image playBtnDown    = ImageCache::getFromMemory(
+                BinaryData::playBtnDown_png, BinaryData::playBtnDown_pngSize);
+        const Image pauseBtnNormal = ImageCache::getFromMemory(
+                BinaryData::pauseBtnNormal_png, BinaryData::pauseBtnNormal_pngSize);
+        const Image pauseBtnDown   = ImageCache::getFromMemory(
+                BinaryData::pauseBtnDown_png, BinaryData::pauseBtnDown_pngSize);
+        const Image stopBtnNormal  = ImageCache::getFromMemory(
+                BinaryData::stopBtnNormal_png, BinaryData::stopBtnNormal_pngSize);
+        const Image stopBtnDown    = ImageCache::getFromMemory(
+                BinaryData::stopBtnDown_png, BinaryData::stopBtnDown_pngSize);
     };
 
     Icons m_icons;
