@@ -38,8 +38,8 @@ void PlayerComponent::clearTempoEvents()
 }
 
 void PlayerComponent::initSynth() {  //TODO: use function from CUtil
-    File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
-    //File * soundFontFile = new File(CUtil::getResourcePath() + "/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
+    //File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
+    File * soundFontFile = new File(File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents").getFullPathName() + "/SoundFonts/GeneralUser GS MuseScore v1.442.sf2");
     m_synth.initSynth(soundFontFile);
     m_synth.addActionListener(this);
 }
