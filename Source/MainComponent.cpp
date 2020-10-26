@@ -18,7 +18,7 @@ MainComponent::MainComponent() :
     addAndMakeVisible(m_transportBar);
     addAndMakeVisible(m_menu);
     m_menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
-    m_menu.setPlayer(m_pPlayer.get());
+    m_menu.setPlayer(m_pPlayer);
     addActionListener(&m_menu);
 
     // Create Player

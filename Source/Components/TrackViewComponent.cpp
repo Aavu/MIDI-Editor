@@ -16,7 +16,7 @@ TrackViewComponent::TrackViewComponent()
 void TrackViewComponent::init(std::shared_ptr<PlayerComponent> player) {
     // pianoroll list
     m_pianoRollListComp = new PianoRollListComponent();
-    m_pianoRollListComp->init(player);
+    m_pianoRollListComp->init(std::move(player));
 
     addAndMakeVisible(*m_pianoRollListComp);
 }

@@ -54,12 +54,12 @@ public:
     
     void setCallback(cbfunc func);
 
-    void setPlayer(PlayerComponent* player);
+    void setPlayer(std::shared_ptr<PlayerComponent> player);
 
 private:
     ApplicationCommandManager commandManager;
     std::unique_ptr<MenuBarComponent> menuBar;
-    PlayerComponent* m_pPlayer = nullptr;
+    std::shared_ptr<PlayerComponent> m_pPlayer;
 
     cbfunc callbackFunc = 0;
 

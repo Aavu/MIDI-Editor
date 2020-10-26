@@ -72,7 +72,7 @@ private:
     Label m_bpmDisplay;
     Label m_bpmLabel;
 
-    std::shared_ptr<PlayerComponent> m_pPlayer = nullptr;
+    std::shared_ptr<PlayerComponent> m_pPlayer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TransportComponent)
 };

@@ -55,8 +55,6 @@ private:
 
     std::atomic<bool> m_bExporting{false};
 
-    MidiMessageSequence* sequenceCopy =  nullptr;
-    
     TransportComponent m_transportBar;
     MenuComponent m_menu;
     MidiFile m_midiFile;
