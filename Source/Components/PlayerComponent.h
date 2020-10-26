@@ -33,8 +33,6 @@ public:
     };
     //==============================================================================
 
-    static std::shared_ptr<PlayerComponent> getInstance();
-    //------------------------------------------------------------------------------
     PlayerComponent();
     ~PlayerComponent() override;
     //------------------------------------------------------------------------------
@@ -68,7 +66,7 @@ public:
     void stop();
     void allNotesOff();
     //------------------------------------------------------------------------------
-    void addNote(PianoRollNote * pPianoRollNote); // TODO: Define
+    void addNote(PianoRollNote * pPianoRollNote);
     void deleteNote(int iNoteOnEventIndex);
     /*
      * Changes noteOn and noteOff timestamps.
@@ -101,19 +99,19 @@ private:
 
     //==============================================================================
 
-    MidiMessageSequence m_TempoEventsInTicks;          // timestamp in ticks
-    MidiMessageSequence m_TempoEventsInSec;     // timestamp in seconds
-    std::unique_ptr<MidiBuffer::Iterator> m_pTempoIterator;
-    double m_fTempo = 120;
-    int m_iTimeFormat;
+    int m_iTimeFormat; //TODO: initialize
     double m_fSampleRate = 0;
 
     double m_fCurrentTempo = 120;
     MidiBuffer m_tempoEventBuffer;
+    MidiMessageSequence m_TempoEventsInTicks;
+    MidiMessageSequence m_TempoEventsInSec;
+    std::unique_ptr<MidiBuffer::Iterator> m_pTempoIterator;
 
     MidiMessageSequence* m_midiMessageSequence = nullptr;
     int m_iMidiEventReadIdx = 0;
     int m_iMaxMidiEvents = 0;
+    bool m_bSequenceLoaded = false;
 
     MidiBuffer m_midiBuffer;
     MidiBuffer m_currentMidiBuffer;
@@ -124,7 +122,6 @@ private:
     const double m_fMinBufferLengthInSec = 10.0;
 
     PlayState m_playState = PlayState::Stopped;
-    bool m_bSequenceLoaded = false;
 
     SoundFontGeneralMidiSynth m_synth;
 

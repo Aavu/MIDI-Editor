@@ -40,9 +40,9 @@ class PianoRollComponent   : public Component
 public:
     PianoRollComponent();
     
-    ~PianoRollComponent();
+    ~PianoRollComponent() override;
     
-    void init(int numTimeStampsForPianoRoll);
+    void init(std::shared_ptr<PlayerComponent> pPlayer, int numTimeStampsForPianoRoll);
     
     void setSyncFunctionPointer();
 
@@ -96,7 +96,7 @@ class ScrollablePianoRollComponent: public Component
 {
 public:
 
-    ScrollablePianoRollComponent(int numTimeStampsForPianoRoll = 30);
+    explicit ScrollablePianoRollComponent(std::shared_ptr<PlayerComponent> pPlayer, int numTimeStampsForPianoRoll = 30);
 
     void setSyncFunctionPointer();
     

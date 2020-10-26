@@ -74,7 +74,7 @@ void PianoRollListComponent::setTrack(int numTimeStampsForPianoRoll) {
         delete m_tracks[0];
         m_tracks.pop_back();
     }
-    m_tracks.push_back(new ScrollablePianoRollComponent(numTimeStampsForPianoRoll));
+    m_tracks.push_back(new ScrollablePianoRollComponent(m_pPlayer, numTimeStampsForPianoRoll));
     m_tracks[0]->m_syncScrollBars = [this] (int setViewPosition) { syncViewPositionX(setViewPosition); };
     addAndMakeVisible (m_tracks[m_iNumTracks], 0);
 

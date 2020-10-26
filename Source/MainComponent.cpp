@@ -10,7 +10,7 @@
 
 //==============================================================================
 MainComponent::MainComponent() :
-    m_pPlayer(PlayerComponent::getInstance()),
+    m_pPlayer(std::make_shared<PlayerComponent>()),
     m_pTrackView(std::make_unique<TrackViewComponent>())
 {
     // Make sure you set the size of the component after

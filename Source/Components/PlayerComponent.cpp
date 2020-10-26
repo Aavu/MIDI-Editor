@@ -12,11 +12,6 @@
 #include "PlayerComponent.h"
 
 
-std::shared_ptr<PlayerComponent> PlayerComponent::getInstance() {
-    static std::shared_ptr<PlayerComponent> m_pInstance(new PlayerComponent());
-    return m_pInstance;
-}
-
 PlayerComponent::PlayerComponent()
 {
     initSynth();
@@ -26,7 +21,6 @@ PlayerComponent::PlayerComponent()
 PlayerComponent::~PlayerComponent()
 {
     stopTimer();
-    delete m_midiMessageSequence;
 }
 
 void PlayerComponent::paint (Graphics& g)
@@ -43,19 +37,19 @@ void PlayerComponent::clearTempoEvents()
     m_TempoEventsInSec.clear();
 }
 
-void PlayerComponent::initSynth() {
+void PlayerComponent::initSynth() {  //TODO: use function from CUtil
     File * soundFontFile = new File(getAbsolutePathOfProject() + "/Resources/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
     //File * soundFontFile = new File(CUtil::getResourcePath() + "/SoundFonts/GeneralUser GS 1.442 MuseScore/GeneralUser GS MuseScore v1.442.sf2");
     m_synth.initSynth(soundFontFile);
     m_synth.addActionListener(this);
 }
 
-void PlayerComponent::addMessageToTempoBuffer(const MidiMessage& message) { //TODO: What does m_tempoEventBuffer do ??
+void PlayerComponent::addMessageToTempoBuffer(const MidiMessage& message) {
     auto msgSampleNumber = message.getTimeStamp() * m_fSampleRate; // Seconds to samples
     m_tempoEventBuffer.addEvent(message, msgSampleNumber);
 }
 
-void PlayerComponent::addAllTempoMessagesToBuffer() { //TODO: is this needed ???
+void PlayerComponent::addAllTempoMessagesToBuffer() {
     auto numEvents = m_midiMessageSequence->getNumEvents();
     MidiMessageSequence::MidiEventHolder* const * eventHolder = m_midiMessageSequence->begin();
     MidiMessage msg;

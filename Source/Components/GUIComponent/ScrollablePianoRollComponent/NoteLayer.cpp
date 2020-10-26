@@ -10,7 +10,12 @@
 
 #include "NoteLayer.h"
 
-NoteLayer::NoteLayer(int numTimeStamps): NoteList(this), SelectedNoteList(this)
+#include <utility>
+
+NoteLayer::NoteLayer(std::shared_ptr<PlayerComponent> pPlayer, int numTimeStamps) :
+    NoteList(this),
+    SelectedNoteList(this),
+    m_pPlayer(std::move(pPlayer))
 {
     m_iCurTimeStamps = numTimeStamps;
     
@@ -197,7 +202,7 @@ void NoteLayer::RowComponent::mouseDoubleClick (const MouseEvent& event)
     {
         float offset = 1.F*event.getMouseDownX() / m_iBoxWidth;
         offset = (static_cast<int> (offset*2))/2.F; // quantize
-        PianoRollNote* newNote = new PianoRollNote(PlayerComponent::getInstance(), m_iRow, offset);
+        auto* newNote = new PianoRollNote(m_Owner.m_pPlayer, m_iRow, offset); //TODO: getter for player obj
         newNote->addNoteToPlayer();
 
         addNote(newNote);

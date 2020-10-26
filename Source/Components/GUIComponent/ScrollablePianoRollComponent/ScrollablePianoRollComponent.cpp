@@ -10,6 +10,8 @@
 
 #include "ScrollablePianoRollComponent.h"
 
+#include <utility>
+
 //-------------OtherLookAndFeel----------------
 
 OtherLookAndFeel::OtherLookAndFeel()
@@ -31,13 +33,13 @@ PianoRollComponent::PianoRollComponent()
 {
 }
 
-void PianoRollComponent::init(int numTimeStampsForPianoRoll)
+void PianoRollComponent::init(std::shared_ptr<PlayerComponent> pPlayer, int numTimeStampsForPianoRoll)
 {
     setLookAndFeel (&otherLookAndFeel);
 
     m_pKeyboardComponent = addToList(new CustomKeyboardComponent());
     
-    m_pNoteLayer = addToList(new NoteLayer(numTimeStampsForPianoRoll));
+    m_pNoteLayer = addToList(new NoteLayer(std::move(pPlayer), numTimeStampsForPianoRoll));
     m_pNoteLayer->setColour (TextButton::buttonColourId, Colours::grey);
     
     setSyncFunctionPointer();
@@ -112,9 +114,9 @@ ComponentType* PianoRollComponent::addToList (ComponentType* newComp)
 
 //------------------------ScrollablePianoRollComponent--------------------------
 
-ScrollablePianoRollComponent::ScrollablePianoRollComponent(int numTimeStampsForPianoRoll)
+ScrollablePianoRollComponent::ScrollablePianoRollComponent(std::shared_ptr<PlayerComponent> pPlayer, int numTimeStampsForPianoRoll)
 {
-    m_Cpn.init(numTimeStampsForPianoRoll);
+    m_Cpn.init(std::move(pPlayer), numTimeStampsForPianoRoll);
     setSyncFunctionPointer();
     m_Cpn.setSize(1000,Globals::PianoRoll::midiNoteNum*Globals::PianoRoll::initNoteHeight);
     m_ViewPort.setScrollBarsShown(false, false, true, false);
