@@ -31,7 +31,7 @@ public:
         // This method is where you should put your application's initialisation code..
 
         //mainWindow.reset (new MainWindow (getApplicationName(), *this));
-        mainWindow.reset (new MainWindow ("Midi Editor", new MainComponent(), *this));
+        mainWindow.reset (new MainWindow ("MIDI Editor", new MainComponent(), *this));
     }
 
     void shutdown() override

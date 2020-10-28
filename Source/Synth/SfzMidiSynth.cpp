@@ -11,7 +11,7 @@
 #include "SfzMidiSynth.h"
 
 SoundFontGeneralMidiSynth::SoundFontGeneralMidiSynth() :
-    m_sfzLoader(new SfzLoader())
+    m_sfzLoader(std::make_unique<SfzLoader>())
 {
 }
 

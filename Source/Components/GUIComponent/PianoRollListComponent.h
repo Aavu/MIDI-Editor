@@ -30,7 +30,7 @@ public:
     
     ~PianoRollListComponent() override;
     
-    void init(PlayerComponent* player);
+    void init(std::shared_ptr<PlayerComponent> player);
     //void paint(Graphics& g) override;
     void resized() override;
     
@@ -43,7 +43,7 @@ public:
     void convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message);
     
     void syncViewPositionX(int setViewPosition);
-    
+
 private:
     void timerCallback() override;
     void updatePlayHeadPosition();
@@ -53,8 +53,8 @@ private:
     
     int m_iTimeFormat;
     int m_iNumTracks = 0;
-    
-    PlayerComponent* m_pPlayer = nullptr;
+
+    std::shared_ptr<PlayerComponent> m_pPlayer;
     PlayHeadScrollComponent m_playHeadScroll;
     std::shared_ptr<PlayHeadComponent> m_pPlayHead = nullptr;
     

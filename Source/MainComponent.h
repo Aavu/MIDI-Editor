@@ -67,8 +67,7 @@ private:
     // Audio Export
     std::unique_ptr<AudioExportComponent> m_pAudioExporter;
 
-    MidiMessageSequence * m_pSequence1 = nullptr; //TODO: Do efficiently later
-    MidiMessageSequence * m_pSequence2 = nullptr;
+    MidiMessageSequence * m_pSequenceInSec = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

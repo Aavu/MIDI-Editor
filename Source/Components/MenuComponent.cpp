@@ -31,8 +31,8 @@ MenuComponent::~MenuComponent()
     MenuBarModel::setMacMainMenu(nullptr);
 }
 
-void MenuComponent::setPlayer(PlayerComponent* player) {
-    m_pPlayer = player;
+void MenuComponent::setPlayer(std::shared_ptr<PlayerComponent> player) {
+    m_pPlayer = std::move(player);
 }
 
 void MenuComponent::paint (Graphics& g) {}

@@ -10,13 +10,15 @@
 
 #include "PianoRollListComponent.h"
 
+#include <utility>
+
 PianoRollListComponent::PianoRollListComponent() : m_pPlayHead(std::make_shared<PlayHeadComponent>())
 {
 }
 
-void PianoRollListComponent::init(PlayerComponent* player) {
-    m_pPlayer = player;
-    
+void PianoRollListComponent::init(std::shared_ptr<PlayerComponent> player) {
+    m_pPlayer = std::move(player);
+
     
     addAndMakeVisible(m_playHeadScroll);
     
@@ -30,12 +32,12 @@ void PianoRollListComponent::init(PlayerComponent* player) {
     
     m_pPlayHead->setVisible(false);
     m_playHeadScroll.setVisible(false);
-    
+
 }
 
 PianoRollListComponent::~PianoRollListComponent() {
     stopTimer();
-    for (int i=0; i< m_iNumTracks; i++) {
+    for (int i=0; i<m_iNumTracks; i++) {
         delete m_tracks[i];
     }
 }
@@ -51,7 +53,7 @@ void PianoRollListComponent::resized() {
     m_pPlayHead->setBounds(0, 0, area.getWidth(), area.getHeight());
     
     m_playHeadScroll.setBounds(Globals::PianoRoll::keyboardWidth, 0, area.getWidth()-Globals::PianoRoll::keyboardWidth, playHeadScrollHeight);
-    
+
     area.removeFromTop(playHeadScrollHeight);
     
     m_iPianoRollListComponentWidth = area.getWidth();
@@ -72,19 +74,19 @@ void PianoRollListComponent::setTrack(int numTimeStampsForPianoRoll) {
         delete m_tracks[0];
         m_tracks.pop_back();
     }
-    m_tracks.push_back(new ScrollablePianoRollComponent(numTimeStampsForPianoRoll));
+    m_tracks.push_back(new ScrollablePianoRollComponent(m_pPlayer, numTimeStampsForPianoRoll));
     m_tracks[0]->m_syncScrollBars = [this] (int setViewPosition) { syncViewPositionX(setViewPosition); };
     addAndMakeVisible (m_tracks[m_iNumTracks], 0);
 
     m_iNumTracks = 1;
-    
+
     m_playHeadScroll.m_syncScrollBars = [this] (int setViewPosition) { syncViewPositionX(setViewPosition); };
     m_playHeadScroll.setBoxWidthAndNumBox(m_tracks[0]->getBoxWidth(), numTimeStampsForPianoRoll);
     m_playHeadScroll.setSize(getWidth(), Globals::GUI::iHeaderHeight);
     
     m_pPlayHead->setVisible(true);
     m_playHeadScroll.setVisible(true);
-    
+
     resized();
     
     startTimer (Globals::GUI::iUpdateInterval_ms);
@@ -127,26 +129,48 @@ void PianoRollListComponent::setTimeFormat(int timeFormat)
     assert(m_iTimeFormat > 0);
 }
 
-void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *message)
+/*
+ * Converts sequence to the format that the pianoroll component uses
+ */
+void PianoRollListComponent::convertMidiMessageSequence(int trackIdx, const MidiMessageSequence *sequenceInTicks)
 {
-    // convert message to the format that the pianoroll component uses
-    auto numEvents = message->getNumEvents();
-    MidiMessageSequence::MidiEventHolder* const * eventHolder = message->begin();
-    MidiMessage msg;
-    
+    assert(m_pPlayer->isSequenceLoaded());
+
+    auto playerSequence = m_pPlayer->getMidiMessageSequence();
+    MidiMessageSequence::MidiEventHolder* const * iteratorSeqInTicks = sequenceInTicks->begin();
+
+    MidiMessage msgInTicks;
+    auto numEvents = sequenceInTicks->getNumEvents();
+
     for (int i = 0; i < numEvents; i++) {
-        msg = eventHolder[i]->message;
-        // convert to Class PianoRollNote and send to NoteLayer
-        if (msg.isNoteOn()) {
-            double timeStamp = msg.getTimeStamp();
-            int idxNoteOff = message->getIndexOfMatchingKeyUp(i);
-            double timeStampNoteOff = message->getEventTime(idxNoteOff);
-            int noteNumber = msg.getNoteNumber();
-            uint8 noteVelocity = msg.getVelocity();
-            
-            //DBG(String(timeStamp/m_iTimeFormat) + "\t" + String((timeStampNoteOff-timeStamp+1)/m_iTimeFormat) + "\t" + String(noteNumber));
-            
-            PianoRollNote *newNote = new PianoRollNote(Globals::PianoRoll::midiNoteNum-1-noteNumber, timeStamp/m_iTimeFormat, (timeStampNoteOff-timeStamp+1)/m_iTimeFormat, noteVelocity);
+        msgInTicks = iteratorSeqInTicks[i]->message;
+
+        // Convert to Class PianoRollNote and send to NoteLayer
+        if (msgInTicks.isNoteOn()) {
+            int idxNoteOff = sequenceInTicks->getIndexOfMatchingKeyUp(i);
+
+            // Initialize noteOn and noteOff pointers to msgs in the sequence in PlayerComponent
+            auto * pNoteOnEvent = playerSequence->getEventPointer(i);
+            auto * pNoteOffEvent = playerSequence->getEventPointer(idxNoteOff);
+
+            // Use timestamps in ticks
+            double timeStamp = msgInTicks.getTimeStamp();
+            double timeStampNoteOff = sequenceInTicks->getEventTime(idxNoteOff);
+            int noteNumber = msgInTicks.getNoteNumber();
+            uint8 noteVelocity = msgInTicks.getVelocity();
+
+            DBG(String(timeStamp/m_iTimeFormat) + "\t" + String((timeStampNoteOff-timeStamp+1)/m_iTimeFormat) + "\t" + String(noteNumber));
+
+            PianoRollNote *newNote = new PianoRollNote(
+                    m_pPlayer,
+                    Globals::PianoRoll::midiNoteNum-1-noteNumber,
+                    timeStamp/m_iTimeFormat,
+                    (timeStampNoteOff-timeStamp+1)/m_iTimeFormat,
+                    noteVelocity,
+                    pNoteOnEvent,
+                    pNoteOffEvent,
+                    nullptr
+            );
             
             m_tracks.at(trackIdx)->addNote(newNote);
         }

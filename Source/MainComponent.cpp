@@ -10,22 +10,22 @@
 
 //==============================================================================
 MainComponent::MainComponent() :
-m_pPlayer(std::make_shared<PlayerComponent>()),
-m_pTrackView(std::make_unique<TrackViewComponent>())
+    m_pPlayer(std::make_shared<PlayerComponent>()),
+    m_pTrackView(std::make_unique<TrackViewComponent>())
 {
     // Make sure you set the size of the component after
     // you add any child components.
     addAndMakeVisible(m_transportBar);
     addAndMakeVisible(m_menu);
     m_menu.setCallback(std::bind(&MainComponent::fileCallback, this, std::placeholders::_1));
-    m_menu.setPlayer(m_pPlayer.get());
+    m_menu.setPlayer(m_pPlayer);
     addActionListener(&m_menu);
 
     // Create Player
-    m_transportBar.init(m_pPlayer.get());
+    m_transportBar.init(m_pPlayer);
 
     //TracksView
-    m_pTrackView->init(m_pPlayer.get());
+    m_pTrackView->init(m_pPlayer);
     addAndMakeVisible(*m_pTrackView);
 
     // Some platforms require permissions to open input channels so request that here
@@ -65,8 +65,7 @@ m_pTrackView(std::make_unique<TrackViewComponent>())
 MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
-    delete m_pSequence1;
-    delete m_pSequence2;
+    delete m_pSequenceInSec;
     removeAllActionListeners();
     shutdownAudio();
 }
@@ -170,53 +169,55 @@ void MainComponent::handleFileOpen() {
             std::cerr << "Error readFrom MidiFile" << std::endl;
             return;
         }
-        
+
+        // clean stuff in the last track
+        delete m_pSequenceInSec;
+        m_pPlayer->clearTempoEvents();
+
+        // Set time format (ticks per quarter note if +ve)
         int timeFormat = m_midiFile.getTimeFormat();
         m_pTrackView->setTimeFormat(timeFormat);
-
         m_pPlayer->setTimeFormat(timeFormat);
-        
-        // clean stuff in the last track
-        if (m_pSequence1)
-            delete m_pSequence1;
-        if (m_pSequence2)
-            delete m_pSequence2;
-        m_pPlayer->clearTempoEvents();
-        
-        m_pSequence1 = new MidiMessageSequence();
+
+        // Create sequence with timestamps in ticks
+        auto pSequenceInTicks = new MidiMessageSequence();
         for (int i=0; i < m_midiFile.getNumTracks(); i++) {
-            m_pSequence1->addSequence(*m_midiFile.getTrack(i), 0);
-            m_pSequence1->updateMatchedPairs();
+            pSequenceInTicks->addSequence(*m_midiFile.getTrack(i), 0);
+            pSequenceInTicks->updateMatchedPairs();
         }
 
-        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(m_pSequence1->getEndTime()/timeFormat) + 10);
-        
+        int numTimeStampsForPianoRoll = jmax(Globals::PianoRoll::initTimeStamps, static_cast<int>(pSequenceInTicks->getEndTime()/timeFormat) + 10);
         m_pTrackView->addTrack(numTimeStampsForPianoRoll);
-        // pass the midiFile before timestampticks are converted to seconds
-        m_pTrackView->convertMidiMessageSequence(0, m_pSequence1);
-        
+
+
         // init m_TempoEvents in PlayerComponent
-        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEvents());
-        
-        m_pPlayer->getCurrentPositionInQuarterNotes();
-        
-        // The functions before use ticks as timestamp, not seconds
+        m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInTicks());
+
+
+        // ----------Timestamp conversion----------
         m_midiFile.convertTimestampTicksToSeconds();
+
+
+        // init m_TempoEventsInSecs in PlayerComponent
         m_midiFile.findAllTempoEvents(m_pPlayer->getTempoEventsInSecs());
 
-        // Doing this again is very unoptimistic. But given the time, this is the best solution.
-        m_pSequence2 = new MidiMessageSequence();
+        // Create sequence with timestamps in seconds
+        m_pSequenceInSec = new MidiMessageSequence();
         for (int i=0; i < m_midiFile.getNumTracks(); i++) {
-            m_pSequence2->addSequence(*m_midiFile.getTrack(i), 0);
-            m_pSequence2->updateMatchedPairs();
+            m_pSequenceInSec->addSequence(*m_midiFile.getTrack(i), 0);
+            m_pSequenceInSec->updateMatchedPairs();
         }
 
-        // MidiMessageSequence* sequenceCopy = new MidiMessageSequence(*m_pSequence);
-        // m_pPlayer->setMidiMessageSequence(sequenceCopy);
-        m_pPlayer->setMidiMessageSequence(m_pSequence2);
-        
+        // Pass sequence in Seconds to Player
+        m_pPlayer->setMidiMessageSequence(m_pSequenceInSec);
+
+        // Pass sequence in Ticks to TrackView
+        m_pTrackView->convertMidiMessageSequence(0, pSequenceInTicks);
+
+
         toFront(true);
 
+        delete pSequenceInTicks;
         delete stream;
     }
 }

@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.5">
+<JUCERPROJECT id="n64IQK" name="MidiEditor" projectType="guiapp" jucerVersion="5.4.4">
   <MAINGROUP id="bseg78" name="MidiEditor">
+    <GROUP id="{C441740E-77B0-3E0E-861A-5AE207354833}" name="Resources">
+      <GROUP id="{45EAA09C-0C82-3FD1-3B00-E134E5A256D8}" name="icons">
+        <FILE id="zcfRQg" name="pauseBtnDown.png" compile="0" resource="1"
+              file="Resources/icons/pauseBtnDown.png"/>
+        <FILE id="aRIWYk" name="pauseBtnNormal.png" compile="0" resource="1"
+              file="Resources/icons/pauseBtnNormal.png"/>
+        <FILE id="qlrEtX" name="playBtnDown.png" compile="0" resource="1" file="Resources/icons/playBtnDown.png"/>
+        <FILE id="Sq4X7O" name="playBtnNormal.png" compile="0" resource="1"
+              file="Resources/icons/playBtnNormal.png"/>
+        <FILE id="mssCJh" name="stopBtnDown.png" compile="0" resource="1" file="Resources/icons/stopBtnDown.png"/>
+        <FILE id="y3o94G" name="stopBtnNormal.png" compile="0" resource="1"
+              file="Resources/icons/stopBtnNormal.png"/>
+      </GROUP>
+    </GROUP>
     <GROUP id="{4D02D25C-6694-ABA1-B776-755A0F43BA73}" name="Source">
       <GROUP id="{B3A1646D-D871-7097-4903-DFA0B16447B6}" name="Synth">
         <FILE id="J8O2hq" name="MidiSynth.cpp" compile="1" resource="0" file="Source/Synth/MidiSynth.cpp"

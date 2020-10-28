@@ -17,7 +17,7 @@ class NoteLayer: public TableListBoxModel, public NoteList, public SelectedNoteL
 {
 public:
     
-    NoteLayer(int numTimeStamps = 30);
+    explicit NoteLayer(std::shared_ptr<PlayerComponent> pPlayer, int numTimeStamps = 30);
     
     void resized() override;
     
@@ -103,7 +103,9 @@ public:
     };
     
 private:
-    
+
+    std::shared_ptr<PlayerComponent> m_pPlayer;
+
     TableListBox oneColumnTable;
     
     int m_iInitNoteWidth = Globals::PianoRoll::initNoteWidth;

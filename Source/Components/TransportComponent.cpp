@@ -11,6 +11,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "TransportComponent.h"
 
+#include <utility>
+
 //==============================================================================
 TransportComponent::TransportComponent():
         m_playBtn("play"),
@@ -133,8 +135,8 @@ void TransportComponent::stopBtnClicked()
     m_playBtn.setEnabled(true);
 }
 
-void TransportComponent::init(PlayerComponent* playerComponent) {
-    m_pPlayer = playerComponent;
+void TransportComponent::init(std::shared_ptr<PlayerComponent> playerComponent) {
+    m_pPlayer = std::move(playerComponent);
     m_pPlayer->addActionListener(this);
     m_pPlayer->updateTransportDisplay = [this] {
         updateDisplay();
